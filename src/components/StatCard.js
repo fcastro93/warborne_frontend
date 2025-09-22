@@ -2,29 +2,32 @@ import React from 'react';
 import { Card, CardContent, Typography, Box, Stack, Chip } from '@mui/material';
 import { TrendingUp, TrendingDown, TrendingFlat } from '@mui/icons-material';
 
-export default function StatCard({ title, value, interval, trend, data, icon, color = 'primary' }) {
+export default function StatCard({ title, value, interval, data, icon, color = 'primary' }) {
+  const getTrendPercentage = () => {
+    if (!data || data.length < 2) return { value: 0, display: '' };
+    const current = data[data.length - 1];
+    const previous = data[data.length - 2];
+    if (previous === 0) return { value: 0, display: 'N/A' }; // Avoid division by zero
+    const change = ((current - previous) / previous) * 100;
+    return { 
+      value: change, 
+      display: `${change > 0 ? '+' : ''}${change.toFixed(1)}%` 
+    };
+  };
+
+  const trendInfo = getTrendPercentage();
+  const actualTrendValue = trendInfo.value;
+
   const getTrendColor = () => {
-    switch (trend) {
-      case 'up': return 'success.main';
-      case 'down': return 'error.main';
-      default: return 'text.secondary';
-    }
+    if (actualTrendValue > 0) return 'success.main';
+    if (actualTrendValue < 0) return 'error.main';
+    return 'text.secondary'; // Neutral
   };
 
   const getTrendIcon = () => {
-    switch (trend) {
-      case 'up': return <TrendingUp fontSize="small" />;
-      case 'down': return <TrendingDown fontSize="small" />;
-      default: return <TrendingFlat fontSize="small" />;
-    }
-  };
-
-  const getTrendPercentage = () => {
-    if (!data || data.length < 2) return '';
-    const current = data[data.length - 1];
-    const previous = data[data.length - 2];
-    const change = ((current - previous) / previous) * 100;
-    return `${change > 0 ? '+' : ''}${change.toFixed(1)}%`;
+    if (actualTrendValue > 0) return <TrendingUp fontSize="small" />;
+    if (actualTrendValue < 0) return <TrendingDown fontSize="small" />;
+    return <TrendingFlat fontSize="small" />; // Neutral
   };
 
   return (
@@ -54,19 +57,21 @@ export default function StatCard({ title, value, interval, trend, data, icon, co
               {value}
             </Typography>
             <Stack direction="row" alignItems="center" spacing={1}>
-              <Chip
-                icon={getTrendIcon()}
-                label={getTrendPercentage()}
-                size="small"
-                sx={{
-                  backgroundColor: getTrendColor(),
-                  color: 'white',
-                  fontWeight: 600,
-                  '& .MuiChip-icon': {
+              {trendInfo.display && (
+                <Chip
+                  icon={getTrendIcon()}
+                  label={trendInfo.display}
+                  size="small"
+                  sx={{
+                    backgroundColor: getTrendColor(),
                     color: 'white',
-                  },
-                }}
-              />
+                    fontWeight: 600,
+                    '& .MuiChip-icon': {
+                      color: 'white',
+                    },
+                  }}
+                />
+              )}
               <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
                 {interval}
               </Typography>

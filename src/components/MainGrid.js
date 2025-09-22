@@ -37,21 +37,18 @@ export default function MainGrid() {
       title: 'Guild Members',
       value: guildStats?.total_members?.toString() || '0',
       interval: 'Active players',
-      trend: 'up',
       data: [18, 19, 20, 22, 21, 23, 20, 22, 24, 23, 25, 24, 26, 25, 27, 26, 28, 27, 29, 28, 30, 29, 31, 30, 32, 31, 33, 32, 34, 33],
     },
     {
       title: 'Active Events',
       value: guildStats?.active_events?.toString() || '0',
       interval: 'This week',
-      trend: 'up',
       data: [3, 4, 5, 6, 5, 7, 6, 8, 7, 9, 8, 10, 9, 11, 10, 12, 11, 13, 12, 14, 13, 15, 14, 16, 15, 17, 16, 18, 17, 19],
     },
     {
       title: 'Gear Items',
       value: guildStats?.total_gear?.toString() || '0',
       interval: 'Total items',
-      trend: 'neutral',
       data: [120, 125, 130, 135, 132, 138, 140, 142, 145, 148, 150, 152, 154, 156, 155, 157, 156, 158, 157, 159, 158, 160, 159, 161, 160, 162, 161, 163, 162, 164],
     },
   ];
