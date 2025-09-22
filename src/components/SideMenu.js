@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import Avatar from '@mui/material/Avatar';
 import MuiDrawer, { drawerClasses } from '@mui/material/Drawer';
@@ -37,6 +38,8 @@ const menuItems = [
 ];
 
 export default function SideMenu() {
+  const location = useLocation();
+
   return (
     <Drawer
       variant="permanent"
@@ -69,7 +72,26 @@ export default function SideMenu() {
       >
         <List>
           {menuItems.map((item) => (
-            <ListItem key={item.text} button>
+            <ListItem 
+              key={item.text} 
+              component={Link} 
+              to={item.path}
+              sx={{
+                textDecoration: 'none',
+                color: 'inherit',
+                backgroundColor: location.pathname === item.path ? 'primary.main' : 'transparent',
+                '&:hover': {
+                  backgroundColor: location.pathname === item.path ? 'primary.dark' : 'action.hover',
+                },
+                '& .MuiListItemIcon-root': {
+                  color: location.pathname === item.path ? 'white' : 'inherit',
+                },
+                '& .MuiListItemText-primary': {
+                  color: location.pathname === item.path ? 'white' : 'inherit',
+                  fontWeight: location.pathname === item.path ? 600 : 400,
+                },
+              }}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItem>
