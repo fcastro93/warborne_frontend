@@ -1,6 +1,7 @@
 import React from 'react';
-import { Stack, Typography, Breadcrumbs, Link } from '@mui/material';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { Stack, Typography, Breadcrumbs, Link, TextField, InputAdornment, IconButton } from '@mui/material';
+import { NavigateNext, Search, NotificationsRounded, SettingsBrightness } from '@mui/icons-material';
+import ColorModeIconDropdown from './ColorModeIconDropdown';
 
 export default function Header() {
   return (
@@ -17,17 +18,32 @@ export default function Header() {
       spacing={2}
     >
       <Breadcrumbs
-        separator={<NavigateNextIcon fontSize="small" />}
+        separator={<NavigateNext fontSize="small" />}
         aria-label="breadcrumb"
       >
         <Link underline="hover" color="inherit" href="/">
-          Home
+          Dashboard
         </Link>
-        <Typography color="text.primary">Dashboard</Typography>
+        <Typography color="text.primary">Home</Typography>
       </Breadcrumbs>
-      <Typography variant="body2" color="text.secondary">
-        {new Date().toLocaleDateString()}
-      </Typography>
+      <Stack direction="row" sx={{ gap: 1 }}>
+        <TextField
+          size="small"
+          placeholder="Search..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ minWidth: 200 }}
+        />
+        <IconButton>
+          <NotificationsRounded />
+        </IconButton>
+        <ColorModeIconDropdown />
+      </Stack>
     </Stack>
   );
 }
