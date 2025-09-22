@@ -31,9 +31,17 @@ export default function StatCard({ title, value, interval, trend, data, icon, co
     <Card 
       sx={{ 
         height: '100%',
-        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255,255,255,0.1)',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          background: `linear-gradient(90deg, ${getTrendColor()}, ${getTrendColor()}40)`,
+        },
       }}
     >
       <CardContent sx={{ p: 3 }}>
