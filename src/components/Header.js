@@ -17,28 +17,28 @@ export default function Header() {
       }}
       spacing={2}
     >
-      <Breadcrumbs
-        separator={<NavigateNext fontSize="small" />}
-        aria-label="breadcrumb"
-      >
-        <Link underline="hover" color="inherit" href="/">
-          Dashboard
-        </Link>
-        <Typography color="text.primary">Home</Typography>
-      </Breadcrumbs>
+             <Breadcrumbs
+               separator={<NavigateNext fontSize="small" />}
+               aria-label="breadcrumb"
+             >
+               <Link underline="hover" color="inherit" href="/">
+                 Warborne Guild Tools
+               </Link>
+               <Typography color="text.primary">Dashboard</Typography>
+             </Breadcrumbs>
       <Stack direction="row" sx={{ gap: 1 }}>
-        <TextField
-          size="small"
-          placeholder="Search..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ minWidth: 200 }}
-        />
+               <TextField
+                 size="small"
+                 placeholder="Search players, events, gear..."
+                 InputProps={{
+                   startAdornment: (
+                     <InputAdornment position="start">
+                       <Search />
+                     </InputAdornment>
+                   ),
+                 }}
+                 sx={{ minWidth: 200 }}
+               />
         <IconButton>
           <NotificationsRounded />
         </IconButton>

@@ -14,43 +14,68 @@ import {
   Chip,
   Box,
 } from '@mui/material';
+import { Person, Shield, LocalFireDepartment, Healing } from '@mui/icons-material';
 
 const members = [
   {
     id: 1,
-    name: 'GuildMaster',
-    role: 'Guild Master',
-    level: 85,
+    name: 'ViolenceGuild',
+    role: 'Leader',
+    gameRole: 'Tank',
+    faction: 'Emberwild',
+    level: 45,
     status: 'Online',
     joinDate: '2024-01-15',
-    avatar: 'GM',
+    avatar: 'VG',
+    drifters: ['Warrior', 'Guardian', 'Berserker']
   },
   {
     id: 2,
-    name: 'WarriorElite',
+    name: 'ShadowStrike',
     role: 'Officer',
-    level: 82,
+    gameRole: 'Ranged DPS',
+    faction: 'Ashen',
+    level: 42,
     status: 'Online',
     joinDate: '2024-01-20',
-    avatar: 'WE',
+    avatar: 'SS',
+    drifters: ['Ranger', 'Assassin', 'Marksman']
   },
   {
     id: 3,
-    name: 'MageSupreme',
-    role: 'Member',
-    level: 78,
+    name: 'HealMaster',
+    role: 'Officer',
+    gameRole: 'Healer',
+    faction: 'Sirius',
+    level: 40,
     status: 'Offline',
     joinDate: '2024-02-01',
-    avatar: 'MS',
+    avatar: 'HM',
+    drifters: ['Priest', 'Cleric', 'Shaman']
   },
   {
     id: 4,
-    name: 'RogueShadow',
+    name: 'DPSKing',
     role: 'Member',
-    level: 80,
+    gameRole: 'Melee DPS',
+    faction: 'Magnates',
+    level: 38,
     status: 'Online',
     joinDate: '2024-02-10',
-    avatar: 'RS',
+    avatar: 'DK',
+    drifters: ['Fighter', 'Rogue', 'Monk']
+  },
+  {
+    id: 5,
+    name: 'TankQueen',
+    role: 'Member',
+    gameRole: 'Defensive Tank',
+    faction: 'Ironcreed',
+    level: 35,
+    status: 'Online',
+    joinDate: '2024-02-15',
+    avatar: 'TQ',
+    drifters: ['Paladin', 'Knight', 'Guardian']
   },
 ];
 
@@ -64,9 +89,39 @@ const getStatusColor = (status) => {
 
 const getRoleColor = (role) => {
   switch (role) {
-    case 'Guild Master': return 'error';
+    case 'Leader': return 'error';
     case 'Officer': return 'warning';
     default: return 'primary';
+  }
+};
+
+const getGameRoleIcon = (gameRole) => {
+  switch (gameRole) {
+    case 'Tank':
+    case 'Defensive Tank':
+    case 'Offensive Tank':
+      return <Shield color="primary" />;
+    case 'Healer':
+    case 'Defensive Support':
+      return <Healing color="success" />;
+    case 'Ranged DPS':
+    case 'Melee DPS':
+    case 'Offensive Support':
+      return <LocalFireDepartment color="error" />;
+    default:
+      return <Person color="action" />;
+  }
+};
+
+const getFactionColor = (faction) => {
+  switch (faction) {
+    case 'Emberwild': return 'error';
+    case 'Ashen': return 'default';
+    case 'Sirius': return 'info';
+    case 'Magnates': return 'warning';
+    case 'Ironcreed': return 'secondary';
+    case 'Shroud': return 'primary';
+    default: return 'default';
   }
 };
 
@@ -81,11 +136,12 @@ export default function GuildMembersTable() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Member</TableCell>
-                <TableCell>Role</TableCell>
+                <TableCell>Player</TableCell>
+                <TableCell>Game Role</TableCell>
                 <TableCell>Level</TableCell>
+                <TableCell>Faction</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Join Date</TableCell>
+                <TableCell>Drifters</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -96,26 +152,57 @@ export default function GuildMembersTable() {
                       <Avatar sx={{ bgcolor: 'primary.main' }}>
                         {member.avatar}
                       </Avatar>
-                      <Typography variant="body2">{member.name}</Typography>
+                      <Box>
+                        <Typography variant="body2" fontWeight="medium">
+                          {member.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {member.role}
+                        </Typography>
+                      </Box>
                     </Box>
                   </TableCell>
                   <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {getGameRoleIcon(member.gameRole)}
+                      <Typography variant="body2">
+                        {member.gameRole}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight="medium">
+                      {member.level}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
                     <Chip
-                      label={member.role}
-                      color={getRoleColor(member.role)}
+                      label={member.faction}
+                      color={getFactionColor(member.faction)}
                       size="small"
+                      variant="outlined"
                     />
                   </TableCell>
-                  <TableCell>{member.level}</TableCell>
                   <TableCell>
                     <Chip
                       label={member.status}
                       color={getStatusColor(member.status)}
                       size="small"
-                      variant="outlined"
                     />
                   </TableCell>
-                  <TableCell>{member.joinDate}</TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {member.drifters.map((drifter, index) => (
+                        <Chip
+                          key={index}
+                          label={drifter}
+                          size="small"
+                          variant="outlined"
+                          sx={{ fontSize: '0.7rem' }}
+                        />
+                      ))}
+                    </Box>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

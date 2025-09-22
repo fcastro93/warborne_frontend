@@ -2,42 +2,42 @@ import React from 'react';
 import { Grid, Box, Typography, Card, CardContent, Stack, Button } from '@mui/material';
 import { TrendingUp, TrendingDown, TrendingFlat, FlashOn } from '@mui/icons-material';
 import StatCard from './StatCard';
-import SessionsChart from './SessionsChart';
-import PageViewsBarChart from './PageViewsBarChart';
-import CustomizedDataGrid from './CustomizedDataGrid';
-import CustomizedTreeView from './CustomizedTreeView';
-import ChartUserByCountry from './ChartUserByCountry';
+import GuildMembersTable from './GuildMembersTable';
+import RecentEvents from './RecentEvents';
+import GearOverview from './GearOverview';
+import GuildStats from './GuildStats';
+import RecommendedBuilds from './RecommendedBuilds';
 
 const data = [
   {
-    title: 'Users',
-    value: '14k',
-    interval: 'Last 30 days',
+    title: 'Guild Members',
+    value: '24',
+    interval: 'Active players',
     trend: 'up',
-    data: [200, 24, 220, 260, 240, 380, 100, 240, 280, 240, 300, 340, 320, 360, 340, 380, 360, 400, 380, 420, 400, 640, 340, 460, 440, 480, 460, 600, 880, 920],
+    data: [18, 19, 20, 22, 21, 23, 20, 22, 24, 23, 25, 24, 26, 25, 27, 26, 28, 27, 29, 28, 30, 29, 31, 30, 32, 31, 33, 32, 34, 33],
   },
   {
-    title: 'Conversions',
-    value: '325',
-    interval: 'Last 30 days',
-    trend: 'down',
-    data: [1640, 1250, 970, 1130, 1050, 900, 720, 1080, 900, 450, 920, 820, 840, 600, 820, 780, 800, 760, 380, 740, 660, 620, 840, 500, 520, 480, 400, 360, 300, 220],
+    title: 'Active Events',
+    value: '8',
+    interval: 'This week',
+    trend: 'up',
+    data: [3, 4, 5, 6, 5, 7, 6, 8, 7, 9, 8, 10, 9, 11, 10, 12, 11, 13, 12, 14, 13, 15, 14, 16, 15, 17, 16, 18, 17, 19],
   },
   {
-    title: 'Event count',
-    value: '200k',
-    interval: 'Last 30 days',
+    title: 'Gear Items',
+    value: '156',
+    interval: 'Total items',
     trend: 'neutral',
-    data: [500, 400, 510, 530, 520, 600, 530, 520, 510, 730, 520, 510, 530, 620, 510, 530, 520, 410, 530, 520, 610, 530, 520, 610, 530, 420, 510, 430, 520, 510],
+    data: [120, 125, 130, 135, 132, 138, 140, 142, 145, 148, 150, 152, 154, 156, 155, 157, 156, 158, 157, 159, 158, 160, 159, 161, 160, 162, 161, 163, 162, 164],
   },
 ];
 
 export default function MainGrid() {
   return (
     <Box sx={{ width: '100%', maxWidth: { sm: "100%", md: "1700px" } }}>
-      {/* Overview Section */}
+      {/* Guild Overview Section */}
       <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
-        Overview
+        Guild Overview
       </Typography>
       <Grid
         container
@@ -55,37 +55,37 @@ export default function MainGrid() {
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
                 <FlashOn />
-                <Typography variant="h6">Explore your data</Typography>
+                <Typography variant="h6">Guild Management</Typography>
               </Stack>
               <Typography variant="body2" sx={{ mb: 2 }}>
-                Uncover performance and visitor insights with our data wizardry.
+                Manage your guild members, events, and gear with powerful tools.
               </Typography>
               <Button variant="contained" color="inherit" size="small">
-                Get insights
+                Manage Guild
               </Button>
             </CardContent>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <SessionsChart />
+          <GuildMembersTable />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <PageViewsBarChart />
+          <RecentEvents />
         </Grid>
       </Grid>
 
-      {/* Details Section */}
+      {/* Guild Management Section */}
       <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
-        Details
+        Guild Management
       </Typography>
       <Grid container spacing={2} columns={12}>
         <Grid size={{ xs: 12, lg: 9 }}>
-          <CustomizedDataGrid />
+          <GearOverview />
         </Grid>
         <Grid size={{ xs: 12, lg: 3 }}>
           <Stack gap={2} direction={{ xs: 'column', sm: 'row', lg: 'column' }}>
-            <CustomizedTreeView />
-            <ChartUserByCountry />
+            <GuildStats />
+            <RecommendedBuilds />
           </Stack>
         </Grid>
       </Grid>
