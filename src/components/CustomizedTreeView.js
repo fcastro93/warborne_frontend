@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card, CardContent, Typography, TreeView, TreeItem } from '@mui/lab';
+import { Card, CardContent, Typography } from '@mui/material';
+import { TreeView, TreeItem } from '@mui/x-tree-view';
 import { ExpandMore, ChevronRight } from '@mui/icons-material';
 
 export default function CustomizedTreeView() {
