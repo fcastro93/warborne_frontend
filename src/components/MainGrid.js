@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Box, Typography, Card, CardContent, Stack, Button } from '@mui/material';
-import { TrendingUp, TrendingDown, TrendingFlat, LightningBolt } from '@mui/icons-material';
+import { TrendingUp, TrendingDown, TrendingFlat, FlashOn } from '@mui/icons-material';
 import StatCard from './StatCard';
 import SessionsChart from './SessionsChart';
 import PageViewsBarChart from './PageViewsBarChart';
@@ -54,7 +54,7 @@ export default function MainGrid() {
           <Card sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                <LightningBolt />
+                <FlashOn />
                 <Typography variant="h6">Explore your data</Typography>
               </Stack>
               <Typography variant="body2" sx={{ mb: 2 }}>
