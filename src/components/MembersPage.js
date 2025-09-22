@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -86,6 +87,7 @@ const getFactionColor = (faction) => {
 };
 
 export default function MembersPage() {
+  const navigate = useNavigate();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -259,8 +261,12 @@ export default function MembersPage() {
                     </TableCell>
                     <TableCell>
                       <Stack direction="row" spacing={1}>
-                        <Tooltip title="View Details">
-                          <IconButton size="small" color="primary">
+                        <Tooltip title="View Loadout">
+                          <IconButton 
+                            size="small" 
+                            color="primary"
+                            onClick={() => navigate(`/player/${member.id}/loadout`)}
+                          >
                             <Visibility fontSize="small" />
                           </IconButton>
                         </Tooltip>

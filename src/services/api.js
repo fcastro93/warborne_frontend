@@ -24,5 +24,54 @@ export const apiService = {
   async getRecommendedBuilds() {
     const response = await fetch(`${API_BASE_URL}/builds/`);
     return response.json();
+  },
+
+  // Player Loadout API methods
+  async getPlayer(playerId) {
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/`);
+    return response.json();
+  },
+
+  async getPlayerDrifters(playerId) {
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/drifters/`);
+    return response.json();
+  },
+
+  async getGearItems() {
+    const response = await fetch(`${API_BASE_URL}/gear/`);
+    return response.json();
+  },
+
+  async getPlayerEquippedGear(playerId) {
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/equipped-gear/`);
+    return response.json();
+  },
+
+  async equipGear(playerId, gearId, drifterNum, slotType) {
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/equip-gear/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        gear_id: gearId,
+        drifter_num: drifterNum,
+        slot_type: slotType,
+      }),
+    });
+    return response.json();
+  },
+
+  async unequipGear(playerId, gearId) {
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/unequip-gear/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        gear_id: gearId,
+      }),
+    });
+    return response.json();
   }
 };

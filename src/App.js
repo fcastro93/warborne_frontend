@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AppTheme from './components/AppTheme';
 import Dashboard from './components/Dashboard';
 import MembersPage from './components/MembersPage';
+import PlayerLoadout from './components/PlayerLoadout';
 import './App.css';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/members" element={<MembersPage />} />
+          <Route path="/player/:playerId/loadout" element={<PlayerLoadout />} />
         </Routes>
       </Router>
     </AppTheme>
