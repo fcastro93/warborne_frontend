@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Box, Typography, Card, CardContent, Stack, Button } from '@mui/material';
 import { TrendingUp, TrendingDown, TrendingFlat, FlashOn } from '@mui/icons-material';
 import StatCard from './StatCard';
@@ -7,32 +7,54 @@ import RecentEvents from './RecentEvents';
 import GearOverview from './GearOverview';
 import GuildStats from './GuildStats';
 import RecommendedBuilds from './RecommendedBuilds';
-
-const data = [
-  {
-    title: 'Guild Members',
-    value: '24',
-    interval: 'Active players',
-    trend: 'up',
-    data: [18, 19, 20, 22, 21, 23, 20, 22, 24, 23, 25, 24, 26, 25, 27, 26, 28, 27, 29, 28, 30, 29, 31, 30, 32, 31, 33, 32, 34, 33],
-  },
-  {
-    title: 'Active Events',
-    value: '8',
-    interval: 'This week',
-    trend: 'up',
-    data: [3, 4, 5, 6, 5, 7, 6, 8, 7, 9, 8, 10, 9, 11, 10, 12, 11, 13, 12, 14, 13, 15, 14, 16, 15, 17, 16, 18, 17, 19],
-  },
-  {
-    title: 'Gear Items',
-    value: '156',
-    interval: 'Total items',
-    trend: 'neutral',
-    data: [120, 125, 130, 135, 132, 138, 140, 142, 145, 148, 150, 152, 154, 156, 155, 157, 156, 158, 157, 159, 158, 160, 159, 161, 160, 162, 161, 163, 162, 164],
-  },
-];
+import { apiService } from '../services/api';
 
 export default function MainGrid() {
+  const [guildStats, setGuildStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const stats = await apiService.getGuildStats();
+        setGuildStats(stats);
+      } catch (error) {
+        console.error('Error fetching guild stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const data = [
+    {
+      title: 'Guild Members',
+      value: guildStats?.total_members?.toString() || '0',
+      interval: 'Active players',
+      trend: 'up',
+      data: [18, 19, 20, 22, 21, 23, 20, 22, 24, 23, 25, 24, 26, 25, 27, 26, 28, 27, 29, 28, 30, 29, 31, 30, 32, 31, 33, 32, 34, 33],
+    },
+    {
+      title: 'Active Events',
+      value: guildStats?.active_events?.toString() || '0',
+      interval: 'This week',
+      trend: 'up',
+      data: [3, 4, 5, 6, 5, 7, 6, 8, 7, 9, 8, 10, 9, 11, 10, 12, 11, 13, 12, 14, 13, 15, 14, 16, 15, 17, 16, 18, 17, 19],
+    },
+    {
+      title: 'Gear Items',
+      value: guildStats?.total_gear?.toString() || '0',
+      interval: 'Total items',
+      trend: 'neutral',
+      data: [120, 125, 130, 135, 132, 138, 140, 142, 145, 148, 150, 152, 154, 156, 155, 157, 156, 158, 157, 159, 158, 160, 159, 161, 160, 162, 161, 163, 162, 164],
+    },
+  ];
   return (
     <Box sx={{ width: '100%', maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* Guild Overview Section */}

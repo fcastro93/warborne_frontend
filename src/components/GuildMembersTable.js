@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -15,8 +15,10 @@ import {
   Box,
 } from '@mui/material';
 import { Person, Shield, LocalFireDepartment, Healing } from '@mui/icons-material';
+import { apiService } from '../services/api';
 
-const members = [
+// Static data as fallback
+const fallbackMembers = [
   {
     id: 1,
     name: 'ViolenceGuild',
@@ -126,6 +128,31 @@ const getFactionColor = (faction) => {
 };
 
 export default function GuildMembersTable() {
+  const [members, setMembers] = useState(fallbackMembers);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const data = await apiService.getGuildMembers();
+        if (data.members && data.members.length > 0) {
+          setMembers(data.members);
+        }
+      } catch (error) {
+        console.error('Error fetching guild members:', error);
+        // Keep fallback data
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMembers();
+  }, []);
+
+  if (loading) {
+    return <div>Loading members...</div>;
+  }
+
   return (
     <Card>
       <CardContent>
