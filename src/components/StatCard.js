@@ -7,7 +7,18 @@ export default function StatCard({ title, value, interval, data, icon, color = '
     if (!data || data.length < 2) return { value: 0, display: '' };
     const current = data[data.length - 1];
     const previous = data[data.length - 2];
-    if (previous === 0) return { value: 0, display: 'N/A' }; // Avoid division by zero
+    
+    // Handle special case: going from 0 to any number = +100%
+    if (previous === 0 && current > 0) {
+      return { value: 100, display: '+100%' };
+    }
+    
+    // Handle case: both are 0 = no change
+    if (previous === 0 && current === 0) {
+      return { value: 0, display: '0%' };
+    }
+    
+    // Normal percentage calculation
     const change = ((current - previous) / previous) * 100;
     return { 
       value: change, 
