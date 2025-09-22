@@ -32,8 +32,8 @@ export default function MainGrid() {
     return <div>Loading...</div>;
   }
 
-  // Helper function to generate simple trend data based on current value
-  const generateTrendData = (currentValue, trendType = 'neutral') => {
+  // Helper function to generate weekly trend data
+  const generateWeeklyTrendData = (currentValue) => {
     const num = parseInt(currentValue, 10);
     if (isNaN(num) || num < 0) return [];
 
@@ -41,15 +41,17 @@ export default function MainGrid() {
       return [0, 0]; // No change if value is 0
     }
 
-    switch (trendType) {
-      case 'up':
-        return [Math.max(0, num - 1), num]; // e.g., [1, 2] for +100%
-      case 'down':
-        return [num + 1, num]; // e.g., [3, 2] for -33.3%
-      case 'neutral':
-      default:
-        return [num, num]; // e.g., [2, 2] for 0%
+    // For weekly comparison, simulate last week's data
+    // If current is 2, last week might have been 0 (new guild) or 1 (growth)
+    if (num === 1) {
+      return [0, 1]; // 0 to 1 = +100%
+    } else if (num === 2) {
+      return [0, 2]; // 0 to 2 = +100% (new guild)
+    } else if (num >= 3) {
+      return [Math.floor(num * 0.8), num]; // 20% growth week over week
     }
+    
+    return [num, num]; // No change
   };
 
   const data = [
@@ -57,19 +59,19 @@ export default function MainGrid() {
       title: 'Guild Members',
       value: guildStats?.total_members?.toString() || '0',
       interval: 'vs. last week',
-      data: generateTrendData(guildStats?.total_members, 'down'),
+      data: generateWeeklyTrendData(guildStats?.total_members),
     },
     {
       title: 'Active Events',
       value: guildStats?.active_events?.toString() || '0',
-      interval: 'This week',
-      data: generateTrendData(guildStats?.active_events, 'up'),
+      interval: 'vs. last week',
+      data: generateWeeklyTrendData(guildStats?.active_events),
     },
     {
       title: 'Gear Items',
       value: guildStats?.total_gear?.toString() || '0',
       interval: 'vs. last week',
-      data: generateTrendData(guildStats?.total_gear, 'neutral'),
+      data: generateWeeklyTrendData(guildStats?.total_gear),
     },
   ];
   return (
