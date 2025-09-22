@@ -32,24 +32,44 @@ export default function MainGrid() {
     return <div>Loading...</div>;
   }
 
+  // Helper function to generate simple trend data based on current value
+  const generateTrendData = (currentValue, trendType = 'neutral') => {
+    const num = parseInt(currentValue, 10);
+    if (isNaN(num) || num < 0) return [];
+
+    if (num === 0) {
+      return [0, 0]; // No change if value is 0
+    }
+
+    switch (trendType) {
+      case 'up':
+        return [Math.max(0, num - 1), num]; // e.g., [1, 2] for +100%
+      case 'down':
+        return [num + 1, num]; // e.g., [3, 2] for -33.3%
+      case 'neutral':
+      default:
+        return [num, num]; // e.g., [2, 2] for 0%
+    }
+  };
+
   const data = [
     {
       title: 'Guild Members',
       value: guildStats?.total_members?.toString() || '0',
-      interval: 'Active players',
-      data: [18, 19, 20, 22, 21, 23, 20, 22, 24, 23, 25, 24, 26, 25, 27, 26, 28, 27, 29, 28, 30, 29, 31, 30, 32, 31, 33, 32, 34, 33],
+      interval: 'vs. last week',
+      data: generateTrendData(guildStats?.total_members, 'down'),
     },
     {
       title: 'Active Events',
       value: guildStats?.active_events?.toString() || '0',
       interval: 'This week',
-      data: [3, 4, 5, 6, 5, 7, 6, 8, 7, 9, 8, 10, 9, 11, 10, 12, 11, 13, 12, 14, 13, 15, 14, 16, 15, 17, 16, 18, 17, 19],
+      data: generateTrendData(guildStats?.active_events, 'up'),
     },
     {
       title: 'Gear Items',
       value: guildStats?.total_gear?.toString() || '0',
-      interval: 'Total items',
-      data: [120, 125, 130, 135, 132, 138, 140, 142, 145, 148, 150, 152, 154, 156, 155, 157, 156, 158, 157, 159, 158, 160, 159, 161, 160, 162, 161, 163, 162, 164],
+      interval: 'vs. last week',
+      data: generateTrendData(guildStats?.total_gear, 'neutral'),
     },
   ];
   return (
