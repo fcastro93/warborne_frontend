@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip } from '@mui/material';
+import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Box } from '@mui/material';
 
 const rows = [
   { id: 1, page: 'Homepage Overview', status: 'Online', users: 2450, events: 3200, viewsPerUser: 1.3, avgTime: '2m 15s', conversions: 85 },
