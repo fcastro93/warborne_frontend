@@ -89,7 +89,6 @@ export default function LegacyPlayerLoadout() {
   const [filterRarity, setFilterRarity] = useState('all');
   const [filterStat, setFilterStat] = useState('all');
   const [filterWeaponType, setFilterWeaponType] = useState('all');
-  const [filterElement, setFilterElement] = useState('all');
   const [editingName, setEditingName] = useState(false);
   const [editName, setEditName] = useState('');
   const [skillModalOpen, setSkillModalOpen] = useState(false);
@@ -157,7 +156,6 @@ export default function LegacyPlayerLoadout() {
     setFilterRarity('all');
     setFilterStat('all');
     setFilterWeaponType('all');
-    setFilterElement('all');
   };
 
   const handleAttributeTabChange = (event, newValue) => {
@@ -494,13 +492,12 @@ export default function LegacyPlayerLoadout() {
       }
       
       let matchesWeaponType = true;
-      let matchesElement = true;
       
       if (getCurrentCategory() === 'weapon') {
         const name = item.base_name.toLowerCase();
         const skill = item.skill_name?.toLowerCase() || '';
         
-        // Check weapon type filter
+        // Check weapon type filter (including element weapon types)
         if (filterWeaponType !== 'all') {
           switch (filterWeaponType) {
             case 'sword':
@@ -524,36 +521,28 @@ export default function LegacyPlayerLoadout() {
             case 'gun':
               matchesWeaponType = name.includes('gun') || name.includes('rifle') || name.includes('pistol') || skill.includes('gun');
               break;
+            case 'fire':
+              matchesWeaponType = name.includes('fire') || name.includes('flame') || name.includes('burn') || skill.includes('fire');
+              break;
+            case 'frost':
+              matchesWeaponType = name.includes('frost') || name.includes('ice') || name.includes('cold') || skill.includes('frost');
+              break;
+            case 'nature':
+              matchesWeaponType = name.includes('nature') || name.includes('earth') || name.includes('plant') || skill.includes('nature');
+              break;
+            case 'holy':
+              matchesWeaponType = name.includes('holy') || name.includes('divine') || name.includes('sacred') || skill.includes('holy');
+              break;
+            case 'curse':
+              matchesWeaponType = name.includes('curse') || name.includes('dark') || name.includes('shadow') || skill.includes('curse');
+              break;
             default:
               matchesWeaponType = true;
           }
         }
-        
-        // Check element filter
-        if (filterElement !== 'all') {
-          switch (filterElement) {
-            case 'fire':
-              matchesElement = name.includes('fire') || name.includes('flame') || name.includes('burn') || skill.includes('fire');
-              break;
-            case 'frost':
-              matchesElement = name.includes('frost') || name.includes('ice') || name.includes('cold') || skill.includes('frost');
-              break;
-            case 'nature':
-              matchesElement = name.includes('nature') || name.includes('earth') || name.includes('plant') || skill.includes('nature');
-              break;
-            case 'holy':
-              matchesElement = name.includes('holy') || name.includes('divine') || name.includes('sacred') || skill.includes('holy');
-              break;
-            case 'curse':
-              matchesElement = name.includes('curse') || name.includes('dark') || name.includes('shadow') || skill.includes('curse');
-              break;
-            default:
-              matchesElement = true;
-          }
-        }
       }
       
-      return matchesSearch && matchesRarity && matchesStat && matchesWeaponType && matchesElement;
+      return matchesSearch && matchesRarity && matchesStat && matchesWeaponType;
     }).sort((a, b) => {
       // Sort by rarity hierarchy (common first, then uncommon, rare, epic, legendary)
       const rarityOrder = {
@@ -1376,7 +1365,12 @@ export default function LegacyPlayerLoadout() {
                       { key: 'bow', label: 'Bow', icon: '🏹' },
                       { key: 'dagger', label: 'Dagger', icon: '🗡️' },
                       { key: 'spear', label: 'Spear', icon: '🔱' },
-                      { key: 'gun', label: 'Gun', icon: '🔫' }
+                      { key: 'gun', label: 'Gun', icon: '🔫' },
+                      { key: 'fire', label: 'Fire', icon: '🔥' },
+                      { key: 'frost', label: 'Frost', icon: '❄️' },
+                      { key: 'nature', label: 'Nature', icon: '🌿' },
+                      { key: 'holy', label: 'Holy', icon: '✨' },
+                      { key: 'curse', label: 'Curse', icon: '💀' }
                     ].map((weaponType) => (
                       <Button
                         key={weaponType.key}
@@ -1403,48 +1397,6 @@ export default function LegacyPlayerLoadout() {
                       >
                         {weaponType.icon && <span>{weaponType.icon}</span>}
                         {weaponType.label}
-                      </Button>
-                    ))}
-                  </Box>
-                  
-                  {/* Element Filters */}
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Typography sx={{ color: '#64b5f6', fontSize: '12px', fontWeight: 600, mb: 0.5, width: '100%' }}>
-                      Elements:
-                    </Typography>
-                    {[
-                      { key: 'all', label: 'All', icon: null },
-                      { key: 'fire', label: 'Fire', icon: '🔥' },
-                      { key: 'frost', label: 'Frost', icon: '❄️' },
-                      { key: 'nature', label: 'Nature', icon: '🌿' },
-                      { key: 'holy', label: 'Holy', icon: '✨' },
-                      { key: 'curse', label: 'Curse', icon: '💀' }
-                    ].map((element) => (
-                      <Button
-                        key={element.key}
-                        onClick={() => setFilterElement(element.key)}
-                        sx={{
-                          p: '6px 12px',
-                          border: '2px solid rgba(100, 181, 246, 0.3)',
-                          borderRadius: 0.5,
-                          background: filterElement === element.key ? '#64b5f6' : 'rgba(30, 30, 30, 0.8)',
-                          color: filterElement === element.key ? 'white' : '#64b5f6',
-                          cursor: 'pointer',
-                          fontSize: '11px',
-                          transition: 'all 0.3s ease',
-                          whiteSpace: 'nowrap',
-                          textTransform: 'capitalize',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          '&:hover': {
-                            background: filterElement === element.key ? '#64b5f6' : 'rgba(100, 181, 246, 0.1)',
-                            borderColor: '#64b5f6'
-                          }
-                        }}
-                      >
-                        {element.icon && <span>{element.icon}</span>}
-                        {element.label}
                       </Button>
                     ))}
                   </Box>
