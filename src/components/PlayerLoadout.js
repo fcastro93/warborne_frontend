@@ -3,7 +3,68 @@ import { useParams } from 'react-router-dom';
 import { Box, Typography, Button, Paper, Avatar, Chip, IconButton, Tabs, Tab } from '@mui/material';
 import { ArrowBack, Add, Inventory2, Person } from '@mui/icons-material';
 import Layout from './Layout';
-import { legacySx, legacyVars } from '../theme/legacyLook';
+// Legacy theme values - inline for this component
+const legacyVars = {
+  bgGradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+  cardBg: 'rgba(255,255,255,0.05)',
+  cardBorder: 'rgba(255,255,255,0.1)',
+  textPrimary: '#ffffff',
+  textSubtle: '#b0bec5',
+  accentBlue: '#64b5f6',
+  accentBlueHover: '#4a9eff',
+};
+
+const legacySx = {
+  pageBg: {
+    minHeight: '100vh',
+    color: legacyVars.textPrimary,
+    background: legacyVars.bgGradient
+  },
+  glassCard: {
+    background: legacyVars.cardBg,
+    border: `1px solid ${legacyVars.cardBorder}`,
+    borderRadius: 2,
+    backdropFilter: 'blur(10px)',
+  },
+  sectionTitle: {
+    fontWeight: 700,
+    color: legacyVars.accentBlue,
+    textShadow: `0 0 20px rgba(100, 181, 246, 0.5)`,
+  },
+  pillTabs: {
+    container: {
+      background: legacyVars.cardBg,
+      borderRadius: 2,
+      p: 0.5,
+    },
+    tab: {
+      textTransform: 'none',
+      fontWeight: 600,
+      color: legacyVars.textSubtle,
+      borderRadius: 1,
+      '&.Mui-selected': {
+        color: legacyVars.accentBlue,
+        background: 'rgba(100, 181, 246, 0.2)',
+        boxShadow: `0 0 15px rgba(100, 181, 246, 0.3)`
+      },
+      '&:hover': {
+        background: 'rgba(255,255,255,0.1)',
+        color: '#fff'
+      }
+    }
+  },
+  primaryButton: {
+    background: `linear-gradient(135deg, ${legacyVars.accentBlue}, #42a5f5)`,
+    color: '#fff',
+    fontWeight: 600,
+    boxShadow: `0 4px 15px rgba(100, 181, 246, 0.3)`,
+    '&:hover': {
+      background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
+      transform: 'translateY(-2px)',
+      boxShadow: `0 6px 20px rgba(100, 181, 246, 0.4)`
+    }
+  }
+};
 
 // Rarity colors for slot cards - using legacy theme
 const rarityColor = {
@@ -216,8 +277,8 @@ export default function PlayerLoadout() {
     { name: 'Drifter 3', level: 8, class: 'Mage' }
   ];
 
-  return (
-    <Layout>
+    return (
+      <Layout>
       <Box sx={[legacySx.pageBg, { p: 3 }]}>
         {/* Header with Back Button */}
         <Box sx={{ mb: 3 }}>
@@ -231,7 +292,7 @@ export default function PlayerLoadout() {
           
           <Typography variant="h4" component="h1" sx={[legacySx.sectionTitle, { mb: 1 }]}>
             Player Loadout
-          </Typography>
+                </Typography>
           
           <Typography variant="body1" sx={legacyTypography.subtitle}>
             Player ID: {playerId}
@@ -241,76 +302,76 @@ export default function PlayerLoadout() {
         {/* Drifter Loadouts Section */}
         <Box sx={{ ...legacySx.glassCard, p: 2, mb: 3 }}>
           <Typography variant="h6" sx={legacySx.sectionTitle}>
-            Drifter Loadouts
-          </Typography>
-          
+                  Drifter Loadouts
+                </Typography>
+                
           {/* Pill-styled Tabs */}
-          <Tabs 
-            value={activeTab} 
-            onChange={handleTabChange} 
+                <Tabs 
+                  value={activeTab} 
+                  onChange={handleTabChange} 
             sx={legacySx.pillTabs.container}
-          >
-            {drifters.map((drifter, index) => (
-              <Tab
-                key={index}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Person sx={{ fontSize: 18 }} />
+                >
+                  {drifters.map((drifter, index) => (
+                    <Tab
+                      key={index}
+                      label={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Person sx={{ fontSize: 18 }} />
                     {drifter.name}
-                  </Box>
-                }
+                        </Box>
+                      }
                 sx={legacySx.pillTabs.tab}
-              />
-            ))}
-          </Tabs>
+                    />
+                  ))}
+                </Tabs>
 
           {/* Tab Content */}
-          {drifters.map((drifter, index) => (
-            <Box
-              key={index}
-              hidden={activeTab !== index}
-              sx={{ mt: 2 }}
-            >
+                {drifters.map((drifter, index) => (
+                  <Box
+                    key={index}
+                    hidden={activeTab !== index}
+                    sx={{ mt: 2 }}
+                  >
               <Typography variant="body2" sx={{ mb: 2, ...legacyTypography.infoLabel }}>
                 Level {drifter.level} {drifter.class}
-              </Typography>
+                        </Typography>
               
               {/* Change Drifter Button */}
-              <Box sx={{ textAlign: 'center' }}>
-                <Button 
-                  variant="contained" 
+                        <Box sx={{ textAlign: 'center' }}>
+                          <Button 
+                            variant="contained" 
                   sx={legacySx.primaryButton}
-                >
-                  Change Drifter
-                </Button>
-              </Box>
-            </Box>
-          ))}
+                          >
+                            Change Drifter
+                          </Button>
+                        </Box>
+                  </Box>
+                ))}
         </Box>
                   
         {/* Equipped Items Section */}
         <Box sx={{ ...legacySx.glassCard, p: 2, mb: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" sx={legacySx.sectionTitle}>
-              Equipped Items:
-            </Typography>
+                      Equipped Items:
+                    </Typography>
             <Typography variant="body2" sx={legacyTypography.subtitle}>
-              5/9
-            </Typography>
-          </Box>
-          
+                      5/9
+                    </Typography>
+                  </Box>
+                  
           {/* Equipment Grid */}
           <Box
-            sx={{
+                            sx={{
               display: 'grid',
               gap: 2,
               gridTemplateColumns: {
                 xs: 'repeat(2, 1fr)',
                 sm: 'repeat(3, 1fr)',
                 md: 'repeat(5, 1fr)',
-              },
-            }}
-          >
+                              },
+                            }}
+                          >
             {/* Equipment Slots - First Row (5 slots) */}
             {['weapon', 'helmet', 'chest', 'boots', 'consumable'].map((slot) => {
               // Sample data - replace with real data
@@ -330,32 +391,32 @@ export default function PlayerLoadout() {
                   item={item}
                   onClick={() => console.log(`Clicked ${slot}`)}
                 />
-              );
-            })}
-            
+                    );
+                  })}
+                    
             {/* Mod Slots - Second Row (4 slots) */}
             {[1, 2, 3, 4].map((modNum) => {
               const modSlot = `mod${modNum}`;
-              return (
+                               return (
                 <SlotCard
                   key={modSlot}
                   state="empty"
                   label={`Mod ${modNum}`}
                   onClick={() => console.log(`Adding mod to ${modSlot}`)}
                 />
-              );
-            })}
-          </Box>
-        </Box>
+                               );
+                             })}
+                         </Box>
+                  </Box>
                                        
         {/* Example: Game Items Section */}
         <Box sx={{ ...legacySx.glassCard, p: 2 }}>
           <Typography variant="h6" sx={legacySx.sectionTitle}>
             Game Items
-                                           </Typography>
+                </Typography>
           <Typography variant="body2" sx={{ mt: 1, ...legacyTypography.subtitle }}>
             This section will contain the item inventory and filters
-          </Typography>
+                      </Typography>
                   </Box>
       </Box>
     </Layout>
