@@ -1757,6 +1757,86 @@ export default function LegacyPlayerLoadout() {
               maxHeight: '400px',
               overflowY: 'auto'
             }}>
+              {/* No Drifter Option */}
+              <Button
+                onClick={async () => {
+                  try {
+                    // Clear the drifter slot
+                    const result = await apiService.updatePlayerDrifter(playerId, null, activeDrifterTab + 1);
+                    console.log('Clear drifter result:', result);
+                    
+                    if (result.success) {
+                      // Update local state to show no drifter
+                      const updatedDrifters = [...drifters];
+                      updatedDrifters[activeDrifterTab] = {
+                        number: activeDrifterTab + 1,
+                        name: null,
+                        base_health: 100,
+                        base_energy: 100,
+                        base_damage: 50,
+                        base_defense: 25,
+                        base_speed: 10,
+                        gear_slots: new Array(9).fill(null)
+                      };
+                      setDrifters(updatedDrifters);
+                      setShowDrifterModal(false);
+                    } else {
+                      console.error('Failed to clear drifter:', result.error);
+                      alert('Failed to clear drifter: ' + result.error);
+                    }
+                  } catch (error) {
+                    console.error('Error clearing drifter:', error);
+                    alert('Error clearing drifter: ' + error.message);
+                  }
+                }}
+                sx={{
+                  p: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  background: drifters[activeDrifterTab]?.name === null
+                    ? 'rgba(100, 181, 246, 0.2)' 
+                    : 'rgba(255, 255, 255, 0.05)',
+                  border: drifters[activeDrifterTab]?.name === null
+                    ? '2px solid #64b5f6' 
+                    : '2px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: 2,
+                  color: drifters[activeDrifterTab]?.name === null ? '#64b5f6' : '#b0bec5',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    background: 'rgba(100, 181, 246, 0.1)',
+                    borderColor: '#64b5f6',
+                    color: '#64b5f6'
+                  }
+                }}
+              >
+                <Avatar sx={{ 
+                  width: 48, 
+                  height: 48, 
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#b0bec5',
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold'
+                }}>
+                  ∅
+                </Avatar>
+                <Typography sx={{ 
+                  fontWeight: 600, 
+                  fontSize: '1rem',
+                  textAlign: 'center'
+                }}>
+                  No Drifter
+                </Typography>
+                <Typography sx={{ 
+                  fontSize: '0.8rem',
+                  opacity: 0.7,
+                  textAlign: 'center'
+                }}>
+                  Clear slot
+                </Typography>
+              </Button>
+              
               {allDrifters.map((drifter, index) => (
                 <Button
                   key={index}
