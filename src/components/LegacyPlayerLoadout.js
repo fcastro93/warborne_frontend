@@ -270,6 +270,8 @@ export default function LegacyPlayerLoadout() {
           <Box sx={{
             minWidth: 0,          // allow panel to shrink inside grid/flex
             overflow: 'hidden',   // prevent children from bleeding out
+            position: 'relative',
+            zIndex: 1,
             background: 'rgba(255, 255, 255, 0.05)',
             borderRadius: 2,
             p: 2.5,
@@ -463,6 +465,7 @@ export default function LegacyPlayerLoadout() {
                         sx={{
                           width: '100%',
                           minWidth: 0,
+                          boxSizing: 'border-box',
                           aspectRatio: '1',
                           background: gear ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                           border: gear ? '2px solid #4caf50' : '2px solid rgba(255, 255, 255, 0.1)',
@@ -485,13 +488,13 @@ export default function LegacyPlayerLoadout() {
                         {gear ? (
                           <>
                             <Box sx={{ 
-                              width: { xs: 64, sm: 72, md: 90 }, 
-                              height: { xs: 64, sm: 72, md: 90 }, 
+                              width: { xs: 56, sm: 64, md: 80 }, 
+                              height: { xs: 56, sm: 64, md: 80 }, 
                               display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 
                             }}>
                               <Avatar sx={{ 
-                                width: { xs: 44, sm: 52, md: 60 }, 
-                                height: { xs: 44, sm: 52, md: 60 }, 
+                                width: { xs: 40, sm: 48, md: 56 }, 
+                                height: { xs: 40, sm: 48, md: 56 }, 
                                 bgcolor: 'rgba(255, 255, 255, 0.1)' 
                               }}>
                                 <Inventory2 />
@@ -503,7 +506,11 @@ export default function LegacyPlayerLoadout() {
                               fontWeight: 600,
                               textAlign: 'center',
                               mb: 0.375,
-                              lineHeight: 1.1
+                              lineHeight: 1.1,
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              maxWidth: '100%'
                             }}>
                               {gear.gear_item.base_name}
                             </Typography>
@@ -518,6 +525,10 @@ export default function LegacyPlayerLoadout() {
                                 cursor: 'pointer',
                                 borderBottom: '1px dotted #64b5f6',
                                 transition: 'color 0.2s ease',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                maxWidth: '100%',
                                 '&:hover': {
                                   color: '#90caf9',
                                   borderBottomColor: '#90caf9'
@@ -588,6 +599,7 @@ export default function LegacyPlayerLoadout() {
                         sx={{
                           width: '100%',
                           minWidth: 0,
+                          boxSizing: 'border-box',
                           aspectRatio: '1',
                           background: gear ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                           border: gear ? '2px solid #4caf50' : '2px solid rgba(255, 255, 255, 0.1)',
@@ -610,13 +622,13 @@ export default function LegacyPlayerLoadout() {
                         {gear ? (
                           <>
                             <Box sx={{ 
-                              width: { xs: 64, sm: 72, md: 90 }, 
-                              height: { xs: 64, sm: 72, md: 90 }, 
+                              width: { xs: 56, sm: 64, md: 80 }, 
+                              height: { xs: 56, sm: 64, md: 80 }, 
                               display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 
                             }}>
                               <Avatar sx={{ 
-                                width: { xs: 44, sm: 52, md: 60 }, 
-                                height: { xs: 44, sm: 52, md: 60 }, 
+                                width: { xs: 40, sm: 48, md: 56 }, 
+                                height: { xs: 40, sm: 48, md: 56 }, 
                                 bgcolor: 'rgba(255, 255, 255, 0.1)' 
                               }}>
                                 <Inventory2 />
@@ -628,7 +640,11 @@ export default function LegacyPlayerLoadout() {
                               fontWeight: 600,
                               textAlign: 'center',
                               mb: 0.375,
-                              lineHeight: 1.1
+                              lineHeight: 1.1,
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              maxWidth: '100%'
                             }}>
                               {gear.gear_item.base_name}
                             </Typography>
@@ -643,6 +659,10 @@ export default function LegacyPlayerLoadout() {
                                 cursor: 'pointer',
                                 borderBottom: '1px dotted #64b5f6',
                                 transition: 'color 0.2s ease',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                maxWidth: '100%',
                                 '&:hover': {
                                   color: '#90caf9',
                                   borderBottomColor: '#90caf9'
