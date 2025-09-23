@@ -94,6 +94,7 @@ export default function LegacyPlayerLoadout() {
   const [skillModalOpen, setSkillModalOpen] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [showDrifterModal, setShowDrifterModal] = useState(false);
+  const [drifterSearchTerm, setDrifterSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
   const slotLabels = [
@@ -389,6 +390,17 @@ export default function LegacyPlayerLoadout() {
 
       setDrifters(updatedDrifters);
     }
+  };
+
+  // Filter drifters based on search term
+  const getFilteredDrifters = () => {
+    if (!drifterSearchTerm.trim()) {
+      return allDrifters;
+    }
+    
+    return allDrifters.filter(drifter => 
+      drifter.name.toLowerCase().includes(drifterSearchTerm.toLowerCase())
+    );
   };
 
   // Drifter name to icon ID mapping
@@ -1823,6 +1835,42 @@ export default function LegacyPlayerLoadout() {
               Choose a drifter for slot {activeDrifterTab + 1}
             </Typography>
             
+            {/* Search Input */}
+            <TextField
+              fullWidth
+              placeholder="Search drifters..."
+              value={drifterSearchTerm}
+              onChange={(e) => setDrifterSearchTerm(e.target.value)}
+              sx={{
+                mb: 3,
+                '& .MuiOutlinedInput-root': {
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '2px solid rgba(100, 181, 246, 0.3)',
+                  borderRadius: 1,
+                  color: 'white',
+                  '&:hover': {
+                    borderColor: 'rgba(100, 181, 246, 0.6)',
+                    background: 'rgba(255, 255, 255, 0.15)'
+                  },
+                  '&.Mui-focused': {
+                    borderColor: '#64b5f6',
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    boxShadow: '0 0 10px rgba(100, 181, 246, 0.3)'
+                  }
+                },
+                '& .MuiInputBase-input::placeholder': {
+                  color: 'rgba(255, 255, 255, 0.6)'
+                }
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search sx={{ color: 'rgba(255, 255, 255, 0.6)' }} />
+                  </InputAdornment>
+                )
+              }}
+            />
+            
             <Box sx={{ 
               display: 'grid', 
               gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
@@ -1911,7 +1959,7 @@ export default function LegacyPlayerLoadout() {
                 </Typography>
               </Button>
               
-              {allDrifters.map((drifter, index) => (
+              {getFilteredDrifters().length > 0 ? getFilteredDrifters().map((drifter, index) => (
                 <Button
                   key={index}
                   onClick={async () => {
@@ -2002,13 +2050,30 @@ export default function LegacyPlayerLoadout() {
                     {drifter.special_abilities ? 'Special' : 'Available'}
                   </Typography>
                 </Button>
-              ))}
+              )) : (
+                <Box sx={{
+                  gridColumn: '1 / -1',
+                  textAlign: 'center',
+                  py: 4,
+                  color: '#b0bec5'
+                }}>
+                  <Typography sx={{ fontSize: '1rem', mb: 1 }}>
+                    No drifters found
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.9rem', opacity: 0.7 }}>
+                    Try adjusting your search term
+                  </Typography>
+                </Box>
+              )}
             </Box>
           </Box>
           
           <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
             <Button
-              onClick={() => setShowDrifterModal(false)}
+              onClick={() => {
+                setShowDrifterModal(false);
+                setDrifterSearchTerm('');
+              }}
               sx={{
                 color: '#b0bec5',
                 '&:hover': {
