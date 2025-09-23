@@ -63,16 +63,13 @@ export default function SideMenu() {
         }}
       >
         <Avatar
+          src="/violence-logo.png"
+          alt="Violence Guild"
           sx={{
             width: 32,
             height: 32,
-            bgcolor: 'primary.main',
-            fontWeight: 'bold',
-            fontSize: '1rem',
           }}
-        >
-          V
-        </Avatar>
+        />
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main', lineHeight: 1.2, fontSize: '1.1rem' }}>
             Warborne Guild

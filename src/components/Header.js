@@ -1,6 +1,6 @@
 import React from 'react';
-import { Stack, Typography, Breadcrumbs, Link, TextField, InputAdornment, IconButton, Box, Avatar } from '@mui/material';
-import { NavigateNext, Search, NotificationsRounded, SettingsBrightness } from '@mui/icons-material';
+import { Stack, Typography, Breadcrumbs, FormControl, InputAdornment, OutlinedInput, Badge, IconButton } from '@mui/material';
+import { NavigateNextRounded, SearchRounded, NotificationsRounded } from '@mui/icons-material';
 import ColorModeIconDropdown from './ColorModeIconDropdown';
 
 export default function Header() {
@@ -10,59 +10,59 @@ export default function Header() {
       sx={{
         display: { xs: 'none', md: 'flex' },
         width: '100%',
-        alignItems: 'center',
+        alignItems: { xs: 'flex-start', md: 'center' },
         justifyContent: 'space-between',
         maxWidth: { sm: '100%', md: '1700px' },
-        py: 2,
-        px: 3,
+        pt: 1.5,
       }}
       spacing={2}
     >
-      {/* Left side - Guild branding */}
-      <Stack direction="row" alignItems="center" spacing={2}>
-        <Avatar
-          sx={{
-            width: 40,
-            height: 40,
-            bgcolor: 'primary.main',
-            fontWeight: 'bold',
-            fontSize: '1.2rem',
-          }}
-        >
-          V
-        </Avatar>
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', lineHeight: 1.2 }}>
-            Warborne Guild
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
-            Guild Management Tools
-          </Typography>
-        </Box>
-      </Stack>
-
-      {/* Right side - Search and actions */}
-      <Stack direction="row" sx={{ gap: 1, alignItems: 'center' }}>
-        <TextField
-          size="small"
-          placeholder="Search players, events, gear..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search />
+      <Breadcrumbs
+        aria-label="breadcrumb"
+        separator={<NavigateNextRounded fontSize="small" />}
+        sx={{
+          margin: (theme) => theme.spacing(1, 0),
+          '& .MuiBreadcrumbs-separator': {
+            color: 'action.disabled',
+            margin: 1,
+          },
+          '& .MuiBreadcrumbs-ol': {
+            alignItems: 'center',
+          },
+        }}
+      >
+        <Typography variant="body1">Dashboard</Typography>
+        <Typography variant="body1" sx={{ color: 'text.primary', fontWeight: 600 }}>
+          Home
+        </Typography>
+      </Breadcrumbs>
+      <Stack direction="row" sx={{ gap: 1 }}>
+        <FormControl sx={{ width: { xs: '100%', md: '25ch' } }} variant="outlined">
+          <OutlinedInput
+            size="small"
+            id="search"
+            placeholder="Search…"
+            sx={{ flexGrow: 1 }}
+            startAdornment={
+              <InputAdornment position="start" sx={{ color: 'text.primary' }}>
+                <SearchRounded fontSize="small" />
               </InputAdornment>
-            ),
-          }}
-          sx={{ 
-            minWidth: 280,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 2,
             }
-          }}
-        />
-        <IconButton sx={{ color: 'text.secondary' }}>
-          <NotificationsRounded />
-        </IconButton>
+            inputProps={{
+              'aria-label': 'search',
+            }}
+          />
+        </FormControl>
+        <Badge
+          color="error"
+          variant="dot"
+          invisible={false}
+          sx={{ '& .MuiBadge-badge': { right: 2, top: 2 } }}
+        >
+          <IconButton size="small" aria-label="Open notifications">
+            <NotificationsRounded />
+          </IconButton>
+        </Badge>
         <ColorModeIconDropdown />
       </Stack>
     </Stack>
