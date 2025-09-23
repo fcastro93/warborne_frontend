@@ -48,6 +48,16 @@ const EventDetails = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   
+  const eventTypes = [
+    { value: 'guild_war', label: 'Guild War' },
+    { value: 'pvp_fight', label: 'PvP Fight' },
+    { value: 'resource_farming', label: 'Resource Farming' },
+    { value: 'boss_raid', label: 'Boss Raid' },
+    { value: 'social_event', label: 'Social Event' },
+    { value: 'training', label: 'Training' },
+    { value: 'other', label: 'Other' }
+  ];
+  
   const [event, setEvent] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [parties, setParties] = useState([]);
@@ -57,17 +67,27 @@ const EventDetails = () => {
   const [configModalOpen, setConfigModalOpen] = useState(false);
   const [removeParticipantModalOpen, setRemoveParticipantModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    event_type: 'other',
+    event_datetime: '',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    max_participants: ''
+  });
   
   // Party configuration state
   const [partyConfig, setPartyConfig] = useState({
     roleComposition: {
-      tank: 4,
+      tank: 0,
       healer: 2,
-      ranged_dps: 3,
-      melee_dps: 3,
-      defensive_tank: 1,
-      offensive_tank: 1,
-      offensive_support: 1,
+      ranged_dps: 0,
+      melee_dps: 0,
+      defensive_tank: 2,
+      offensive_tank: 2,
+      offensive_support: 0,
       defensive_support: 0
     },
     guildSplit: false
@@ -95,6 +115,13 @@ const EventDetails = () => {
       const partiesResponse = await fetch(`/api/events/${eventId}/parties/`);
       const partiesData = await partiesResponse.json();
       setParties(partiesData.parties || []);
+      
+      // Fetch party configuration
+      const configResponse = await fetch(`/api/events/${eventId}/party-configuration/`);
+      const configData = await configResponse.json();
+      if (configData.configuration) {
+        setPartyConfig(configData.configuration);
+      }
       
     } catch (error) {
       showAlert('error', 'Error loading event details: ' + error.message);
@@ -239,7 +266,16 @@ const EventDetails = () => {
   };
 
   const handleEditEvent = () => {
-    navigate(`/events/${eventId}/edit`);
+    setSelectedEvent(event);
+    setFormData({
+      title: event.title,
+      description: event.description,
+      event_type: event.event_type,
+      event_datetime: new Date(event.event_datetime).toISOString().slice(0, 16),
+      timezone: event.timezone,
+      max_participants: event.max_participants || ''
+    });
+    setEditModalOpen(true);
   };
 
   const handleRemoveParticipant = async () => {
@@ -267,6 +303,62 @@ const EventDetails = () => {
       }
     } catch (error) {
       showAlert('error', 'Error removing participant: ' + error.message);
+    }
+  };
+
+  const handleSavePartyConfiguration = async () => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/save-party-configuration/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(partyConfig)
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        showAlert('success', 'Party configuration saved successfully!');
+        setConfigModalOpen(false);
+      } else {
+        showAlert('error', data.error || 'Failed to save party configuration');
+      }
+    } catch (error) {
+      showAlert('error', 'Error saving party configuration: ' + error.message);
+    }
+  };
+
+  const handleFormChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmitEvent = async () => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/update/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        showAlert('success', 'Event updated successfully!');
+        setEditModalOpen(false);
+        fetchEventDetails(); // Refresh data
+      } else {
+        showAlert('error', data.error || 'Failed to update event');
+      }
+    } catch (error) {
+      showAlert('error', 'Error updating event: ' + error.message);
     }
   };
 
@@ -626,7 +718,70 @@ const EventDetails = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setConfigModalOpen(false)}>Cancel</Button>
-            <Button onClick={() => setConfigModalOpen(false)} variant="contained">Save Configuration</Button>
+            <Button onClick={handleSavePartyConfiguration} variant="contained">Save Configuration</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Edit Event Modal */}
+        <Dialog open={editModalOpen} onClose={() => setEditModalOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>Edit Event</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ pt: 2 }}>
+              <TextField
+                label="Event Title"
+                value={formData.title}
+                onChange={(e) => handleFormChange('title', e.target.value)}
+                fullWidth
+                required
+              />
+              
+              <TextField
+                label="Description"
+                value={formData.description}
+                onChange={(e) => handleFormChange('description', e.target.value)}
+                fullWidth
+                multiline
+                rows={3}
+              />
+              
+              <FormControl fullWidth>
+                <InputLabel>Event Type</InputLabel>
+                <Select
+                  value={formData.event_type}
+                  onChange={(e) => handleFormChange('event_type', e.target.value)}
+                  label="Event Type"
+                >
+                  {eventTypes.map((type) => (
+                    <MenuItem key={type.value} value={type.value}>
+                      {type.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              
+              <TextField
+                label="Event Date & Time"
+                type="datetime-local"
+                value={formData.event_datetime}
+                onChange={(e) => handleFormChange('event_datetime', e.target.value)}
+                fullWidth
+                required
+                InputLabelProps={{ shrink: true }}
+              />
+              
+              <TextField
+                label="Max Participants"
+                type="number"
+                value={formData.max_participants}
+                onChange={(e) => handleFormChange('max_participants', e.target.value)}
+                fullWidth
+                inputProps={{ min: 1 }}
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setEditModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSubmitEvent} variant="contained">Update Event</Button>
           </DialogActions>
         </Dialog>
 

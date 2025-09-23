@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -40,6 +41,7 @@ import {
 import { apiService } from '../services/api';
 
 const EventManagement = () => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -259,7 +261,7 @@ const EventManagement = () => {
   };
 
   const handleViewDetails = (eventId) => {
-    window.open(`/events/${eventId}`, '_blank');
+    navigate(`/events/${eventId}`);
   };
 
   const handleCreateParties = async (eventId) => {
@@ -365,69 +367,103 @@ const EventManagement = () => {
         <Grid container spacing={3}>
           {events.map((event) => (
             <Grid item xs={12} sm={6} md={3} key={event.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                    <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
+              <Card sx={{ 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                aspectRatio: '1/1' // Makes cards square
+              }}>
+                <CardContent sx={{ 
+                  flexGrow: 1, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  p: 2
+                }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                    <Typography variant="h6" component="h2" sx={{ 
+                      fontWeight: 'bold',
+                      fontSize: '1rem',
+                      lineHeight: 1.2
+                    }}>
                       {event.title}
                     </Typography>
                     <Chip
                       label={event.event_type_display}
                       color={getEventTypeColor(event.event_type)}
                       size="small"
+                      sx={{ fontSize: '0.7rem', height: 20 }}
                     />
                   </Box>
 
                   {event.description && (
-                    <Typography color="text.secondary" sx={{ mb: 2 }}>
+                    <Typography color="text.secondary" sx={{ 
+                      mb: 1,
+                      fontSize: '0.8rem',
+                      lineHeight: 1.2,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical'
+                    }}>
                       {event.description}
                     </Typography>
                   )}
 
-                  <Stack spacing={1} sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                      <ScheduleIcon fontSize="small" color="action" sx={{ mt: 0.5 }} />
-                      <Box>
-                        <Typography variant="body2" sx={{ lineHeight: 1.2 }}>
-                          {formatDateTime(event.event_datetime).date}
-                        </Typography>
-                        <Typography variant="body2" sx={{ lineHeight: 1.2, color: 'text.secondary' }}>
-                          {formatDateTime(event.event_datetime).time}
+                  <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <Stack spacing={0.5} sx={{ mb: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
+                        <ScheduleIcon fontSize="small" color="action" sx={{ mt: 0.2, fontSize: '0.9rem' }} />
+                        <Box>
+                          <Typography variant="body2" sx={{ 
+                            lineHeight: 1.1,
+                            fontSize: '0.75rem'
+                          }}>
+                            {formatDateTime(event.event_datetime).date}
+                          </Typography>
+                          <Typography variant="body2" sx={{ 
+                            lineHeight: 1.1, 
+                            color: 'text.secondary',
+                            fontSize: '0.75rem'
+                          }}>
+                            {formatDateTime(event.event_datetime).time}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <PeopleIcon fontSize="small" color="action" sx={{ fontSize: '0.9rem' }} />
+                        <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>
+                          {event.participant_count} participants
+                          {event.max_participants && ` / ${event.max_participants} max`}
                         </Typography>
                       </Box>
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <PeopleIcon fontSize="small" color="action" />
-                      <Typography variant="body2">
-                        {event.participant_count} participants
-                        {event.max_participants && ` / ${event.max_participants} max`}
-                      </Typography>
-                    </Box>
+                    </Stack>
 
-                  </Stack>
-
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Chip
-                      label={isEventUpcoming(event.event_datetime) ? 'Upcoming' : 'Past'}
-                      color={isEventUpcoming(event.event_datetime) ? 'success' : 'default'}
-                      size="small"
-                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Chip
+                        label={isEventUpcoming(event.event_datetime) ? 'Upcoming' : 'Past'}
+                        color={isEventUpcoming(event.event_datetime) ? 'success' : 'default'}
+                        size="small"
+                        sx={{ fontSize: '0.7rem', height: 20 }}
+                      />
+                    </Box>
                   </Box>
                 </CardContent>
 
-                <Box sx={{ p: 2, pt: 0 }}>
-                  {/* Single Responsive Row of Buttons */}
+                <Box sx={{ p: 1.5, pt: 0 }}>
+                  {/* Responsive Button Grid - 2 rows of 3 buttons */}
                   <Box sx={{ 
-                    display: 'flex', 
-                    flexWrap: 'wrap', 
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
                     gap: 0.5,
-                    justifyContent: 'center',
                     '& .MuiButton-root': {
                       minWidth: 'auto',
-                      fontSize: '0.75rem',
-                      px: 1,
-                      py: 0.5
+                      fontSize: '0.7rem',
+                      px: 0.5,
+                      py: 0.3,
+                      height: 'auto',
+                      minHeight: 28
                     }
                   }}>
                     <Button
