@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Box, Typography, Button, Paper, Avatar, Chip, IconButton, Tabs, Tab, Grid, Card, CardContent, TextField, InputAdornment, Stack, Divider, Badge, Alert, FormControl, Select, MenuItem, InputLabel, List, ListItem, ListItemText, ListItemIcon, ListItemButton, ListSubheader, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { ArrowBack, Add, Inventory2, Person, Search, Close, Edit, Check, Cancel, FilterList, LocalFireDepartment, Shield, Healing, Speed, FlashOn, MilitaryTech, Public, WorkspacePremium, Inventory, Security, Star, Diamond, AutoAwesome } from '@mui/icons-material';
 import Layout from './Layout';
+import { apiService } from '../services/apiService';
 
 // Mock data
 const mockPlayer = {
@@ -75,20 +77,55 @@ const mockGearItems = [
 ];
 
 export default function LegacyPlayerLoadout() {
+  const { playerId } = useParams();
+  const [player, setPlayer] = useState(null);
+  const [drifters, setDrifters] = useState([]);
+  const [gearItems, setGearItems] = useState([]);
   const [activeDrifterTab, setActiveDrifterTab] = useState(0);
   const [activeItemTab, setActiveItemTab] = useState(0);
   const [activeAttributeTab, setActiveAttributeTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRarity, setFilterRarity] = useState('all');
   const [editingName, setEditingName] = useState(false);
-  const [editName, setEditName] = useState(mockPlayer.name);
+  const [editName, setEditName] = useState('');
   const [skillModalOpen, setSkillModalOpen] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const slotLabels = [
     'Weapon', 'Helmet', 'Chest', 'Boots', 'Consumable',
     'Mod 1', 'Mod 2', 'Mod 3', 'Mod 4'
   ];
+
+  useEffect(() => {
+    fetchPlayerData();
+  }, [playerId]);
+
+  const fetchPlayerData = async () => {
+    try {
+      setLoading(true);
+      // Fetch player data
+      const playerData = await apiService.getPlayer(playerId);
+      console.log('Player data:', playerData);
+      setPlayer(playerData);
+      setEditName(playerData?.name || '');
+
+      // Fetch drifters data
+      const driftersData = await apiService.getDrifters(playerId);
+      console.log('Drifters data:', driftersData);
+      setDrifters(driftersData);
+
+      // Fetch gear items data
+      const gearData = await apiService.getGearItems();
+      console.log('Gear items data:', gearData);
+      setGearItems(gearData);
+
+    } catch (error) {
+      console.error('Error fetching player data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDrifterTabChange = (event, newValue) => {
     setActiveDrifterTab(newValue);
@@ -103,7 +140,7 @@ export default function LegacyPlayerLoadout() {
   };
 
   const handleEditName = () => {
-    setEditName(mockPlayer.name);
+    setEditName(player?.name || '');
     setEditingName(true);
   };
 
@@ -128,7 +165,7 @@ export default function LegacyPlayerLoadout() {
   };
 
   // Filter gear items
-  const filteredGear = mockGearItems.filter(gear => {
+  const filteredGear = gearItems.filter(gear => {
     const matchesSearch = gear.base_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          gear.skill_name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRarity = filterRarity === 'all' || gear.rarity === filterRarity;
@@ -137,15 +174,51 @@ export default function LegacyPlayerLoadout() {
 
   // Group gear by type
   const gearByType = {
-    weapon: mockGearItems.filter(item => item.gear_type.category === 'weapon'),
-    helmet: mockGearItems.filter(item => item.gear_type.category === 'helmet'),
-    chest: mockGearItems.filter(item => item.gear_type.category === 'chest'),
-    boots: mockGearItems.filter(item => item.gear_type.category === 'boots'),
-    consumable: mockGearItems.filter(item => item.gear_type.category === 'consumable'),
-    mod: mockGearItems.filter(item => item.gear_type.category === 'mod')
+    weapon: gearItems.filter(item => item.gear_type.category === 'weapon'),
+    helmet: gearItems.filter(item => item.gear_type.category === 'helmet'),
+    chest: gearItems.filter(item => item.gear_type.category === 'chest'),
+    boots: gearItems.filter(item => item.gear_type.category === 'boots'),
+    consumable: gearItems.filter(item => item.gear_type.category === 'consumable'),
+    mod: gearItems.filter(item => item.gear_type.category === 'mod')
   };
 
-  const currentDrifter = mockDrifters[activeDrifterTab];
+  const currentDrifter = drifters[activeDrifterTab];
+
+  if (loading) {
+    return (
+      <Layout>
+        <Box sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <Typography sx={{ color: '#ffffff', fontSize: '1.5rem' }}>
+            Loading player data...
+          </Typography>
+        </Box>
+      </Layout>
+    );
+  }
+
+  if (!player) {
+    return (
+      <Layout>
+        <Box sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <Typography sx={{ color: '#ffffff', fontSize: '1.5rem' }}>
+            Player not found
+          </Typography>
+        </Box>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -208,7 +281,7 @@ export default function LegacyPlayerLoadout() {
                       textShadow: '0 0 20px rgba(100, 181, 246, 0.5)',
                       display: 'inline-block'
                     }}>
-                      {mockPlayer.name}
+                      {player?.name || 'Loading...'}
                     </Typography>
                     <IconButton onClick={handleEditName} size="small" sx={{ color: '#888', fontSize: '0.6em' }}>
                       <Edit />
@@ -230,43 +303,43 @@ export default function LegacyPlayerLoadout() {
             }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Discord:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{mockPlayer.discord_name}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.discord_name || 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Guild:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{mockPlayer.guild.name}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.guild?.name || 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Level:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{mockPlayer.character_level}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.character_level || 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Faction:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{mockPlayer.faction}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.faction || 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Guild Rank:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{mockPlayer.role}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.role || 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Role:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{mockPlayer.game_role}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.game_role || 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Total Gear:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{mockPlayer.total_gear}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.total_gear || 'N/A'}</Typography>
               </Box>
             </Box>
 
             {/* Notes */}
-            {mockPlayer.notes && (
+            {player?.notes && (
               <Box sx={{
                 background: 'rgba(255, 255, 255, 0.05)',
                 borderRadius: 1.25,
                 p: 1.875
               }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600, mb: 1 }}>Notes:</Typography>
-                <Typography sx={{ color: '#ffffff', mt: 1 }}>{mockPlayer.notes}</Typography>
+                <Typography sx={{ color: '#ffffff', mt: 1 }}>{player?.notes}</Typography>
               </Box>
             )}
           </Box>
@@ -303,7 +376,7 @@ export default function LegacyPlayerLoadout() {
               borderRadius: 1.25,
               p: 0.625
             }}>
-              {mockDrifters.map((drifter, index) => (
+              {drifters.map((drifter, index) => (
                 <Button
                   key={index}
                   onClick={() => setActiveDrifterTab(index)}

@@ -15,8 +15,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/members" element={<MembersPage />} />
-          <Route path="/player/:playerId/loadout" element={<PlayerLoadout />} />
-          <Route path="/player/legacyloadout" element={<LegacyPlayerLoadout />} />
+          <Route path="/player/:playerId/loadout" element={<LegacyPlayerLoadout />} />
         </Routes>
       </Router>
     </AppTheme>
