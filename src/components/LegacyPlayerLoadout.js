@@ -81,7 +81,7 @@ export default function LegacyPlayerLoadout() {
   const [player, setPlayer] = useState(null);
   const [drifters, setDrifters] = useState([]);
   const [gearItems, setGearItems] = useState([]);
-  const [activeDrifterTab, setActiveDrifterTab] = useState(0);
+  const [activeDrifterTab, setActiveDrifterTab] = useState(-1);
   const [activeItemTab, setActiveItemTab] = useState(0);
   const [activeAttributeTab, setActiveAttributeTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -570,8 +570,13 @@ export default function LegacyPlayerLoadout() {
     });
   };
 
-  const currentDrifter = drifters[activeDrifterTab] || null;
+  const currentDrifter = activeDrifterTab >= 0 ? drifters[activeDrifterTab] || null : null;
   const hasSelectedDrifter = currentDrifter !== null;
+  
+  // Debug logging
+  console.log('Debug - activeDrifterTab:', activeDrifterTab);
+  console.log('Debug - currentDrifter:', currentDrifter);
+  console.log('Debug - hasSelectedDrifter:', hasSelectedDrifter);
 
   if (loading) {
     return (
