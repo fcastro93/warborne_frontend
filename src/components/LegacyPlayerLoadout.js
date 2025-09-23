@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Box, Typography, Button, Paper, Avatar, Chip, IconButton, Tabs, Tab, Grid, Card, CardContent, TextField, InputAdornment, Stack, Divider, Badge, Alert, FormControl, Select, MenuItem, InputLabel, List, ListItem, ListItemText, ListItemIcon, ListItemButton, ListSubheader, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { ArrowBack, Add, Inventory2, Person, Search, Close, Edit, Check, Cancel, FilterList, LocalFireDepartment, Shield, Healing, Speed, FlashOn, MilitaryTech, Public, WorkspacePremium, Inventory, Security, Star, Diamond, AutoAwesome } from '@mui/icons-material';
 import Layout from './Layout';
-import { apiService } from '../services/apiService';
+import { apiService } from '../services/api';
 
 // Mock data
 const mockPlayer = {
@@ -111,9 +111,9 @@ export default function LegacyPlayerLoadout() {
       setEditName(playerData?.name || '');
 
       // Fetch drifters data
-      const driftersData = await apiService.getDrifters(playerId);
+      const driftersData = await apiService.getPlayerDrifters(playerId);
       console.log('Drifters data:', driftersData);
-      setDrifters(driftersData);
+      setDrifters(driftersData.drifters || []);
 
       // Fetch gear items data
       const gearData = await apiService.getGearItems();
