@@ -28,8 +28,7 @@ import {
   Warning as WarningIcon,
   Info as InfoIcon,
   PlayArrow as PlayArrowIcon,
-  Stop as StopIcon,
-  RestartAlt as RestartAltIcon
+  Stop as StopIcon
 } from '@mui/icons-material';
 import Layout from './Layout';
 
@@ -199,31 +198,6 @@ const DiscordBotConfig = () => {
     }
   };
 
-  const handleRestartBot = async () => {
-    try {
-      setSaving(true);
-      const response = await fetch('/api/discord-bot-config/restart/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        }
-      });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        showAlert('success', 'Bot restart command sent successfully!');
-        fetchConfig(); // Refresh status
-      } else {
-        showAlert('error', 'Failed to restart bot: ' + data.error);
-      }
-    } catch (error) {
-      showAlert('error', 'Error restarting bot: ' + error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const showAlert = (type, message) => {
     setAlert({ type, message });
@@ -328,15 +302,6 @@ const DiscordBotConfig = () => {
               Stop Bot
             </Button>
             <Button
-              variant="outlined"
-              startIcon={<RestartAltIcon />}
-              onClick={handleRestartBot}
-              disabled={saving}
-              color="warning"
-            >
-              Restart Bot
-            </Button>
-            <Button
               variant="contained"
               startIcon={<PowerIcon />}
               onClick={handleTestConnection}
@@ -402,54 +367,6 @@ const DiscordBotConfig = () => {
             </Card>
           </Grid>
 
-          {/* Bot Control */}
-          <Grid item xs={12} md={8}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                  <PowerIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  Bot Control
-                </Typography>
-                
-                <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-                  <Button
-                    variant="contained"
-                    startIcon={<PlayArrowIcon />}
-                    onClick={handleStartBot}
-                    disabled={saving || (config && config.is_online)}
-                    color="success"
-                    size="large"
-                  >
-                    Start Bot
-                  </Button>
-                  <Button
-                    variant="contained"
-                    startIcon={<StopIcon />}
-                    onClick={handleStopBot}
-                    disabled={saving || (config && !config.is_online)}
-                    color="error"
-                    size="large"
-                  >
-                    Stop Bot
-                  </Button>
-                  <Button
-                    variant="contained"
-                    startIcon={<RestartAltIcon />}
-                    onClick={handleRestartBot}
-                    disabled={saving}
-                    color="warning"
-                    size="large"
-                  >
-                    Restart Bot
-                  </Button>
-                </Stack>
-                
-                <Typography variant="body2" color="text.secondary">
-                  Use these controls to manage the Discord bot. The bot must be stopped before making configuration changes.
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
 
           {/* Basic Settings */}
           <Grid item xs={12} md={8}>
