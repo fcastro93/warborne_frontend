@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Card, CardContent, Grid, Avatar, Chip, Stack, Button } from '@mui/material';
-import { RecommendRounded, BuildRounded, PersonRounded, StarRounded } from '@mui/icons-material';
+import { Box, Typography, Card, CardContent, Grid, Avatar, Chip, Stack, Button, Fab } from '@mui/material';
+import { RecommendRounded, BuildRounded, PersonRounded, StarRounded, AddRounded } from '@mui/icons-material';
 import Layout from './Layout';
 import { apiService } from '../services/api';
 
@@ -90,7 +90,7 @@ export default function RecommendedBuildsList() {
         p: 2.5
       }}>
         {/* Header */}
-        <Box sx={{ mb: 4, textAlign: 'center' }}>
+        <Box sx={{ mb: 4, textAlign: 'center', position: 'relative' }}>
           <Typography variant="h4" sx={{
             color: '#64b5f6',
             fontWeight: 'bold',
@@ -99,9 +99,40 @@ export default function RecommendedBuildsList() {
           }}>
             Recommended Builds
           </Typography>
-          <Typography variant="h6" sx={{ color: '#b0bec5' }}>
+          <Typography variant="h6" sx={{ color: '#b0bec5', mb: 3 }}>
             Discover optimized builds for your drifters
           </Typography>
+          
+          {/* Create Build Button */}
+          <Button
+            variant="contained"
+            startIcon={<AddRounded />}
+            onClick={() => {
+              // For now, we'll navigate to a create build page or show a modal
+              // You can implement the actual create functionality later
+              console.log('Create new build clicked');
+              // navigate('/recbuilds/create');
+            }}
+            sx={{
+              background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
+              color: 'white',
+              px: 4,
+              py: 1.5,
+              borderRadius: 2,
+              fontWeight: 600,
+              fontSize: '1rem',
+              textTransform: 'none',
+              boxShadow: '0 4px 15px rgba(100, 181, 246, 0.3)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 25px rgba(100, 181, 246, 0.4)'
+              }
+            }}
+          >
+            Create New Build
+          </Button>
         </Box>
 
         {/* Builds Grid */}
@@ -290,6 +321,31 @@ export default function RecommendedBuildsList() {
             </Typography>
           </Box>
         )}
+
+        {/* Floating Action Button for Mobile */}
+        <Fab
+          color="primary"
+          aria-label="create build"
+          onClick={() => {
+            console.log('Create new build clicked (FAB)');
+            // navigate('/recbuilds/create');
+          }}
+          sx={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
+            boxShadow: '0 4px 15px rgba(100, 181, 246, 0.3)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
+              transform: 'scale(1.05)',
+              boxShadow: '0 8px 25px rgba(100, 181, 246, 0.4)'
+            },
+            display: { xs: 'flex', md: 'none' } // Only show on mobile
+          }}
+        >
+          <AddRounded />
+        </Fab>
       </Box>
     </Layout>
   );
