@@ -200,17 +200,23 @@ const EventManagement = () => {
     const cleanDateTime = dateTimeString.replace(/\+00:00Z$/, 'Z');
     const date = new Date(cleanDateTime);
     if (isNaN(date.getTime())) {
-      return 'Invalid Date';
+      return { date: 'Invalid Date', time: '' };
     }
-    // Format in user's local timezone
-    return date.toLocaleString('en-US', {
+    
+    // Format date and time separately
+    const dateStr = date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
+      day: 'numeric'
+    });
+    
+    const timeStr = date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       timeZoneName: 'short'
     });
+    
+    return { date: dateStr, time: timeStr };
   };
 
   const getEventTypeColor = (eventType) => {
@@ -228,6 +234,77 @@ const EventManagement = () => {
 
   const isEventUpcoming = (eventDateTime) => {
     return new Date(eventDateTime) > new Date();
+  };
+
+  const handlePublishEvent = async (eventId) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/publish/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        showAlert('success', data.message || 'Event published successfully!');
+      } else {
+        showAlert('error', data.error || 'Failed to publish event');
+      }
+    } catch (error) {
+      showAlert('error', 'Error publishing event: ' + error.message);
+    }
+  };
+
+  const handleViewDetails = (eventId) => {
+    // TODO: Open details modal
+    console.log('View details for event:', eventId);
+  };
+
+  const handleCreateParties = async (eventId) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/create-parties/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        showAlert('success', data.message || 'Parties created successfully!');
+      } else {
+        showAlert('error', data.error || 'Failed to create parties');
+      }
+    } catch (error) {
+      showAlert('error', 'Error creating parties: ' + error.message);
+    }
+  };
+
+  const handleCreateGuildParties = async (eventId) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/create-guild-parties/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        showAlert('success', data.message || 'Guild parties created successfully!');
+      } else {
+        showAlert('error', data.error || 'Failed to create guild parties');
+      }
+    } catch (error) {
+      showAlert('error', 'Error creating guild parties: ' + error.message);
+    }
   };
 
   if (loading) {
@@ -309,11 +386,16 @@ const EventManagement = () => {
                   )}
 
                   <Stack spacing={1} sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <ScheduleIcon fontSize="small" color="action" />
-                      <Typography variant="body2">
-                        {formatDateTime(event.event_datetime)}
-                      </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                      <ScheduleIcon fontSize="small" color="action" sx={{ mt: 0.5 }} />
+                      <Box>
+                        <Typography variant="body2" sx={{ lineHeight: 1.2 }}>
+                          {formatDateTime(event.event_datetime).date}
+                        </Typography>
+                        <Typography variant="body2" sx={{ lineHeight: 1.2, color: 'text.secondary' }}>
+                          {formatDateTime(event.event_datetime).time}
+                        </Typography>
+                      </Box>
                     </Box>
                     
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -336,7 +418,7 @@ const EventManagement = () => {
                 </CardContent>
 
                 <Box sx={{ p: 2, pt: 0 }}>
-                  <Stack direction="row" spacing={1}>
+                  <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
                     <Button
                       size="small"
                       startIcon={<EditIcon />}
@@ -351,6 +433,62 @@ const EventManagement = () => {
                       onClick={() => handleDeleteEvent(event.id)}
                     >
                       Cancel
+                    </Button>
+                  </Stack>
+                  
+                  {/* New Action Buttons Row */}
+                  <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<span>📢</span>}
+                      onClick={() => handlePublishEvent(event.id)}
+                      sx={{ 
+                        borderColor: '#ff6b35', 
+                        color: '#ff6b35',
+                        '&:hover': { borderColor: '#e55a2b', bgcolor: 'rgba(255, 107, 53, 0.1)' }
+                      }}
+                    >
+                      Publish
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<span>📊</span>}
+                      onClick={() => handleViewDetails(event.id)}
+                      sx={{ 
+                        borderColor: '#9c27b0', 
+                        color: '#9c27b0',
+                        '&:hover': { borderColor: '#7b1fa2', bgcolor: 'rgba(156, 39, 176, 0.1)' }
+                      }}
+                    >
+                      Details
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<span>⚔️</span>}
+                      onClick={() => handleCreateParties(event.id)}
+                      sx={{ 
+                        borderColor: '#f44336', 
+                        color: '#f44336',
+                        '&:hover': { borderColor: '#d32f2f', bgcolor: 'rgba(244, 67, 54, 0.1)' }
+                      }}
+                    >
+                      Create Parties
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<span>🏰</span>}
+                      onClick={() => handleCreateGuildParties(event.id)}
+                      sx={{ 
+                        borderColor: '#607d8b', 
+                        color: '#607d8b',
+                        '&:hover': { borderColor: '#455a64', bgcolor: 'rgba(96, 125, 139, 0.1)' }
+                      }}
+                    >
+                      Create Guild Parties
                     </Button>
                   </Stack>
                 </Box>
