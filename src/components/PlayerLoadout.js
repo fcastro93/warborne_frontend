@@ -1124,82 +1124,136 @@ export default function PlayerLoadout() {
                     />
                   </Stack>
                   
-                  {/* Items List */}
-                  <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
-                    <List dense>
-                      {filteredGear.map((gear) => (
-                        <ListItemButton
-                          key={gear.id}
-                          onClick={() => handleGearClick(gear)}
-                          sx={{
-                            border: '1px solid',
-                            borderColor: 'divider',
-                            borderRadius: 1,
-                            mb: 1,
-                            '&:hover': {
-                              borderColor: 'primary.main',
-                              bgcolor: 'action.hover',
-                            },
-                          }}
-                        >
-                          <ListItemIcon>
-                            <Avatar sx={{ 
-                              bgcolor: `${getRarityColor(gear.rarity)}.main`,
-                              width: 32,
-                              height: 32,
-                            }}>
-                              {getGearTypeIcon(gear.gear_type?.category)}
-                            </Avatar>
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={
-                              <Box>
-                                <Typography variant="body2" fontWeight="medium">
-                                  {gear.base_name}
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                  {gear.skill_name} • {gear.gear_type?.category}
-                                </Typography>
-                              </Box>
-                            }
-                            secondary={
-                              <Box sx={{ mt: 0.5 }}>
-                                <Chip
-                                  label={gear.rarity}
-                                  color={getRarityColor(gear.rarity)}
-                                  size="small"
-                                  sx={{ mr: 1 }}
-                                />
-                                {gear.damage > 0 && (
-                                  <Typography variant="caption" sx={{ mr: 1 }}>
-                                    Damage: +{gear.damage}%
-                                  </Typography>
-                                )}
-                                {gear.health_bonus > 0 && (
-                                  <Typography variant="caption" sx={{ mr: 1 }}>
-                                    HP: +{gear.health_bonus}
-                                  </Typography>
-                                )}
-                                {gear.defense > 0 && (
-                                  <Typography variant="caption">
-                                    Defense: +{gear.defense}
-                                  </Typography>
-                                )}
-                              </Box>
-                            }
-                          />
-                          {equippedGear[gear.id] && (
-                            <Chip
-                              label="Equipped"
-                              color="success"
-                              size="small"
-                              sx={{ ml: 1 }}
-                            />
-                          )}
-                        </ListItemButton>
-                      ))}
-                    </List>
-                  </Box>
+                         {/* Items Grid */}
+                         <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
+                           <Grid container spacing={2}>
+                             {filteredGear.map((gear) => {
+                               const rarityConfig = getRarityConfig(gear.rarity);
+                               
+                               return (
+                                 <Grid item xs={12} sm={6} md={4} key={gear.id}>
+                                   <Card
+                                     onClick={() => handleGearClick(gear)}
+                                     sx={{
+                                       cursor: 'pointer',
+                                       border: '2px solid',
+                                       borderColor: rarityConfig.border,
+                                       bgcolor: rarityConfig.bg,
+                                       transition: 'all 0.3s ease',
+                                       position: 'relative',
+                                       overflow: 'hidden',
+                                       '&:hover': {
+                                         transform: 'translateY(-4px)',
+                                         boxShadow: `0 8px 25px ${rarityConfig.glow}`,
+                                         borderColor: rarityConfig.border,
+                                       },
+                                       '&::before': {
+                                         content: '""',
+                                         position: 'absolute',
+                                         top: 0,
+                                         left: 0,
+                                         right: 0,
+                                         bottom: 0,
+                                         background: `linear-gradient(45deg, transparent 30%, ${rarityConfig.glow} 50%, transparent 70%)`,
+                                         transform: 'translateX(-100%)',
+                                         transition: 'transform 0.6s ease',
+                                       },
+                                       '&:hover::before': {
+                                         transform: 'translateX(100%)',
+                                       },
+                                     }}
+                                   >
+                                     <CardContent sx={{ p: 2, textAlign: 'center' }}>
+                                       {/* Item Icon */}
+                                       <Avatar sx={{ 
+                                         width: 48, 
+                                         height: 48, 
+                                         mx: 'auto', 
+                                         mb: 1,
+                                         bgcolor: rarityConfig.border,
+                                         boxShadow: `0 0 10px ${rarityConfig.glow}`,
+                                       }}>
+                                         {getGearTypeIcon(gear.gear_type?.category)}
+                                       </Avatar>
+                                       
+                                       {/* Item Name */}
+                                       <Typography 
+                                         variant="body1" 
+                                         fontWeight="bold" 
+                                         sx={{ mb: 0.5, color: rarityConfig.text }}
+                                       >
+                                         {gear.base_name}
+                                       </Typography>
+                                       
+                                       {/* Skill Name */}
+                                       <Typography 
+                                         variant="caption" 
+                                         sx={{ 
+                                           display: 'block', 
+                                           mb: 1, 
+                                           fontStyle: 'italic',
+                                           color: 'text.secondary'
+                                         }}
+                                       >
+                                         {gear.skill_name}
+                                       </Typography>
+                                       
+                                       {/* Type and Rarity */}
+                                       <Box sx={{ mb: 1 }}>
+                                         <Typography variant="caption" sx={{ mr: 1 }}>
+                                           {gear.gear_type?.category}
+                                         </Typography>
+                                         <Typography 
+                                           variant="caption" 
+                                           sx={{ 
+                                             color: rarityConfig.text,
+                                             fontWeight: 'bold'
+                                           }}
+                                         >
+                                           • {gear.rarity}
+                                         </Typography>
+                                       </Box>
+                                       
+                                       {/* Stats */}
+                                       <Box sx={{ mb: 2 }}>
+                                         {gear.damage > 0 && (
+                                           <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+                                             Damage & Heal bonus: {gear.damage}%
+                                           </Typography>
+                                         )}
+                                         {gear.health_bonus > 0 && (
+                                           <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+                                             HP: {gear.health_bonus}
+                                           </Typography>
+                                         )}
+                                         {gear.defense > 0 && (
+                                           <Typography variant="caption" sx={{ display: 'block' }}>
+                                             Defense: +{gear.defense}
+                                           </Typography>
+                                         )}
+                                       </Box>
+                                       
+                                       {/* Equip Button */}
+                                       <Button
+                                         variant="contained"
+                                         color="success"
+                                         size="small"
+                                         fullWidth
+                                         sx={{
+                                           borderRadius: '4px',
+                                           textTransform: 'none',
+                                           fontWeight: 'bold',
+                                         }}
+                                       >
+                                         {equippedGear[gear.id] ? 'Equipped' : 'Equip'}
+                                       </Button>
+                                     </CardContent>
+                                   </Card>
+                                 </Grid>
+                               );
+                             })}
+                           </Grid>
+                         </Box>
                 </CardContent>
               </Card>
             </Stack>
