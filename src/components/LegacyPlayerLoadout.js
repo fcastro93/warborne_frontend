@@ -577,15 +577,7 @@ export default function LegacyPlayerLoadout() {
   };
 
   const currentDrifter = activeDrifterTab >= 0 ? drifters[activeDrifterTab] || null : null;
-  const hasSelectedDrifter = currentDrifter !== null && currentDrifter.gear_slots && currentDrifter.gear_slots.filter(slot => slot !== null).length > 0;
-  
-  // Debug logging
-  console.log('=== DRIFTER STATE DEBUG ===');
-  console.log('activeDrifterTab:', activeDrifterTab);
-  console.log('drifters length:', drifters.length);
-  console.log('currentDrifter:', currentDrifter);
-  console.log('hasSelectedDrifter:', hasSelectedDrifter);
-  console.log('==========================');
+  const hasSelectedDrifter = currentDrifter !== null && currentDrifter.name !== null;
 
   if (loading) {
     return (
@@ -798,7 +790,7 @@ export default function LegacyPlayerLoadout() {
               p: 0.625
             }}>
               {drifters.map((drifter, index) => {
-                const hasGearSlots = drifter.gear_slots && drifter.gear_slots.filter(slot => slot !== null).length > 0;
+                const hasGearSlots = drifter.name !== null;
                 return (
                   <Button
                     key={index}
@@ -1168,7 +1160,7 @@ export default function LegacyPlayerLoadout() {
                   mt: 1,
                   opacity: 0.8
                 }}>
-                  This drifter has no equipment data
+                  Select a drifter to view their stats and equipment
                 </Typography>
               </Box>
             )}
@@ -1769,10 +1761,6 @@ export default function LegacyPlayerLoadout() {
                 <Button
                   key={index}
                   onClick={() => {
-                    console.log('Drifter clicked:', drifter.name);
-                    console.log('Active drifter tab:', activeDrifterTab);
-                    console.log('Current drifters:', drifters);
-                    
                     // Replace the current drifter in the active slot with the selected one
                     const updatedDrifters = [...drifters];
                     updatedDrifters[activeDrifterTab] = {
@@ -1780,8 +1768,6 @@ export default function LegacyPlayerLoadout() {
                       number: activeDrifterTab + 1,
                       gear_slots: updatedDrifters[activeDrifterTab]?.gear_slots || new Array(9).fill(null)
                     };
-                    
-                    console.log('Updated drifters:', updatedDrifters);
                     setDrifters(updatedDrifters);
                     setShowDrifterModal(false);
                   }}
