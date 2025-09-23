@@ -37,8 +37,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Checkbox
+  TableRow
 } from '@mui/material';
 import {
   Schedule as ScheduleIcon,
