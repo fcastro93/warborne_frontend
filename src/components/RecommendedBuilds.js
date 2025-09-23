@@ -203,6 +203,122 @@ export default function RecommendedBuilds() {
     setSelectedSkill(null);
   };
 
+  // Equip/Unequip functionality for recommended builds
+  const handleEquipGear = async (item) => {
+    if (!currentDrifter) {
+      alert('Please select a drifter first');
+      return;
+    }
+
+    try {
+      // For recommended builds, we need to update the build's equipment
+      if (buildId && currentBuild) {
+        const response = await fetch(`/api/builds/${buildId}/equip-item/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            item_id: item.id,
+            slot_type: item.gear_type.category
+          })
+        });
+
+        if (response.ok) {
+          // Update local state
+          updateLocalGearState(item, true);
+        } else {
+          const error = await response.json();
+          alert('Error equipping item: ' + (error.error || 'Unknown error'));
+        }
+      } else {
+        // For regular player loadout, use existing logic
+        updateLocalGearState(item, true);
+      }
+    } catch (error) {
+      console.error('Error equipping item:', error);
+      alert('Error equipping item: ' + error.message);
+    }
+  };
+
+  const handleUnequipGear = async (item) => {
+    try {
+      // For recommended builds, we need to update the build's equipment
+      if (buildId && currentBuild) {
+        const response = await fetch(`/api/builds/${buildId}/unequip-item/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            slot_type: item.gear_type.category
+          })
+        });
+
+        if (response.ok) {
+          // Update local state
+          updateLocalGearState(item, false);
+        } else {
+          const error = await response.json();
+          alert('Error unequipping item: ' + (error.error || 'Unknown error'));
+        }
+      } else {
+        // For regular player loadout, use existing logic
+        updateLocalGearState(item, false);
+      }
+    } catch (error) {
+      console.error('Error unequipping item:', error);
+      alert('Error unequipping item: ' + error.message);
+    }
+  };
+
+  const isItemEquipped = (item) => {
+    if (!currentDrifter || !currentDrifter.gear_slots) return false;
+    
+    const slotIndex = getSlotIndexForItemType(item.gear_type.category);
+    if (slotIndex === -1) return false;
+    
+    const equippedItem = currentDrifter.gear_slots[slotIndex];
+    return equippedItem && equippedItem.gear_item && equippedItem.gear_item.id === item.id;
+  };
+
+  const getSlotIndexForItemType = (itemType) => {
+    const slotMap = {
+      'weapon': 0,
+      'helmet': 1,
+      'chest': 2,
+      'boots': 3,
+      'consumable': 4,
+      'mod': 5 // First mod slot
+    };
+    return slotMap[itemType] || -1;
+  };
+
+  const updateLocalGearState = (item, isEquipping) => {
+    if (!currentDrifter) return;
+
+    const updatedDrifters = [...drifters];
+    const drifterIndex = activeDrifterTab;
+    const slotIndex = getSlotIndexForItemType(item.gear_type.category);
+
+    if (isEquipping) {
+      // Equip the item
+      updatedDrifters[drifterIndex].gear_slots[slotIndex] = {
+        gear_item: item,
+        gear_type: { category: item.gear_type.category }
+      };
+    } else {
+      // Unequip the item
+      updatedDrifters[drifterIndex].gear_slots[slotIndex] = null;
+    }
+
+    setDrifters(updatedDrifters);
+  };
+
 
   // Helper function to get icon URL
   const getIconUrl = (item, fallback = '⚔️') => {
@@ -861,6 +977,11 @@ export default function RecommendedBuilds() {
                       return (
                         <Box
                           key={i}
+                          onClick={() => {
+                            if (gear) {
+                              handleUnequipGear(gear.gear_item);
+                            }
+                          }}
                           sx={{
                             width: '100%',
                             minWidth: 0,          // allow shrinking inside grid
@@ -875,7 +996,7 @@ export default function RecommendedBuilds() {
                             justifyContent: 'center',
                             position: 'relative',
                             transition: 'all 0.3s ease',
-                            cursor: 'default',
+                            cursor: gear ? 'pointer' : 'default',
                             p: 1,
                             boxShadow: gear ? `0 0 15px ${getRarityBorderColor(gear.gear_item.rarity)}50` : 'none',
                             '&:hover': {
@@ -1432,11 +1553,14 @@ export default function RecommendedBuilds() {
                       variant="contained"
                       size="small"
                       onClick={() => {
-                        // For recommended builds, this could show item details or add to favorites
-                        console.log('Item selected:', item);
+                        if (isItemEquipped(item)) {
+                          handleUnequipGear(item);
+                        } else {
+                          handleEquipGear(item);
+                        }
                       }}
                       sx={{
-                        background: '#64b5f6',
+                        background: isItemEquipped(item) ? '#f44336' : '#64b5f6',
                         color: 'white',
                         p: '4px 8px',
                         borderRadius: 0.5,
@@ -1445,11 +1569,11 @@ export default function RecommendedBuilds() {
                         fontWeight: 600,
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          background: '#42a5f5'
+                          background: isItemEquipped(item) ? '#d32f2f' : '#42a5f5'
                         }
                       }}
                     >
-                      View Details
+                      {isItemEquipped(item) ? 'Unequip' : 'Equip'}
                     </Button>
                   </Box>
                 </Box>
@@ -1603,21 +1727,61 @@ export default function RecommendedBuilds() {
             }}>
               {/* No Drifter Option */}
               <Button
-                onClick={() => {
-                  // Update local state to show no drifter
-                  const updatedDrifters = [...drifters];
-                  updatedDrifters[activeDrifterTab] = {
-                    number: activeDrifterTab + 1,
-                    name: null,
-                    base_health: 100,
-                    base_energy: 100,
-                    base_damage: 50,
-                    base_defense: 25,
-                    base_speed: 10,
-                    gear_slots: new Array(9).fill(null)
-                  };
-                  setDrifters(updatedDrifters);
-                  setShowDrifterModal(false);
+                onClick={async () => {
+                  if (buildId && currentBuild) {
+                    // For recommended builds, we need to clear the drifter assignment
+                    try {
+                      const response = await fetch(`/api/builds/${buildId}/assign-drifter/`, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                          drifter_id: null
+                        })
+                      });
+
+                      if (response.ok) {
+                        // Update local state
+                        const updatedDrifters = [...drifters];
+                        updatedDrifters[activeDrifterTab] = {
+                          number: activeDrifterTab + 1,
+                          name: null,
+                          base_health: 100,
+                          base_energy: 100,
+                          base_damage: 50,
+                          base_defense: 25,
+                          base_speed: 10,
+                          gear_slots: new Array(9).fill(null)
+                        };
+                        setDrifters(updatedDrifters);
+                        setShowDrifterModal(false);
+                      } else {
+                        const error = await response.json();
+                        alert('Error clearing drifter: ' + (error.error || 'Unknown error'));
+                      }
+                    } catch (error) {
+                      console.error('Error clearing drifter:', error);
+                      alert('Error clearing drifter: ' + error.message);
+                    }
+                  } else {
+                    // For regular player loadout, update local state
+                    const updatedDrifters = [...drifters];
+                    updatedDrifters[activeDrifterTab] = {
+                      number: activeDrifterTab + 1,
+                      name: null,
+                      base_health: 100,
+                      base_energy: 100,
+                      base_damage: 50,
+                      base_defense: 25,
+                      base_speed: 10,
+                      gear_slots: new Array(9).fill(null)
+                    };
+                    setDrifters(updatedDrifters);
+                    setShowDrifterModal(false);
+                  }
                 }}
                 sx={{
                   p: 2,
