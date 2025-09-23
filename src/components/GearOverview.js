@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Box, Grid } from '@mui/material';
+import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Box } from '@mui/material';
 import { Build, Shield, LocalFireDepartment, Healing, Speed, Star } from '@mui/icons-material';
 
 const gearItems = [
@@ -94,88 +94,81 @@ const getStatIcon = (stat) => {
 
 export default function GearOverview() {
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Gear Overview
-        </Typography>
-        <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Item</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Rarity</TableCell>
-                <TableCell>Level</TableCell>
-                <TableCell>Stats</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Owner</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {gearItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <Box>
-                      <Typography variant="body2" fontWeight="medium">
-                        {item.name}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {item.skill}
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Item</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>Rarity</TableCell>
+            <TableCell>Level</TableCell>
+            <TableCell>Stats</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell>Owner</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {gearItems.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell>
+                <Box>
+                  <Typography variant="body2" fontWeight="medium">
+                    {item.name}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {item.skill}
+                  </Typography>
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {getTypeIcon(item.type)}
+                  <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+                    {item.type}
+                  </Typography>
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Chip
+                  label={item.rarity}
+                  color={getRarityColor(item.rarity)}
+                  size="small"
+                  sx={{ textTransform: 'capitalize' }}
+                />
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2" fontWeight="medium">
+                  {item.level}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  {Object.entries(item.stats).map(([stat, value]) => (
+                    <Box key={stat} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      {getStatIcon(stat)}
+                      <Typography variant="caption">
+                        {stat}: {value}
                       </Typography>
                     </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {getTypeIcon(item.type)}
-                      <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-                        {item.type}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={item.rarity}
-                      color={getRarityColor(item.rarity)}
-                      size="small"
-                      sx={{ textTransform: 'capitalize' }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight="medium">
-                      {item.level}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                      {Object.entries(item.stats).map(([stat, value]) => (
-                        <Box key={stat} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          {getStatIcon(stat)}
-                          <Typography variant="caption">
-                            {stat}: {value}
-                          </Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={item.equipped ? 'Equipped' : 'Available'}
-                      color={item.equipped ? 'success' : 'default'}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {item.owner}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </CardContent>
-    </Card>
+                  ))}
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Chip
+                  label={item.equipped ? 'Equipped' : 'Available'}
+                  color={item.equipped ? 'success' : 'default'}
+                  size="small"
+                />
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2">
+                  {item.owner}
+                </Typography>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 }

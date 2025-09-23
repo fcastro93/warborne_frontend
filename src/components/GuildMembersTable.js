@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Card,
-  CardContent,
   Typography,
   Table,
   TableBody,
@@ -9,7 +7,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Avatar,
   Chip,
   Box,
@@ -154,88 +151,81 @@ export default function GuildMembersTable() {
   }
 
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Guild Members
-        </Typography>
-        <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Player</TableCell>
-                <TableCell>Game Role</TableCell>
-                <TableCell>Level</TableCell>
-                <TableCell>Faction</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Drifters</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Avatar sx={{ bgcolor: 'primary.main' }}>
-                        {member.avatar}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="body2" fontWeight="medium">
-                          {member.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {member.role}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {getGameRoleIcon(member.gameRole)}
-                      <Typography variant="body2">
-                        {member.gameRole}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Player</TableCell>
+            <TableCell>Game Role</TableCell>
+            <TableCell>Level</TableCell>
+            <TableCell>Faction</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell>Drifters</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {members.map((member) => (
+            <TableRow key={member.id}>
+              <TableCell>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Avatar sx={{ bgcolor: 'primary.main' }}>
+                    {member.avatar}
+                  </Avatar>
+                  <Box>
                     <Typography variant="body2" fontWeight="medium">
-                      {member.level}
+                      {member.name}
                     </Typography>
-                  </TableCell>
-                  <TableCell>
+                    <Typography variant="caption" color="text.secondary">
+                      {member.role}
+                    </Typography>
+                  </Box>
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {getGameRoleIcon(member.gameRole)}
+                  <Typography variant="body2">
+                    {member.gameRole}
+                  </Typography>
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2" fontWeight="medium">
+                  {member.level}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Chip
+                  label={member.faction}
+                  color={getFactionColor(member.faction)}
+                  size="small"
+                  variant="outlined"
+                />
+              </TableCell>
+              <TableCell>
+                <Chip
+                  label={member.status}
+                  color={getStatusColor(member.status)}
+                  size="small"
+                />
+              </TableCell>
+              <TableCell>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {member.drifters.map((drifter, index) => (
                     <Chip
-                      label={member.faction}
-                      color={getFactionColor(member.faction)}
+                      key={index}
+                      label={drifter}
                       size="small"
                       variant="outlined"
+                      sx={{ fontSize: '0.7rem' }}
                     />
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={member.status}
-                      color={getStatusColor(member.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {member.drifters.map((drifter, index) => (
-                        <Chip
-                          key={index}
-                          label={drifter}
-                          size="small"
-                          variant="outlined"
-                          sx={{ fontSize: '0.7rem' }}
-                        />
-                      ))}
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </CardContent>
-    </Card>
+                  ))}
+                </Box>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 }
