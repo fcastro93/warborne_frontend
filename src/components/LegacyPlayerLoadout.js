@@ -548,13 +548,13 @@ export default function LegacyPlayerLoadout() {
       
       return matchesSearch && matchesRarity && matchesStat && matchesWeaponType && matchesElement;
     }).sort((a, b) => {
-      // Sort by rarity hierarchy (legendary first, then epic, rare, uncommon, common)
+      // Sort by rarity hierarchy (common first, then uncommon, rare, epic, legendary)
       const rarityOrder = {
-        'legendary': 5,
-        'epic': 4,
-        'rare': 3,
+        'common': 1,
         'uncommon': 2,
-        'common': 1
+        'rare': 3,
+        'epic': 4,
+        'legendary': 5
       };
       
       const orderA = rarityOrder[a.rarity?.toLowerCase()] || 0;
@@ -565,7 +565,7 @@ export default function LegacyPlayerLoadout() {
         return a.base_name.localeCompare(b.base_name);
       }
       
-      return orderB - orderA; // Higher rarity first
+      return orderA - orderB; // Lower rarity first
     });
   };
 
