@@ -58,6 +58,23 @@ export const apiService = {
     return response.json();
   },
 
+  async updatePlayerDrifter(playerId, drifterId, drifterSlot) {
+    const csrfToken = getCSRFToken();
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/update-drifter/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        drifter_id: drifterId,
+        drifter_slot: drifterSlot,
+      }),
+    });
+    return response.json();
+  },
+
   async getPlayerEquippedGear(playerId) {
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/equipped-gear/`);
     return response.json();

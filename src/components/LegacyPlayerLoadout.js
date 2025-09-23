@@ -1760,16 +1760,30 @@ export default function LegacyPlayerLoadout() {
               {allDrifters.map((drifter, index) => (
                 <Button
                   key={index}
-                  onClick={() => {
-                    // Replace the current drifter in the active slot with the selected one
-                    const updatedDrifters = [...drifters];
-                    updatedDrifters[activeDrifterTab] = {
-                      ...drifter,
-                      number: activeDrifterTab + 1,
-                      gear_slots: updatedDrifters[activeDrifterTab]?.gear_slots || new Array(9).fill(null)
-                    };
-                    setDrifters(updatedDrifters);
-                    setShowDrifterModal(false);
+                  onClick={async () => {
+                    try {
+                      // Save to backend first
+                      const result = await apiService.updatePlayerDrifter(playerId, drifter.id, activeDrifterTab + 1);
+                      console.log('Drifter update result:', result);
+                      
+                      if (result.success) {
+                        // Update local state
+                        const updatedDrifters = [...drifters];
+                        updatedDrifters[activeDrifterTab] = {
+                          ...drifter,
+                          number: activeDrifterTab + 1,
+                          gear_slots: updatedDrifters[activeDrifterTab]?.gear_slots || new Array(9).fill(null)
+                        };
+                        setDrifters(updatedDrifters);
+                        setShowDrifterModal(false);
+                      } else {
+                        console.error('Failed to update drifter:', result.error);
+                        alert('Failed to update drifter: ' + result.error);
+                      }
+                    } catch (error) {
+                      console.error('Error updating drifter:', error);
+                      alert('Error updating drifter: ' + error.message);
+                    }
                   }}
                   sx={{
                     p: 2,
