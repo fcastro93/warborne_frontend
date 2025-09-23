@@ -1793,7 +1793,7 @@ export default function LegacyPlayerLoadout() {
                     }
                   }}
                 >
-                  {drifterIconMap[drifter.name] && (
+                  {drifterIconMap[drifter.name] ? (
                     <img 
                       src={getDrifterIconUrl(drifterIconMap[drifter.name])} 
                       alt={drifter.name}
@@ -1807,6 +1807,17 @@ export default function LegacyPlayerLoadout() {
                         e.target.style.display = 'none';
                       }}
                     />
+                  ) : (
+                    <Avatar sx={{ 
+                      width: 48, 
+                      height: 48, 
+                      bgcolor: 'rgba(100, 181, 246, 0.2)',
+                      color: '#64b5f6',
+                      fontSize: '1.5rem',
+                      fontWeight: 'bold'
+                    }}>
+                      {drifter.name.charAt(0).toUpperCase()}
+                    </Avatar>
                   )}
                   <Typography sx={{ 
                     fontWeight: 600, 
@@ -1820,7 +1831,7 @@ export default function LegacyPlayerLoadout() {
                     opacity: 0.7,
                     textAlign: 'center'
                   }}>
-                    Level {drifter.level || 1}
+                    {drifter.special_abilities ? 'Special' : 'Available'}
                   </Typography>
                 </Button>
               ))}
