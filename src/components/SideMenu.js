@@ -14,7 +14,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
-import BuildRoundedIcon from '@mui/icons-material/BuildRounded';
 import RecommendRoundedIcon from '@mui/icons-material/RecommendRounded';
 import EventRoundedIcon from '@mui/icons-material/EventRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
@@ -36,7 +35,6 @@ const Drawer = styled(MuiDrawer)({
 const mainListItems = [
   { text: 'Dashboard', icon: <HomeRoundedIcon />, path: '/dashboard' },
   { text: 'Members', icon: <PeopleRoundedIcon />, path: '/members' },
-  { text: 'Loadouts', icon: <BuildRoundedIcon />, path: '/loadouts' },
   { text: 'Rec. Builds', icon: <RecommendRoundedIcon />, path: '/recbuilds' },
   { text: 'Events', icon: <EventRoundedIcon />, path: '/events' },
 ];
