@@ -178,13 +178,56 @@ export default function PlayerLoadout() {
       <Box sx={{ p: 3 }}>
         {/* Header */}
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mb: 1 }}>
-            {player.name} - Loadout
+          <Typography variant="h4" component="h1" sx={{ 
+            fontWeight: 600, 
+            mb: 1, 
+            textAlign: 'center',
+            color: '#64b5f6',
+            textShadow: '0 0 20px rgba(100, 181, 246, 0.5)'
+          }}>
+            {player.name}
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Manage gear and equipment for your drifters
+          <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 2 }}>
+            Player Loadout
           </Typography>
         </Box>
+
+        {/* Player Information Panel */}
+        <Card sx={{ mb: 3, bgcolor: 'grey.900' }}>
+          <CardContent>
+            <Stack spacing={1}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                <Typography variant="body2" color="text.secondary">Discord:</Typography>
+                <Typography variant="body2" fontWeight="medium">{player.discord_name || 'N/A'}</Typography>
+              </Box>
+              <Divider />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                <Typography variant="body2" color="text.secondary">Guild:</Typography>
+                <Typography variant="body2" fontWeight="medium">Violence2</Typography>
+              </Box>
+              <Divider />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                <Typography variant="body2" color="text.secondary">Level:</Typography>
+                <Typography variant="body2" fontWeight="medium">{player.level}</Typography>
+              </Box>
+              <Divider />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                <Typography variant="body2" color="text.secondary">Faction:</Typography>
+                <Typography variant="body2" fontWeight="medium">{player.faction}</Typography>
+              </Box>
+              <Divider />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                <Typography variant="body2" color="text.secondary">Role:</Typography>
+                <Typography variant="body2" fontWeight="medium">{player.role}</Typography>
+              </Box>
+              <Divider />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                <Typography variant="body2" color="text.secondary">Total Gear:</Typography>
+                <Typography variant="body2" fontWeight="medium">{gearItems.length}</Typography>
+              </Box>
+            </Stack>
+          </CardContent>
+        </Card>
 
         <Grid container spacing={3}>
           {/* Left Panel - Drifter Tabs */}
