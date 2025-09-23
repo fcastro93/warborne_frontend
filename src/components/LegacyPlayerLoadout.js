@@ -165,6 +165,65 @@ export default function LegacyPlayerLoadout() {
     setSelectedSkill(null);
   };
 
+  // Equip gear function
+  const handleEquipGear = async (gearItem, slotType) => {
+    try {
+      const currentDrifter = drifters[activeDrifterTab];
+      if (!currentDrifter) {
+        alert('Please select a drifter first');
+        return;
+      }
+
+      // For mods, we need to find the next available slot
+      let actualSlotType = slotType;
+      if (slotType === 'mod') {
+        const nextModSlot = getNextModSlot();
+        if (nextModSlot === null) {
+          alert('All mod slots are full!');
+          return;
+        }
+        // The backend will handle the mod slot assignment
+        actualSlotType = 'mod';
+      }
+
+      const response = await apiService.equipGear(
+        playerId,
+        gearItem.id,
+        currentDrifter.number,
+        actualSlotType
+      );
+
+      if (response.success) {
+        // Refresh the data to show the updated loadout
+        await fetchPlayerData();
+        alert('Gear equipped successfully!');
+      } else {
+        alert('Error equipping gear: ' + (response.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error equipping gear:', error);
+      alert('Error equipping gear: ' + error.message);
+    }
+  };
+
+  // Unequip gear function
+  const handleUnequipGear = async (gearItem) => {
+    try {
+      const response = await apiService.unequipGear(playerId, gearItem.id);
+
+      if (response.success) {
+        // Refresh the data to show the updated loadout
+        await fetchPlayerData();
+        alert('Gear unequipped successfully!');
+      } else {
+        alert('Error unequipping gear: ' + (response.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error unequipping gear:', error);
+      alert('Error unequipping gear: ' + error.message);
+    }
+  };
+
   // Helper function to get icon URL
   const getIconUrl = (item, fallback = '⚔️') => {
     // If item has icon_url, use it
@@ -189,6 +248,28 @@ export default function LegacyPlayerLoadout() {
   // Helper function to get drifter icon URL
   const getDrifterIconUrl = (iconId) => {
     return `/icons/${iconId}.png`;
+  };
+
+  // Helper function to check if an item is equipped
+  const isItemEquipped = (item) => {
+    if (!currentDrifter || !currentDrifter.gear_slots) return false;
+    
+    return currentDrifter.gear_slots.some(slot => 
+      slot && slot.gear_item && slot.gear_item.id === item.id
+    );
+  };
+
+  // Helper function to get the next available mod slot
+  const getNextModSlot = () => {
+    if (!currentDrifter || !currentDrifter.gear_slots) return null;
+    
+    // Find the first empty mod slot (slots 5-8 are mods)
+    for (let i = 5; i < 9; i++) {
+      if (!currentDrifter.gear_slots[i]) {
+        return i;
+      }
+    }
+    return null; // All mod slots are full
   };
 
   // Drifter name to icon ID mapping
@@ -675,6 +756,7 @@ export default function LegacyPlayerLoadout() {
                       return (
                         <Box
                           key={i}
+                          onClick={() => gear && handleUnequipGear(gear.gear_item)}
                           sx={{
                             width: '100%',
                             minWidth: 0,          // allow shrinking inside grid
@@ -689,11 +771,11 @@ export default function LegacyPlayerLoadout() {
                             justifyContent: 'center',
                             position: 'relative',
                             transition: 'all 0.3s ease',
-                            cursor: 'pointer',
+                            cursor: gear ? 'pointer' : 'default',
                             p: 1,
                             boxShadow: gear ? '0 0 15px rgba(76, 175, 80, 0.3)' : 'none',
                             '&:hover': {
-                              transform: 'translateY(-2px)',
+                              transform: gear ? 'translateY(-2px)' : 'none',
                               boxShadow: gear ? '0 0 20px rgba(76, 175, 80, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.3)'
                             }
                           }}
@@ -1083,8 +1165,23 @@ export default function LegacyPlayerLoadout() {
                     <Button
                       variant="contained"
                       size="small"
+                      onClick={() => {
+                        if (isItemEquipped(item)) {
+                          handleUnequipGear(item);
+                        } else {
+                          // For mods, check if there's an available slot
+                          if (item.gear_type.category === 'mod') {
+                            const nextModSlot = getNextModSlot();
+                            if (nextModSlot === null) {
+                              alert('All mod slots are full!');
+                              return;
+                            }
+                          }
+                          handleEquipGear(item, item.gear_type.category);
+                        }
+                      }}
                       sx={{
-                        background: '#4caf50',
+                        background: isItemEquipped(item) ? '#f44336' : '#4caf50',
                         color: 'white',
                         p: '4px 8px',
                         borderRadius: 0.5,
@@ -1093,11 +1190,11 @@ export default function LegacyPlayerLoadout() {
                         fontWeight: 600,
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          background: '#45a049'
+                          background: isItemEquipped(item) ? '#da190b' : '#45a049'
                         }
                       }}
                     >
-                      Equip
+                      {isItemEquipped(item) ? 'Unequip' : 'Equip'}
                     </Button>
                   </Box>
                 </Box>
