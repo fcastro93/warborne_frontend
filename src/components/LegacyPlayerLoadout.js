@@ -720,7 +720,7 @@ export default function LegacyPlayerLoadout() {
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Guild:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{player?.guild?.name || 'N/A'}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.guild || 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Level:</Typography>
