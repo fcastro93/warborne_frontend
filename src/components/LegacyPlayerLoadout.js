@@ -165,25 +165,6 @@ export default function LegacyPlayerLoadout() {
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.1)'
           }}>
-            {/* Back Button */}
-            <Button
-              startIcon={<ArrowBack />}
-              onClick={() => window.history.back()}
-              sx={{
-                mb: 2,
-                background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
-                color: 'white',
-                fontWeight: 600,
-                boxShadow: '0 4px 15px rgba(100, 181, 246, 0.3)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 20px rgba(100, 181, 246, 0.4)'
-                }
-              }}
-            >
-              Back
-            </Button>
 
             {/* Player Header */}
             <Box sx={{ textAlign: 'center', mb: 3, pb: 2.5, borderBottom: '2px solid rgba(255, 255, 255, 0.1)' }}>
@@ -460,113 +441,227 @@ export default function LegacyPlayerLoadout() {
                 </Box>
 
                 {/* Gear Slots */}
-                <Box sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(5, 1fr)',
-                  gap: 1.25,
-                  mb: 7.5
-                }}>
-                  {currentDrifter.gear_slots.map((gear, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        aspectRatio: '1',
-                        background: gear ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                        border: gear ? '2px solid #4caf50' : '2px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        position: 'relative',
-                        transition: 'all 0.3s ease',
-                        cursor: 'pointer',
-                        p: 1,
-                        boxShadow: gear ? '0 0 15px rgba(76, 175, 80, 0.3)' : 'none',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: gear ? '0 0 20px rgba(76, 175, 80, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.3)'
-                        }
-                      }}
-                    >
-                      {gear ? (
-                        <>
-                          <Box sx={{ width: 90, height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-                            <Avatar sx={{ width: 60, height: 60, bgcolor: 'rgba(255, 255, 255, 0.1)' }}>
-                              <Inventory2 />
-                            </Avatar>
-                          </Box>
-                          <Typography sx={{
-                            fontSize: '0.8rem',
-                            color: '#ffffff',
-                            fontWeight: 600,
-                            textAlign: 'center',
-                            mb: 0.375,
-                            lineHeight: 1.1
-                          }}>
-                            {gear.gear_item.base_name}
-                          </Typography>
-                          {gear.gear_item.skill_name && (
+                <Box sx={{ mb: 2 }}>
+                  {/* First Row - 5 Equipment Slots */}
+                  <Box sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(5, 1fr)',
+                    gap: 1.25,
+                    mb: 2
+                  }}>
+                    {currentDrifter.gear_slots.slice(0, 5).map((gear, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          aspectRatio: '1',
+                          background: gear ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                          border: gear ? '2px solid #4caf50' : '2px solid rgba(255, 255, 255, 0.1)',
+                          borderRadius: 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          position: 'relative',
+                          transition: 'all 0.3s ease',
+                          cursor: 'pointer',
+                          p: 1,
+                          boxShadow: gear ? '0 0 15px rgba(76, 175, 80, 0.3)' : 'none',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: gear ? '0 0 20px rgba(76, 175, 80, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.3)'
+                          }
+                        }}
+                      >
+                        {gear ? (
+                          <>
+                            <Box sx={{ width: 90, height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+                              <Avatar sx={{ width: 60, height: 60, bgcolor: 'rgba(255, 255, 255, 0.1)' }}>
+                                <Inventory2 />
+                              </Avatar>
+                            </Box>
                             <Typography sx={{
-                              fontSize: '0.7rem',
-                              color: '#64b5f6',
-                              fontStyle: 'italic',
+                              fontSize: '0.8rem',
+                              color: '#ffffff',
+                              fontWeight: 600,
                               textAlign: 'center',
                               mb: 0.375,
-                              lineHeight: 1.1,
-                              cursor: 'pointer',
-                              borderBottom: '1px dotted #64b5f6',
-                              transition: 'color 0.2s ease',
-                              '&:hover': {
-                                color: '#90caf9',
-                                borderBottomColor: '#90caf9'
-                              }
-                            }}
-                            onClick={() => showSkillModal(gear.gear_item.skill_name, 'No description available', gear.gear_item.game_id)}
-                            >
-                              {gear.gear_item.skill_name}
-                            </Typography>
-                          )}
-                          {gear.gear_item.health_bonus > 0 && (
-                            <Typography sx={{
-                              fontSize: '0.7rem',
-                              color: '#4caf50',
-                              textAlign: 'center',
                               lineHeight: 1.1
                             }}>
-                              HP: +{gear.gear_item.health_bonus}
+                              {gear.gear_item.base_name}
                             </Typography>
-                          )}
-                          <Typography sx={{
-                            position: 'absolute',
-                            bottom: -35,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            fontSize: '0.7rem',
-                            color: '#b0bec5',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {gear.gear_type.category}
-                          </Typography>
-                        </>
-                      ) : (
-                        <>
-                          <Typography sx={{ fontSize: '20px', opacity: 0.3, mb: 1 }}>⚪</Typography>
-                          <Typography sx={{
-                            position: 'absolute',
-                            bottom: -35,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            fontSize: '0.7rem',
-                            color: '#b0bec5',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {index < 5 ? ['Weapon', 'Helmet', 'Chest', 'Boots', 'Consumable'][index] : `Mod ${index - 4}`}
-                          </Typography>
-                        </>
-                      )}
-                    </Box>
-                  ))}
+                            {gear.gear_item.skill_name && (
+                              <Typography sx={{
+                                fontSize: '0.7rem',
+                                color: '#64b5f6',
+                                fontStyle: 'italic',
+                                textAlign: 'center',
+                                mb: 0.375,
+                                lineHeight: 1.1,
+                                cursor: 'pointer',
+                                borderBottom: '1px dotted #64b5f6',
+                                transition: 'color 0.2s ease',
+                                '&:hover': {
+                                  color: '#90caf9',
+                                  borderBottomColor: '#90caf9'
+                                }
+                              }}
+                              onClick={() => showSkillModal(gear.gear_item.skill_name, 'No description available', gear.gear_item.game_id)}
+                              >
+                                {gear.gear_item.skill_name}
+                              </Typography>
+                            )}
+                            {gear.gear_item.health_bonus > 0 && (
+                              <Typography sx={{
+                                fontSize: '0.7rem',
+                                color: '#4caf50',
+                                textAlign: 'center',
+                                lineHeight: 1.1
+                              }}>
+                                HP: +{gear.gear_item.health_bonus}
+                              </Typography>
+                            )}
+                            <Typography sx={{
+                              position: 'absolute',
+                              bottom: -35,
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              fontSize: '0.7rem',
+                              color: '#b0bec5',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {gear.gear_type.category}
+                            </Typography>
+                          </>
+                        ) : (
+                          <>
+                            <Typography sx={{ fontSize: '20px', opacity: 0.3, mb: 1 }}>⚪</Typography>
+                            <Typography sx={{
+                              position: 'absolute',
+                              bottom: -35,
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              fontSize: '0.7rem',
+                              color: '#b0bec5',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {['Weapon', 'Helmet', 'Chest', 'Boots', 'Consumable'][index]}
+                            </Typography>
+                          </>
+                        )}
+                      </Box>
+                    ))}
+                  </Box>
+
+                  {/* Second Row - 4 Mod Slots (centered) */}
+                  <Box sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gap: 1.25,
+                    maxWidth: '80%',
+                    margin: '0 auto'
+                  }}>
+                    {currentDrifter.gear_slots.slice(5, 9).map((gear, index) => (
+                      <Box
+                        key={index + 5}
+                        sx={{
+                          aspectRatio: '1',
+                          background: gear ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                          border: gear ? '2px solid #4caf50' : '2px solid rgba(255, 255, 255, 0.1)',
+                          borderRadius: 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          position: 'relative',
+                          transition: 'all 0.3s ease',
+                          cursor: 'pointer',
+                          p: 1,
+                          boxShadow: gear ? '0 0 15px rgba(76, 175, 80, 0.3)' : 'none',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: gear ? '0 0 20px rgba(76, 175, 80, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.3)'
+                          }
+                        }}
+                      >
+                        {gear ? (
+                          <>
+                            <Box sx={{ width: 90, height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+                              <Avatar sx={{ width: 60, height: 60, bgcolor: 'rgba(255, 255, 255, 0.1)' }}>
+                                <Inventory2 />
+                              </Avatar>
+                            </Box>
+                            <Typography sx={{
+                              fontSize: '0.8rem',
+                              color: '#ffffff',
+                              fontWeight: 600,
+                              textAlign: 'center',
+                              mb: 0.375,
+                              lineHeight: 1.1
+                            }}>
+                              {gear.gear_item.base_name}
+                            </Typography>
+                            {gear.gear_item.skill_name && (
+                              <Typography sx={{
+                                fontSize: '0.7rem',
+                                color: '#64b5f6',
+                                fontStyle: 'italic',
+                                textAlign: 'center',
+                                mb: 0.375,
+                                lineHeight: 1.1,
+                                cursor: 'pointer',
+                                borderBottom: '1px dotted #64b5f6',
+                                transition: 'color 0.2s ease',
+                                '&:hover': {
+                                  color: '#90caf9',
+                                  borderBottomColor: '#90caf9'
+                                }
+                              }}
+                              onClick={() => showSkillModal(gear.gear_item.skill_name, 'No description available', gear.gear_item.game_id)}
+                              >
+                                {gear.gear_item.skill_name}
+                              </Typography>
+                            )}
+                            {gear.gear_item.health_bonus > 0 && (
+                              <Typography sx={{
+                                fontSize: '0.7rem',
+                                color: '#4caf50',
+                                textAlign: 'center',
+                                lineHeight: 1.1
+                              }}>
+                                HP: +{gear.gear_item.health_bonus}
+                              </Typography>
+                            )}
+                            <Typography sx={{
+                              position: 'absolute',
+                              bottom: -35,
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              fontSize: '0.7rem',
+                              color: '#b0bec5',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {gear.gear_type.category}
+                            </Typography>
+                          </>
+                        ) : (
+                          <>
+                            <Typography sx={{ fontSize: '20px', opacity: 0.3, mb: 1 }}>⚪</Typography>
+                            <Typography sx={{
+                              position: 'absolute',
+                              bottom: -35,
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              fontSize: '0.7rem',
+                              color: '#b0bec5',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              Mod {index + 1}
+                            </Typography>
+                          </>
+                        )}
+                      </Box>
+                    ))}
+                  </Box>
                 </Box>
               </Box>
             )}
