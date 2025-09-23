@@ -96,6 +96,7 @@ export default function PlayerLoadout() {
     try {
       // Fetch player data
       const playerData = await apiService.getPlayer(playerId);
+      console.log('Player data:', playerData);
       setPlayer(playerData);
       
       // Fetch drifters data
@@ -198,7 +199,7 @@ export default function PlayerLoadout() {
             <Stack spacing={1}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
                 <Typography variant="body2" color="text.secondary">Discord:</Typography>
-                <Typography variant="body2" fontWeight="medium">{player.discord_name || 'N/A'}</Typography>
+                <Typography variant="body2" fontWeight="medium">{player?.discord_name || 'N/A'}</Typography>
               </Box>
               <Divider />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
@@ -208,22 +209,22 @@ export default function PlayerLoadout() {
               <Divider />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
                 <Typography variant="body2" color="text.secondary">Level:</Typography>
-                <Typography variant="body2" fontWeight="medium">{player.level}</Typography>
+                <Typography variant="body2" fontWeight="medium">{player?.level || 'N/A'}</Typography>
               </Box>
               <Divider />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
                 <Typography variant="body2" color="text.secondary">Faction:</Typography>
-                <Typography variant="body2" fontWeight="medium">{player.faction}</Typography>
+                <Typography variant="body2" fontWeight="medium">{player?.faction || 'N/A'}</Typography>
               </Box>
               <Divider />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
                 <Typography variant="body2" color="text.secondary">Role:</Typography>
-                <Typography variant="body2" fontWeight="medium">{player.role}</Typography>
+                <Typography variant="body2" fontWeight="medium">{player?.role || 'N/A'}</Typography>
               </Box>
               <Divider />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
                 <Typography variant="body2" color="text.secondary">Total Gear:</Typography>
-                <Typography variant="body2" fontWeight="medium">{gearItems.length}</Typography>
+                <Typography variant="body2" fontWeight="medium">{gearItems?.length || 0}</Typography>
               </Box>
             </Stack>
           </CardContent>
