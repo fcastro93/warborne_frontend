@@ -386,8 +386,8 @@ export default function PlayerLoadout() {
         <Grid container spacing={3}>
           {/* Player Information Panel - 3-3 Layout */}
           <Grid item xs={12}>
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              {/* Top Row - 3 Cards: Discord, Guild, Level */}
+            {/* Top Row - 3 Cards: Discord, Guild, Level */}
+            <Grid container spacing={2} sx={{ mb: 2 }}>
               <Grid item xs={12} sm={4}>
                 <Card sx={{ 
                   p: 3,
@@ -469,8 +469,10 @@ export default function PlayerLoadout() {
                   </Typography>
                 </Card>
               </Grid>
-              
-              {/* Bottom Row - 3 Cards: Role, In-Game Role, Total Gear */}
+            </Grid>
+            
+            {/* Bottom Row - 3 Cards: Role, In-Game Role, Total Gear */}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
               <Grid item xs={12} sm={4}>
                 <Card sx={{ 
                   p: 3,
