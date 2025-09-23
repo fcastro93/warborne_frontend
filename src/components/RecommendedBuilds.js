@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Paper, Avatar, Chip, IconButton, Tabs, Tab, Grid, Card, CardContent, TextField, InputAdornment, Stack, Divider, Badge, Alert, FormControl, Select, MenuItem, InputLabel, List, ListItem, ListItemText, ListItemIcon, ListItemButton, ListSubheader, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { ArrowBack, Add, Inventory2, Person, Search, Close, Edit, Check, Cancel, FilterList, LocalFireDepartment, Shield, Healing, Speed, FlashOn, MilitaryTech, Public, WorkspacePremium, Inventory, Security, Star, Diamond, AutoAwesome } from '@mui/icons-material';
 import Layout from './Layout';
@@ -77,6 +77,10 @@ const mockGearItems = [
 ];
 
 export default function RecommendedBuilds() {
+  const { buildId } = useParams();
+  const navigate = useNavigate();
+  const [currentBuild, setCurrentBuild] = useState(null);
+  const [recommendedBuilds, setRecommendedBuilds] = useState([]);
   const [drifters, setDrifters] = useState([]);
   const [allDrifters, setAllDrifters] = useState([]);
   const [gearItems, setGearItems] = useState([]);
@@ -113,6 +117,41 @@ export default function RecommendedBuilds() {
     try {
       setLoading(true);
 
+      // Fetch recommended builds
+      const buildsData = await apiService.getRecommendedBuilds();
+      console.log('Recommended builds data:', buildsData);
+      setRecommendedBuilds(buildsData.builds || []);
+
+      // If buildId is provided, find and set the current build
+      if (buildId && buildsData.builds) {
+        const build = buildsData.builds.find(b => b.id === parseInt(buildId));
+        if (build) {
+          setCurrentBuild(build);
+          // Set up the drifter data from the build
+          if (build.drifter) {
+            setDrifters([{
+              ...build.drifter,
+              number: 1,
+              gear_slots: [
+                build.weapon ? { gear_item: build.weapon, gear_type: { category: 'weapon' } } : null,
+                build.helmet ? { gear_item: build.helmet, gear_type: { category: 'helmet' } } : null,
+                build.chest ? { gear_item: build.chest, gear_type: { category: 'chest' } } : null,
+                build.boots ? { gear_item: build.boots, gear_type: { category: 'boots' } } : null,
+                build.consumable ? { gear_item: build.consumable, gear_type: { category: 'consumable' } } : null,
+                build.mod1 ? { gear_item: build.mod1, gear_type: { category: 'mod' } } : null,
+                build.mod2 ? { gear_item: build.mod2, gear_type: { category: 'mod' } } : null,
+                build.mod3 ? { gear_item: build.mod3, gear_type: { category: 'mod' } } : null,
+                build.mod4 ? { gear_item: build.mod4, gear_type: { category: 'mod' } } : null
+              ]
+            }]);
+          }
+        } else {
+          // Build not found, redirect to list
+          navigate('/recbuilds');
+          return;
+        }
+      }
+
       // Fetch gear items data
       const gearData = await apiService.getGearItems();
       console.log('Gear items data:', gearData);
@@ -124,8 +163,8 @@ export default function RecommendedBuilds() {
       console.log('All drifters data:', allDriftersData);
       setAllDrifters(allDriftersData.drifters || []);
 
-      // Initialize with first drifter selected
-      if (allDriftersData.drifters && allDriftersData.drifters.length > 0) {
+      // Initialize with first drifter selected if no buildId
+      if (!buildId && allDriftersData.drifters && allDriftersData.drifters.length > 0) {
         setDrifters([allDriftersData.drifters[0]]);
       }
 
@@ -549,6 +588,41 @@ export default function RecommendedBuilds() {
         color: '#ffffff',
         p: 2.5
       }}>
+        {/* Build Header - Only show when viewing specific build */}
+        {buildId && currentBuild && (
+          <Box sx={{ mb: 3, textAlign: 'center' }}>
+            <Button
+              onClick={() => navigate('/recbuilds')}
+              startIcon={<ArrowBack />}
+              sx={{
+                color: '#64b5f6',
+                mb: 2,
+                '&:hover': {
+                  bgcolor: 'rgba(100, 181, 246, 0.1)'
+                }
+              }}
+            >
+              Back to Builds
+            </Button>
+            <Typography variant="h4" sx={{
+              color: '#64b5f6',
+              fontWeight: 'bold',
+              mb: 1,
+              textShadow: '0 0 20px rgba(100, 181, 246, 0.5)'
+            }}>
+              {currentBuild.title}
+            </Typography>
+            <Typography variant="h6" sx={{ color: '#b0bec5', mb: 1 }}>
+              {currentBuild.role?.charAt(0).toUpperCase() + currentBuild.role?.slice(1)} Build
+            </Typography>
+            {currentBuild.description && (
+              <Typography sx={{ color: '#90caf9', maxWidth: '600px', mx: 'auto' }}>
+                {currentBuild.description}
+              </Typography>
+            )}
+          </Box>
+        )}
+
         {/* Container with 2 panels - 50% each */}
         <Box sx={{
           display: { xs: 'block', md: 'grid' },

@@ -15,6 +15,7 @@ import ListItemText from '@mui/material/ListItemText';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
 import BuildRoundedIcon from '@mui/icons-material/BuildRounded';
+import RecommendRoundedIcon from '@mui/icons-material/RecommendRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 
 const drawerWidth = 240;
@@ -34,6 +35,7 @@ const mainListItems = [
   { text: 'Dashboard', icon: <HomeRoundedIcon />, path: '/dashboard' },
   { text: 'Members', icon: <PeopleRoundedIcon />, path: '/members' },
   { text: 'Loadouts', icon: <BuildRoundedIcon />, path: '/loadouts' },
+  { text: 'Rec. Builds', icon: <RecommendRoundedIcon />, path: '/recbuilds' },
 ];
 
 const secondaryListItems = [
