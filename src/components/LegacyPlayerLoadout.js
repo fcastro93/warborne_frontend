@@ -165,6 +165,59 @@ export default function LegacyPlayerLoadout() {
     setSelectedSkill(null);
   };
 
+  // Helper function to get icon URL
+  const getIconUrl = (item, fallback = '⚔️') => {
+    // If item has icon_url, use it
+    if (item?.icon_url) {
+      return item.icon_url;
+    }
+    
+    // Otherwise, use the game_id to construct path to frontend icons
+    if (item?.game_id) {
+      return `/icons/${item.game_id}.png`;
+    }
+    
+    return null;
+  };
+
+  // Helper function to get drifter icon URL
+  const getDrifterIconUrl = (iconId) => {
+    return `/icons/${iconId}.png`;
+  };
+
+  // Drifter name to icon ID mapping
+  const drifterIconMap = {
+    'Sirokos': 'ParagonCard_Str_1',
+    'Varnax': 'ParagonCard_Str_4',
+    'Draknor': 'ParagonCard_Str_7',
+    'Elektrix': 'ParagonCard_Dex_1',
+    'Zero': 'ParagonCard_Dex_2',
+    'Sanguor': 'ParagonCard_Dex_3',
+    'Shadowseer': 'ParagonCard_Dex_4',
+    'Veska': 'ParagonCard_Dex_5',
+    'Moonveil': 'ParagonCard_Dex_6',
+    'Vire': 'ParagonCard_Dex_7',
+    'Kyra': 'ParagonCard_Str_2',
+    'Aegis': 'ParagonCard_Str_5',
+    'Auri': 'ParagonCard_Str_8',
+    'Nyxa': 'ParagonCard_Int_1',
+    'Vryssia': 'ParagonCard_Int_2',
+    'Stormblade': 'ParagonCard_Int_3',
+    'Solenne': 'ParagonCard_Int_4',
+    'Helix': 'ParagonCard_Int_6',
+    'Revelation': 'ParagonCard_Int_7',
+    'Mole': 'ParagonCard_Gather_1',
+    'Izzy': 'ParagonCard_Str_3',
+    'Durion': 'ParagonCard_Str_6',
+    'Firestorm': 'ParagonCard_Str_9',
+    'Overdrive': 'ParagonCard_Dex_8',
+    'Umbra': 'ParagonCard_Dex_9',
+    'Illusarch': 'ParagonCard_Int_9',
+    'Hive Queen': 'ParagonCard_Int_10',
+    'Raven': 'ParagonCard_Int_11',
+    'Astral Magus': 'ParagonCard_Int_13'
+  };
+
 
   // Group gear by type
   
@@ -422,12 +475,30 @@ export default function LegacyPlayerLoadout() {
                     transition: 'all 0.3s ease',
                     fontWeight: 600,
                     boxShadow: activeDrifterTab === index ? '0 0 15px rgba(100, 181, 246, 0.3)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
                     '&:hover': {
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: '#ffffff'
                     }
                   }}
                 >
+                  {drifterIconMap[drifter.name] && (
+                    <img 
+                      src={getDrifterIconUrl(drifterIconMap[drifter.name])} 
+                      alt={drifter.name}
+                      style={{ 
+                        width: 24, 
+                        height: 24, 
+                        objectFit: 'contain',
+                        borderRadius: '4px'
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  )}
                   {drifter.name}
                 </Button>
               ))}
@@ -633,11 +704,28 @@ export default function LegacyPlayerLoadout() {
                                   mb: 1
                                 }}
                               >
+                                {getIconUrl(gear.gear_item) ? (
+                                  <img 
+                                    src={getIconUrl(gear.gear_item)} 
+                                    alt={gear.gear_item.base_name}
+                                    style={{ 
+                                      width: '100%', 
+                                      height: '100%', 
+                                      objectFit: 'contain',
+                                      borderRadius: '4px'
+                                    }}
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                      e.target.nextSibling.style.display = 'flex';
+                                    }}
+                                  />
+                                ) : null}
                                 <Avatar
                                   sx={{
                                     width: { xs: 40, sm: 48, md: 56 },
                                     height: { xs: 40, sm: 48, md: 56 },
-                                    bgcolor: 'rgba(255, 255, 255, 0.1)'
+                                    bgcolor: 'rgba(255, 255, 255, 0.1)',
+                                    display: getIconUrl(gear.gear_item) ? 'none' : 'flex'
                                   }}
                                 >
                                   <Inventory2 />
@@ -902,7 +990,28 @@ export default function LegacyPlayerLoadout() {
                     justifyContent: 'center',
                     flexShrink: 0
                   }}>
-                    <Avatar sx={{ width: 60, height: 60, bgcolor: 'rgba(255, 255, 255, 0.1)' }}>
+                    {getIconUrl(item) ? (
+                      <img 
+                        src={getIconUrl(item)} 
+                        alt={item.base_name}
+                        style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          objectFit: 'contain',
+                          borderRadius: '4px'
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <Avatar sx={{ 
+                      width: 60, 
+                      height: 60, 
+                      bgcolor: 'rgba(255, 255, 255, 0.1)',
+                      display: getIconUrl(item) ? 'none' : 'flex'
+                    }}>
                       <Inventory2 />
                     </Avatar>
                   </Box>
@@ -1035,7 +1144,23 @@ export default function LegacyPlayerLoadout() {
                 justifyContent: 'center',
                 fontSize: '24px'
               }}>
-                ⚔️
+                {selectedSkill?.gameId ? (
+                  <img 
+                    src={`/icons/${selectedSkill.gameId}.png`} 
+                    alt={selectedSkill.skillName}
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'contain',
+                      borderRadius: '4px'
+                    }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'block';
+                    }}
+                  />
+                ) : null}
+                <span style={{ display: selectedSkill?.gameId ? 'none' : 'block' }}>⚔️</span>
               </Box>
               <Typography variant="h6" sx={{ color: '#ffffff', fontSize: '1.2rem', fontWeight: 600, margin: 0 }}>
                 {selectedSkill?.skillName || 'Unknown Skill'}
