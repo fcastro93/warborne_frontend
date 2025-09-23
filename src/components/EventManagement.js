@@ -24,6 +24,7 @@ import {
   Paper,
   Fab
 } from '@mui/material';
+import Layout from './Layout';
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -234,22 +235,23 @@ const EventManagement = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <EventIcon />
-          Event Management
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreateEvent}
-          sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
-        >
-          Create Event
-        </Button>
-      </Box>
+    <Layout>
+      <Box sx={{ p: 3 }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h4" component="h1" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <EventIcon />
+            Event Management
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleCreateEvent}
+            sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
+          >
+            Create Event
+          </Button>
+        </Box>
 
       {/* Alert */}
       {alert.show && (
@@ -557,7 +559,8 @@ const EventManagement = () => {
       >
         <AddIcon />
       </Fab>
-    </Box>
+      </Box>
+    </Layout>
   );
 };
 
