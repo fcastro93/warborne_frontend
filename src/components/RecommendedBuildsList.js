@@ -13,20 +13,8 @@ export default function RecommendedBuildsList() {
   const [createForm, setCreateForm] = useState({
     title: '',
     description: '',
-    role: '',
-    drifter: '',
-    weapon: '',
-    helmet: '',
-    chest: '',
-    boots: '',
-    consumable: '',
-    mod1: '',
-    mod2: '',
-    mod3: '',
-    mod4: ''
+    role: ''
   });
-  const [allDrifters, setAllDrifters] = useState([]);
-  const [gearItems, setGearItems] = useState([]);
 
   useEffect(() => {
     fetchRecommendedBuilds();
@@ -38,13 +26,6 @@ export default function RecommendedBuildsList() {
       const buildsData = await apiService.getRecommendedBuilds();
       console.log('Recommended builds data:', buildsData);
       setRecommendedBuilds(buildsData.builds || []);
-
-      // Also fetch drifters and gear items for the create form
-      const driftersData = await apiService.getAllDrifters();
-      setAllDrifters(driftersData.drifters || []);
-
-      const gearData = await apiService.getGearItems();
-      setGearItems(Array.isArray(gearData) ? gearData : (gearData.gear_items || []));
     } catch (error) {
       console.error('Error fetching recommended builds:', error);
     } finally {
@@ -65,17 +46,7 @@ export default function RecommendedBuildsList() {
     setCreateForm({
       title: '',
       description: '',
-      role: '',
-      drifter: '',
-      weapon: '',
-      helmet: '',
-      chest: '',
-      boots: '',
-      consumable: '',
-      mod1: '',
-      mod2: '',
-      mod3: '',
-      mod4: ''
+      role: ''
     });
   };
 
@@ -88,16 +59,64 @@ export default function RecommendedBuildsList() {
 
   const handleSubmitBuild = async () => {
     try {
-      // Here you would implement the API call to create a new build
-      console.log('Creating build with data:', createForm);
-      
-      // For now, just show a success message
-      alert('Build creation functionality will be implemented soon!');
-      handleCloseModal();
+      // Validate required fields
+      if (!createForm.title.trim()) {
+        alert('Please enter a build title');
+        return;
+      }
+      if (!createForm.description.trim()) {
+        alert('Please enter a build description');
+        return;
+      }
+      if (!createForm.role) {
+        alert('Please select a role');
+        return;
+      }
+
+      // Create the build via API
+      const response = await fetch('/api/builds/create/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          title: createForm.title,
+          description: createForm.description,
+          role: createForm.role
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        handleCloseModal();
+        // Navigate to the newly created build
+        navigate(`/recbuilds/${result.build_id}`);
+      } else {
+        const error = await response.json();
+        alert('Error creating build: ' + (error.error || 'Unknown error'));
+      }
     } catch (error) {
       console.error('Error creating build:', error);
       alert('Error creating build: ' + error.message);
     }
+  };
+
+  // Helper function to get CSRF token
+  const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
   };
 
   const getRoleColor = (role) => {
@@ -436,164 +455,62 @@ export default function RecommendedBuildsList() {
           </DialogTitle>
           
           <DialogContent sx={{ p: 3 }}>
-            <Grid container spacing={3}>
-              {/* Basic Information */}
-              <Grid item xs={12}>
-                <Typography variant="h6" sx={{ color: '#64b5f6', mb: 2 }}>
-                  Basic Information
-                </Typography>
-                <Stack spacing={2}>
-                  <TextField
-                    fullWidth
-                    label="Build Title"
-                    value={createForm.title}
-                    onChange={(e) => handleFormChange('title', e.target.value)}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        color: 'white',
-                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                        '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                        '&.Mui-focused fieldset': { borderColor: '#64b5f6' }
-                      },
-                      '& .MuiInputLabel-root': { color: '#b0bec5' }
-                    }}
-                  />
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={3}
-                    label="Description"
-                    value={createForm.description}
-                    onChange={(e) => handleFormChange('description', e.target.value)}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        color: 'white',
-                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                        '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                        '&.Mui-focused fieldset': { borderColor: '#64b5f6' }
-                      },
-                      '& .MuiInputLabel-root': { color: '#b0bec5' }
-                    }}
-                  />
-                  <FormControl fullWidth>
-                    <InputLabel sx={{ color: '#b0bec5' }}>Role</InputLabel>
-                    <Select
-                      value={createForm.role}
-                      onChange={(e) => handleFormChange('role', e.target.value)}
-                      sx={{
-                        color: 'white',
-                        '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#64b5f6' }
-                      }}
-                    >
-                      <MenuItem value="healer">Healer</MenuItem>
-                      <MenuItem value="tank">Tank</MenuItem>
-                      <MenuItem value="dps">DPS</MenuItem>
-                      <MenuItem value="support">Support</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Stack>
-              </Grid>
-
-              {/* Drifter Selection */}
-              <Grid item xs={12}>
-                <Typography variant="h6" sx={{ color: '#64b5f6', mb: 2 }}>
-                  Drifter
-                </Typography>
-                <FormControl fullWidth>
-                  <InputLabel sx={{ color: '#b0bec5' }}>Select Drifter</InputLabel>
-                  <Select
-                    value={createForm.drifter}
-                    onChange={(e) => handleFormChange('drifter', e.target.value)}
-                    sx={{
-                      color: 'white',
-                      '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                      '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#64b5f6' }
-                    }}
-                  >
-                    {allDrifters.map((drifter) => (
-                      <MenuItem key={drifter.id} value={drifter.id}>
-                        {drifter.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              {/* Equipment Selection */}
-              <Grid item xs={12}>
-                <Typography variant="h6" sx={{ color: '#64b5f6', mb: 2 }}>
-                  Equipment
-                </Typography>
-                <Grid container spacing={2}>
-                  {['weapon', 'helmet', 'chest', 'boots', 'consumable'].map((equipmentType) => (
-                    <Grid item xs={12} sm={6} key={equipmentType}>
-                      <FormControl fullWidth>
-                        <InputLabel sx={{ color: '#b0bec5' }}>
-                          {equipmentType.charAt(0).toUpperCase() + equipmentType.slice(1)}
-                        </InputLabel>
-                        <Select
-                          value={createForm[equipmentType]}
-                          onChange={(e) => handleFormChange(equipmentType, e.target.value)}
-                          sx={{
-                            color: 'white',
-                            '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#64b5f6' }
-                          }}
-                        >
-                          {gearItems
-                            .filter(item => item.gear_type?.category === equipmentType)
-                            .map((item) => (
-                              <MenuItem key={item.id} value={item.id}>
-                                {item.base_name} ({item.rarity})
-                              </MenuItem>
-                            ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Grid>
-
-              {/* Mods Selection */}
-              <Grid item xs={12}>
-                <Typography variant="h6" sx={{ color: '#64b5f6', mb: 2 }}>
-                  Mods
-                </Typography>
-                <Grid container spacing={2}>
-                  {['mod1', 'mod2', 'mod3', 'mod4'].map((modType) => (
-                    <Grid item xs={12} sm={6} key={modType}>
-                      <FormControl fullWidth>
-                        <InputLabel sx={{ color: '#b0bec5' }}>
-                          {modType.charAt(0).toUpperCase() + modType.slice(1)}
-                        </InputLabel>
-                        <Select
-                          value={createForm[modType]}
-                          onChange={(e) => handleFormChange(modType, e.target.value)}
-                          sx={{
-                            color: 'white',
-                            '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#64b5f6' }
-                          }}
-                        >
-                          {gearItems
-                            .filter(item => item.gear_type?.category === 'mod')
-                            .map((item) => (
-                              <MenuItem key={item.id} value={item.id}>
-                                {item.base_name} ({item.rarity})
-                              </MenuItem>
-                            ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Grid>
-            </Grid>
+            <Stack spacing={3}>
+              <TextField
+                fullWidth
+                label="Build Title"
+                value={createForm.title}
+                onChange={(e) => handleFormChange('title', e.target.value)}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: 'white',
+                    '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                    '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                    '&.Mui-focused fieldset': { borderColor: '#64b5f6' }
+                  },
+                  '& .MuiInputLabel-root': { color: '#b0bec5' }
+                }}
+              />
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Description"
+                value={createForm.description}
+                onChange={(e) => handleFormChange('description', e.target.value)}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: 'white',
+                    '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                    '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                    '&.Mui-focused fieldset': { borderColor: '#64b5f6' }
+                  },
+                  '& .MuiInputLabel-root': { color: '#b0bec5' }
+                }}
+              />
+              <FormControl fullWidth>
+                <InputLabel sx={{ color: '#b0bec5' }}>Role</InputLabel>
+                <Select
+                  value={createForm.role}
+                  onChange={(e) => handleFormChange('role', e.target.value)}
+                  sx={{
+                    color: 'white',
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#64b5f6' }
+                  }}
+                >
+                  <MenuItem value="ranged_dps">Ranged DPS</MenuItem>
+                  <MenuItem value="melee_dps">Melee DPS</MenuItem>
+                  <MenuItem value="tank">Tank</MenuItem>
+                  <MenuItem value="healer">Healer</MenuItem>
+                  <MenuItem value="defensive_tank">Defensive Tank</MenuItem>
+                  <MenuItem value="offensive_tank">Offensive Tank</MenuItem>
+                  <MenuItem value="offensive_support">Offensive Support</MenuItem>
+                  <MenuItem value="defensive_support">Defensive Support</MenuItem>
+                </Select>
+              </FormControl>
+            </Stack>
           </DialogContent>
           
           <DialogActions sx={{ p: 3, justifyContent: 'center' }}>
