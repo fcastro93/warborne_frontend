@@ -166,6 +166,9 @@ export default function LegacyPlayerLoadout() {
 
 
   // Group gear by type
+  console.log('All gear items:', gearItems);
+  console.log('Gear items length:', gearItems.length);
+  
   const gearByType = {
     weapon: gearItems.filter(item => item.gear_type.category === 'weapon'),
     helmet: gearItems.filter(item => item.gear_type.category === 'helmet'),
@@ -174,23 +177,38 @@ export default function LegacyPlayerLoadout() {
     consumable: gearItems.filter(item => item.gear_type.category === 'consumable'),
     mod: gearItems.filter(item => item.gear_type.category === 'mod')
   };
+  
+  console.log('Gear by type counts:', {
+    weapon: gearByType.weapon.length,
+    helmet: gearByType.helmet.length,
+    chest: gearByType.chest.length,
+    boots: gearByType.boots.length,
+    consumable: gearByType.consumable.length,
+    mod: gearByType.mod.length
+  });
 
   // Get current category items based on active tab
   const getCurrentCategoryItems = () => {
     const categories = ['weapon', 'helmet', 'chest', 'boots', 'consumable', 'mod'];
     const currentCategory = categories[activeItemTab];
+    console.log('Current category:', currentCategory, 'Active tab:', activeItemTab);
+    console.log('Gear by type:', gearByType);
     return gearByType[currentCategory] || [];
   };
 
   // Filter items by search and rarity
   const getFilteredItems = () => {
     const categoryItems = getCurrentCategoryItems();
-    return categoryItems.filter(item => {
+    console.log('Category items:', categoryItems);
+    console.log('Search term:', searchTerm, 'Filter rarity:', filterRarity);
+    const filtered = categoryItems.filter(item => {
       const matchesSearch = item.base_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            item.skill_name?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesRarity = filterRarity === 'all' || item.rarity === filterRarity;
       return matchesSearch && matchesRarity;
     });
+    console.log('Filtered items:', filtered);
+    return filtered;
   };
 
   const currentDrifter = drifters[activeDrifterTab] || null;
