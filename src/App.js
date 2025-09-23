@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import MembersPage from './components/MembersPage';
 import PlayerLoadout from './components/PlayerLoadout';
 import LegacyPlayerLoadout from './components/LegacyPlayerLoadout';
+import RecommendedBuilds from './components/RecommendedBuilds';
 import './App.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/player/:playerId/loadout" element={<LegacyPlayerLoadout />} />
+          <Route path="/recbuilds" element={<RecommendedBuilds />} />
         </Routes>
       </Router>
     </AppTheme>
