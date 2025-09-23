@@ -572,16 +572,6 @@ export default function LegacyPlayerLoadout() {
 
   const currentDrifter = activeDrifterTab >= 0 ? drifters[activeDrifterTab] || null : null;
   const hasSelectedDrifter = currentDrifter !== null && currentDrifter.gear_slots && currentDrifter.gear_slots.filter(slot => slot !== null).length > 0;
-  
-  // Debug logging to see what's happening
-  console.log('=== DRIFTER DEBUG ===');
-  console.log('activeDrifterTab:', activeDrifterTab);
-  console.log('currentDrifter:', currentDrifter);
-  console.log('currentDrifter.gear_slots:', currentDrifter?.gear_slots);
-  console.log('gear_slots length:', currentDrifter?.gear_slots?.length);
-  console.log('non-null slots:', currentDrifter?.gear_slots?.filter(slot => slot !== null).length);
-  console.log('hasSelectedDrifter:', hasSelectedDrifter);
-  console.log('===================');
 
   if (loading) {
     return (
@@ -795,11 +785,6 @@ export default function LegacyPlayerLoadout() {
             }}>
               {drifters.map((drifter, index) => {
                 const hasGearSlots = drifter.gear_slots && drifter.gear_slots.filter(slot => slot !== null).length > 0;
-                console.log(`Drifter ${index} (${drifter.name}):`, {
-                  gear_slots: drifter.gear_slots,
-                  nonNullSlots: drifter.gear_slots?.filter(slot => slot !== null).length,
-                  hasGearSlots: hasGearSlots
-                });
                 return (
                   <Button
                     key={index}
@@ -970,30 +955,6 @@ export default function LegacyPlayerLoadout() {
                       );
                     })()}
 
-                    <Box sx={{ textAlign: 'center', mt: 2.25 }}>
-                      <Button
-                        variant="contained"
-                        onClick={() => setShowDrifterModal(true)}
-                        sx={{
-                          background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
-                          color: 'white',
-                          border: 'none',
-                          px: 3,
-                          py: 1.2,
-                          borderRadius: 1,
-                          fontWeight: 700,
-                          boxShadow: '0 12px 30px rgba(66,165,245,.25)',
-                          transition: 'all .25s ease',
-                          '&:hover': {
-                            background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 18px 36px rgba(66,165,245,.35)',
-                          },
-                        }}
-                      >
-                        Change Drifter
-                      </Button>
-                    </Box>
                   </Box>
                 </Box>
 
@@ -1197,6 +1158,32 @@ export default function LegacyPlayerLoadout() {
                 </Typography>
               </Box>
             )}
+            
+            {/* Change Drifter Button - Always Visible */}
+            <Box sx={{ textAlign: 'center', mt: 2.25 }}>
+              <Button
+                variant="contained"
+                onClick={() => setShowDrifterModal(true)}
+                sx={{
+                  background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
+                  color: 'white',
+                  border: 'none',
+                  px: 3,
+                  py: 1.2,
+                  borderRadius: 1,
+                  fontWeight: 700,
+                  boxShadow: '0 12px 30px rgba(66,165,245,.25)',
+                  transition: 'all .25s ease',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 18px 36px rgba(66,165,245,.35)',
+                  },
+                }}
+              >
+                Change Drifter
+              </Button>
+            </Box>
           </Box>
 
           {/* RIGHT PANEL - Game Items */}
