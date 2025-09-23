@@ -520,6 +520,98 @@ export default function LegacyPlayerLoadout() {
     return iconMap[weaponType] || '⚔️';
   };
 
+  // Process mod description template with parameter substitution
+  const processModDescription = (item) => {
+    if (!item.description) {
+      return 'No description available';
+    }
+
+    let description = item.description;
+    
+    // For now, we'll show the template as-is since we don't have params from the API yet
+    // TODO: When backend provides params array, replace placeholders %s1%, %s2%, etc.
+    // description = description.replace(/%s(\d+)%/g, (match, index) => {
+    //   const paramIndex = parseInt(index) - 1; // Convert to 0-indexed
+    //   if (paramIndex >= 0 && paramIndex < item.params.length) {
+    //     return item.params[paramIndex].toString();
+    //   }
+    //   return '??'; // Missing parameter
+    // });
+
+    // Convert \n to <br /> for line breaks
+    description = description.replace(/\n/g, '<br />');
+
+    // Escape HTML to prevent XSS
+    description = description
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
+
+    return description;
+  };
+
+  // Enhanced description rendering with special formatting
+  const renderModDescription = (item) => {
+    const description = processModDescription(item);
+    
+    // Split into parts for special formatting
+    const parts = description.split(/(\[[^\]]+\]|Trigger Interval:|Cooldown:|Only triggers with)/);
+    
+    return parts.map((part, index) => {
+      if (part.startsWith('[') && part.endsWith(']')) {
+        // Wrap bracketed keywords in styled spans
+        return (
+          <span
+            key={index}
+            style={{
+              background: 'rgba(100, 181, 246, 0.2)',
+              color: '#64b5f6',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              fontSize: '0.85em',
+              fontWeight: '600'
+            }}
+          >
+            {part}
+          </span>
+        );
+      } else if (part === 'Trigger Interval:' || part === 'Cooldown:') {
+        // Style metadata as muted
+        return (
+          <span
+            key={index}
+            style={{
+              color: '#b0bec5',
+              fontSize: '0.9em',
+              fontStyle: 'italic'
+            }}
+          >
+            {part}
+          </span>
+        );
+      } else if (part === 'Only triggers with') {
+        // Style requirements
+        return (
+          <span
+            key={index}
+            style={{
+              color: '#ffb74d',
+              fontSize: '0.9em',
+              fontWeight: '600'
+            }}
+          >
+            {part}
+          </span>
+        );
+      } else {
+        // Regular text
+        return <span key={index} dangerouslySetInnerHTML={{ __html: part }} />;
+      }
+    });
+  };
+
   // Filter items by search, rarity, stat, and weapon type
   const getFilteredItems = () => {
     const categoryItems = getCurrentCategoryItems();
@@ -1539,6 +1631,29 @@ export default function LegacyPlayerLoadout() {
                         </Typography>
                       )}
                     </Box>
+                    
+                    {/* Mod Description */}
+                    {item.gear_type.category === 'mod' && item.description && (
+                      <Box sx={{ 
+                        mb: 0.5, 
+                        p: 0.5, 
+                        background: 'rgba(0, 0, 0, 0.3)', 
+                        borderRadius: 0.5,
+                        maxHeight: '60px',
+                        overflow: 'hidden',
+                        position: 'relative'
+                      }}>
+                        <Typography sx={{
+                          color: '#e2e8f0',
+                          fontSize: '0.75rem',
+                          lineHeight: 1.3,
+                          textAlign: 'left',
+                          wordBreak: 'break-word'
+                        }}>
+                          {renderModDescription(item)}
+                        </Typography>
+                      </Box>
+                    )}
                     
                     <Button
                       variant="contained"
