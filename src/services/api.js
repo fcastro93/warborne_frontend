@@ -21,6 +21,17 @@ export const apiService = {
     return response.json();
   },
 
+  async getDiscordPresence(discordUserIds) {
+    const response = await fetch(`${API_BASE_URL}/discord/presence/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user_ids: discordUserIds }),
+    });
+    return response.json();
+  },
+
   async getRecentEvents() {
     const response = await fetch(`${API_BASE_URL}/events/`);
     return response.json();

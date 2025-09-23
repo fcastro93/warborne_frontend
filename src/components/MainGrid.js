@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Box, Typography, Card, CardContent, Stack, Button } from '@mui/material';
-import { TrendingUp, TrendingDown, TrendingFlat, FlashOn } from '@mui/icons-material';
+import { Grid, Box, Typography } from '@mui/material';
 import StatCard from './StatCard';
 import GuildMembersTable from './GuildMembersTable';
 import RecentEvents from './RecentEvents';
-import GearOverview from './GearOverview';
-import GuildStats from './GuildStats';
-import RecommendedBuilds from './RecommendedBuilds';
 import { apiService } from '../services/api';
 
 export default function MainGrid() {
@@ -67,12 +63,6 @@ export default function MainGrid() {
       interval: 'vs. last week',
       data: generateWeeklyTrendData(guildStats?.active_events),
     },
-    {
-      title: 'Gear Items',
-      value: guildStats?.total_gear?.toString() || '0',
-      interval: 'vs. last week',
-      data: generateWeeklyTrendData(guildStats?.total_gear),
-    },
   ];
   return (
     <Box sx={{ width: '100%', maxWidth: { sm: "100%", md: "1700px" } }}>
@@ -87,47 +77,22 @@ export default function MainGrid() {
         sx={{ mb: (theme) => theme.spacing(2) }}
       >
         {data.map((card, index) => (
-          <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
+          <Grid key={index} size={{ xs: 12, sm: 6, lg: 6 }}>
             <StatCard {...card} />
           </Grid>
         ))}
-        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-          <Card sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                <FlashOn />
-                <Typography variant="h6">Guild Management</Typography>
-              </Stack>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                Manage your guild members, events, and gear with powerful tools.
-              </Typography>
-              <Button variant="contained" color="inherit" size="small">
-                Manage Guild
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
+      </Grid>
+
+      {/* Latest Members and Recent Events Section */}
+      <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
+        Latest Members & Recent Events
+      </Typography>
+      <Grid container spacing={2} columns={12}>
         <Grid size={{ xs: 12, md: 6 }}>
           <GuildMembersTable />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <RecentEvents />
-        </Grid>
-      </Grid>
-
-      {/* Guild Management Section */}
-      <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
-        Guild Management
-      </Typography>
-      <Grid container spacing={2} columns={12}>
-        <Grid size={{ xs: 12, lg: 9 }}>
-          <GearOverview />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 3 }}>
-          <Stack gap={2} direction={{ xs: 'column', sm: 'row', lg: 'column' }}>
-            <GuildStats />
-            <RecommendedBuilds />
-          </Stack>
         </Grid>
       </Grid>
     </Box>

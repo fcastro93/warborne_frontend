@@ -18,20 +18,21 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check if user is logged in on app start
     const verifyAuth = async () => {
-      const token = localStorage.getItem('authToken');
+      const userData = localStorage.getItem('userData');
       
-      if (token) {
+      if (userData) {
         try {
+          // Verify the session is still valid
           const result = await authService.verifyToken();
           if (result.success) {
             setUser(result.user);
           } else {
-            // Token is invalid, clear it
+            // Session is invalid, clear it
             localStorage.removeItem('authToken');
             localStorage.removeItem('userData');
           }
         } catch (error) {
-          console.error('Token verification error:', error);
+          console.error('Session verification error:', error);
           localStorage.removeItem('authToken');
           localStorage.removeItem('userData');
         }
@@ -45,35 +46,15 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      // For now, we'll use a simple mock authentication
-      // TODO: Replace with real API call when backend is ready
-      if (username === 'admin' && password === 'admin') {
-        const userData = {
-          id: 1,
-          username: 'admin',
-          name: 'Administrator',
-          role: 'admin'
-        };
-        
-        const token = 'mock-jwt-token-' + Date.now();
-        
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userData', JSON.stringify(userData));
-        
-        setUser(userData);
-        return { success: true };
-      } else {
-        return { success: false, error: 'Invalid username or password' };
+      // Use Django's built-in authentication
+      const result = await authService.login(username, password);
+      if (result.success) {
+        // Store user data in localStorage for persistence
+        localStorage.setItem('authToken', 'django-session');
+        localStorage.setItem('userData', JSON.stringify(result.user));
+        setUser(result.user);
       }
-      
-      // Real API call (uncomment when backend is ready):
-      // const result = await authService.login(username, password);
-      // if (result.success) {
-      //   localStorage.setItem('authToken', result.token);
-      //   localStorage.setItem('userData', JSON.stringify(result.user));
-      //   setUser(result.user);
-      // }
-      // return result;
+      return result;
     } catch (error) {
       return { success: false, error: 'Login failed. Please try again.' };
     }

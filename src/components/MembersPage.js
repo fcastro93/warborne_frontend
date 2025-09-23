@@ -40,6 +40,8 @@ import {
   Edit,
   Delete,
   Visibility,
+  Message,
+  Circle,
 } from '@mui/icons-material';
 import Layout from './Layout';
 import { apiService } from '../services/api';
@@ -93,6 +95,38 @@ const getFactionColor = (faction) => {
   }
 };
 
+// Discord-specific helper functions
+const getDiscordStatusColor = (status) => {
+  switch (status?.toLowerCase()) {
+    case 'online': return 'success';
+    case 'idle': return 'warning';
+    case 'dnd': return 'error';
+    case 'offline': return 'default';
+    default: return 'default';
+  }
+};
+
+const getDiscordStatusIcon = (status) => {
+  switch (status?.toLowerCase()) {
+    case 'online': return <Circle sx={{ color: '#43b581', fontSize: 12 }} />;
+    case 'idle': return <Circle sx={{ color: '#faa61a', fontSize: 12 }} />;
+    case 'dnd': return <Circle sx={{ color: '#f04747', fontSize: 12 }} />;
+    case 'offline': return <Circle sx={{ color: '#747f8d', fontSize: 12 }} />;
+    default: return <Circle sx={{ color: '#747f8d', fontSize: 12 }} />;
+  }
+};
+
+const handleDiscordMessage = (discordUserId) => {
+  if (!discordUserId) {
+    console.warn('No Discord User ID provided');
+    return;
+  }
+  
+  // Open Discord DM in new tab
+  const discordUrl = `https://discord.com/users/${discordUserId}`;
+  window.open(discordUrl, '_blank');
+};
+
 export default function MembersPage() {
   const navigate = useNavigate();
   const [members, setMembers] = useState([]);
@@ -100,6 +134,7 @@ export default function MembersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
+  const [discordPresence, setDiscordPresence] = useState({});
   const [editFormData, setEditFormData] = useState({
     name: '',
     role: '',
@@ -116,6 +151,8 @@ export default function MembersPage() {
         const data = await apiService.getGuildMembers();
         if (data.members) {
           setMembers(data.members);
+          // Fetch Discord presence for members with Discord IDs
+          fetchDiscordPresence(data.members);
         }
       } catch (error) {
         console.error('Error fetching guild members:', error);
@@ -126,6 +163,32 @@ export default function MembersPage() {
 
     fetchMembers();
   }, []);
+
+  const fetchDiscordPresence = async (members) => {
+    try {
+      // Get members with Discord user IDs
+      const membersWithDiscord = members.filter(member => member.discord_user_id);
+      
+      if (membersWithDiscord.length === 0) return;
+      
+      // Fetch Discord presence data from backend
+      const presenceData = await apiService.getDiscordPresence(
+        membersWithDiscord.map(member => member.discord_user_id)
+      );
+      
+      setDiscordPresence(presenceData);
+    } catch (error) {
+      console.error('Error fetching Discord presence:', error);
+      // Set default offline status for all members
+      const defaultPresence = {};
+      members.forEach(member => {
+        if (member.discord_user_id) {
+          defaultPresence[member.discord_user_id] = { status: 'offline' };
+        }
+      });
+      setDiscordPresence(defaultPresence);
+    }
+  };
 
   const filteredMembers = members.filter(member =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -268,7 +331,7 @@ export default function MembersPage() {
               <TableCell>Game Role</TableCell>
               <TableCell>Level</TableCell>
               <TableCell>Faction</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>Discord Status</TableCell>
               <TableCell>Drifters</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -321,11 +384,29 @@ export default function MembersPage() {
                   />
                 </TableCell>
                 <TableCell>
-                  <Chip
-                    label={member.status}
-                    color={getStatusColor(member.status)}
-                    size="small"
-                  />
+                  {member.discord_user_id ? (
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      {getDiscordStatusIcon(
+                        discordPresence[member.discord_user_id]?.status || 'offline'
+                      )}
+                      <Chip
+                        label={
+                          discordPresence[member.discord_user_id]?.status?.toUpperCase() || 'OFFLINE'
+                        }
+                        color={getDiscordStatusColor(
+                          discordPresence[member.discord_user_id]?.status || 'offline'
+                        )}
+                        size="small"
+                      />
+                    </Stack>
+                  ) : (
+                    <Chip
+                      label="NO DISCORD"
+                      color="default"
+                      size="small"
+                      variant="outlined"
+                    />
+                  )}
                 </TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', gap: 0.5 }}>
@@ -351,6 +432,17 @@ export default function MembersPage() {
                         <Visibility fontSize="small" />
                       </IconButton>
                     </Tooltip>
+                    {member.discord_user_id && (
+                      <Tooltip title="Message on Discord">
+                        <IconButton 
+                          size="small" 
+                          color="info"
+                          onClick={() => handleDiscordMessage(member.discord_user_id)}
+                        >
+                          <Message fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                     <Tooltip title="Edit Member">
                       <IconButton 
                         size="small" 

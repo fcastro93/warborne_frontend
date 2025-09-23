@@ -132,11 +132,16 @@ export default function GuildMembersTable() {
       try {
         const data = await apiService.getGuildMembers();
         if (data.members && data.members.length > 0) {
-          setMembers(data.members);
+          // Show only the latest 5 members
+          setMembers(data.members.slice(0, 5));
+        } else {
+          // Use fallback data but limit to 5
+          setMembers(fallbackMembers.slice(0, 5));
         }
       } catch (error) {
         console.error('Error fetching guild members:', error);
-        // Keep fallback data
+        // Keep fallback data but limit to 5
+        setMembers(fallbackMembers.slice(0, 5));
       } finally {
         setLoading(false);
       }
@@ -150,29 +155,33 @@ export default function GuildMembersTable() {
   }
 
   return (
-    <TableContainer>
-      <Table 
-        sx={{
-          '& .MuiTableRow-root': {
-            '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    <Box>
+      <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+        Latest 5 Members
+      </Typography>
+      <TableContainer>
+        <Table 
+          sx={{
+            '& .MuiTableRow-root': {
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              },
             },
-          },
-          '& .MuiTableCell-root': {
-            borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
-            padding: '8px 16px',
-          },
-          '& .MuiTableHead-root .MuiTableCell-root': {
-            borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
-            fontWeight: 600,
-            fontSize: '0.875rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.02)',
-            color: 'rgba(255, 255, 255, 0.87)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-          },
-        }}
-      >
+            '& .MuiTableCell-root': {
+              borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+              padding: '8px 16px',
+            },
+            '& .MuiTableHead-root .MuiTableCell-root': {
+              borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              color: 'rgba(255, 255, 255, 0.87)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            },
+          }}
+        >
         <TableHead>
           <TableRow>
             <TableCell>Player</TableCell>
@@ -245,7 +254,8 @@ export default function GuildMembersTable() {
             </TableRow>
           ))}
         </TableBody>
-      </Table>
-    </TableContainer>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
