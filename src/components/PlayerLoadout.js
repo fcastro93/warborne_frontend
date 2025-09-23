@@ -207,10 +207,11 @@ export default function PlayerLoadout() {
 
   const fetchPlayerData = async () => {
     try {
-      // Fetch player data
-      const playerData = await apiService.getPlayer(playerId);
-      console.log('Player data:', playerData);
-      setPlayer(playerData);
+            // Fetch player data
+            const playerData = await apiService.getPlayer(playerId);
+            console.log('Player data:', playerData);
+            console.log('Game role field:', playerData?.game_role, playerData?.in_game_role);
+            setPlayer(playerData);
       
       // Fetch drifters data
       const driftersData = await apiService.getPlayerDrifters(playerId);
@@ -385,7 +386,7 @@ export default function PlayerLoadout() {
         <Grid container spacing={3}>
           {/* Player Information Panel - 3-3-1 Layout */}
           <Grid item xs={12}>
-            <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid container spacing={2} sx={{ mb: 3, display: 'flex', flexWrap: 'wrap' }}>
               {/* Top Row - 3 Cards */}
               <Grid item xs={12} sm={4}>
                 <Card sx={{ 
@@ -547,7 +548,7 @@ export default function PlayerLoadout() {
                     In-Game Role
                   </Typography>
                   <Typography variant="body2" fontWeight="bold" color="error.main">
-                    {player?.in_game_role || 'N/A'}
+                    {player?.game_role || player?.in_game_role || 'N/A'}
                   </Typography>
                 </Card>
               </Grid>
