@@ -259,8 +259,7 @@ const EventManagement = () => {
   };
 
   const handleViewDetails = (eventId) => {
-    // TODO: Open details modal
-    console.log('View details for event:', eventId);
+    window.open(`/events/${eventId}`, '_blank');
   };
 
   const handleCreateParties = async (eventId) => {
@@ -365,7 +364,7 @@ const EventManagement = () => {
       ) : (
         <Grid container spacing={3}>
           {events.map((event) => (
-            <Grid item xs={12} md={6} lg={4} key={event.id}>
+            <Grid item xs={12} sm={6} md={3} key={event.id}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -418,11 +417,28 @@ const EventManagement = () => {
                 </CardContent>
 
                 <Box sx={{ p: 2, pt: 0 }}>
-                  <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                  {/* Single Responsive Row of Buttons */}
+                  <Box sx={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap', 
+                    gap: 0.5,
+                    justifyContent: 'center',
+                    '& .MuiButton-root': {
+                      minWidth: 'auto',
+                      fontSize: '0.75rem',
+                      px: 1,
+                      py: 0.5
+                    }
+                  }}>
                     <Button
                       size="small"
                       startIcon={<EditIcon />}
                       onClick={() => handleEditEvent(event)}
+                      sx={{ 
+                        bgcolor: '#4a9eff', 
+                        color: 'white',
+                        '&:hover': { bgcolor: '#357abd' }
+                      }}
                     >
                       Edit
                     </Button>
@@ -431,13 +447,14 @@ const EventManagement = () => {
                       color="error"
                       startIcon={<DeleteIcon />}
                       onClick={() => handleDeleteEvent(event.id)}
+                      sx={{ 
+                        bgcolor: '#ff4757', 
+                        color: 'white',
+                        '&:hover': { bgcolor: '#ff3742' }
+                      }}
                     >
                       Cancel
                     </Button>
-                  </Stack>
-                  
-                  {/* New Action Buttons Row */}
-                  <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
                     <Button
                       size="small"
                       variant="outlined"
@@ -475,7 +492,7 @@ const EventManagement = () => {
                         '&:hover': { borderColor: '#d32f2f', bgcolor: 'rgba(244, 67, 54, 0.1)' }
                       }}
                     >
-                      Create Parties
+                      Parties
                     </Button>
                     <Button
                       size="small"
@@ -488,9 +505,9 @@ const EventManagement = () => {
                         '&:hover': { borderColor: '#455a64', bgcolor: 'rgba(96, 125, 139, 0.1)' }
                       }}
                     >
-                      Create Guild Parties
+                      Guild
                     </Button>
-                  </Stack>
+                  </Box>
                 </Box>
               </Card>
             </Grid>

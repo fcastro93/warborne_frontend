@@ -8,6 +8,7 @@ import LegacyPlayerLoadout from './components/LegacyPlayerLoadout';
 import RecommendedBuilds from './components/RecommendedBuilds';
 import RecommendedBuildsList from './components/RecommendedBuildsList';
 import EventManagement from './components/EventManagement';
+import EventDetails from './components/EventDetails';
 import './App.css';
 
 function App() {
@@ -19,9 +20,10 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/player/:playerId/loadout" element={<LegacyPlayerLoadout />} />
-          <Route path="/recbuilds" element={<RecommendedBuildsList />} />
-          <Route path="/recbuilds/:buildId" element={<RecommendedBuilds />} />
-          <Route path="/events" element={<EventManagement />} />
+        <Route path="/recbuilds" element={<RecommendedBuildsList />} />
+        <Route path="/recbuilds/:buildId" element={<RecommendedBuilds />} />
+        <Route path="/events" element={<EventManagement />} />
+        <Route path="/events/:eventId" element={<EventDetails />} />
         </Routes>
       </Router>
     </AppTheme>
