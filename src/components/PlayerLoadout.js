@@ -387,7 +387,19 @@ export default function PlayerLoadout() {
           {/* Player Information Panel - 3-3 Layout */}
           <Grid item xs={12}>
             {/* Top Row - 3 Cards: Discord, Guild, Level */}
-            <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid container spacing={2} sx={{ 
+              mb: 2,
+              '& .MuiCard-root': {
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '120px',
+                minHeight: '120px',
+                width: '100%',
+                height: '140px'
+              }
+            }}>
               <Grid item xs={12} sm={4} md={4}>
                 <Card sx={{ 
                   p: 3,
@@ -478,7 +490,19 @@ export default function PlayerLoadout() {
             </Grid>
             
             {/* Bottom Row - 3 Cards: Role, In-Game Role, Total Gear */}
-            <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid container spacing={2} sx={{ 
+              mb: 3,
+              '& .MuiCard-root': {
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '120px',
+                minHeight: '120px',
+                width: '100%',
+                height: '140px'
+              }
+            }}>
               <Grid item xs={12} sm={4} md={4}>
                 <Card sx={{ 
                   p: 3,
