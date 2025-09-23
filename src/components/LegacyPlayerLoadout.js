@@ -104,6 +104,14 @@ export default function LegacyPlayerLoadout() {
     fetchPlayerData();
   }, [playerId]);
 
+  // Reset rarity filter if current selection is not available in the category
+  useEffect(() => {
+    const availableRarities = getAvailableRarities();
+    if (!availableRarities.includes(filterRarity)) {
+      setFilterRarity('all');
+    }
+  }, [activeItemTab, gearItems]);
+
   const fetchPlayerData = async () => {
     try {
       setLoading(true);
@@ -433,6 +441,13 @@ export default function LegacyPlayerLoadout() {
   const getCurrentCategoryItems = () => {
     const currentCategory = getCurrentCategory();
     return gearByType[currentCategory] || [];
+  };
+
+  // Get available rarities for current category
+  const getAvailableRarities = () => {
+    const categoryItems = getCurrentCategoryItems();
+    const rarities = [...new Set(categoryItems.map(item => item.rarity).filter(Boolean))];
+    return ['all', ...rarities.sort()];
   };
 
   // Filter items by search, rarity, stat, and weapon type
@@ -1197,7 +1212,7 @@ export default function LegacyPlayerLoadout() {
 
               {/* Rarity Filters */}
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                {['all', 'common', 'rare', 'epic', 'legendary'].map((rarity) => (
+                {getAvailableRarities().map((rarity) => (
                   <Button
                     key={rarity}
                     onClick={() => setFilterRarity(rarity)}
