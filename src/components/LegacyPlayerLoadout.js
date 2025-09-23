@@ -338,109 +338,136 @@ export default function LegacyPlayerLoadout() {
                   p: 1.875,
                   mb: 2.5
                 }}>
-                  <Typography sx={{
-                    color: '#ffffff',
-                    fontSize: '1.2rem',
-                    fontWeight: 600,
-                    mb: 1.875,
-                    textAlign: 'center',
-                    borderBottom: '2px solid rgba(100, 181, 246, 0.3)',
-                    pb: 1.25
-                  }}>
-                    Basic stats of the drifter
-                  </Typography>
-                  
-                  <Grid container spacing={1.25}>
-                    <Grid item xs={6}>
-                      <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        p: '8px 12px',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 0.75,
-                        borderLeft: '3px solid #64b5f6'
-                      }}>
-                        <Typography sx={{ color: '#90caf9', fontSize: '0.9rem' }}>Health</Typography>
-                        <Typography sx={{ color: '#ffffff', fontWeight: 600 }}>{currentDrifter.base_health}</Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        p: '8px 12px',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 0.75,
-                        borderLeft: '3px solid #64b5f6'
-                      }}>
-                        <Typography sx={{ color: '#90caf9', fontSize: '0.9rem' }}>Energy</Typography>
-                        <Typography sx={{ color: '#ffffff', fontWeight: 600 }}>{currentDrifter.base_energy}</Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        p: '8px 12px',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 0.75,
-                        borderLeft: '3px solid #64b5f6'
-                      }}>
-                        <Typography sx={{ color: '#90caf9', fontSize: '0.9rem' }}>Damage</Typography>
-                        <Typography sx={{ color: '#ffffff', fontWeight: 600 }}>{currentDrifter.base_damage}</Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        p: '8px 12px',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 0.75,
-                        borderLeft: '3px solid #64b5f6'
-                      }}>
-                        <Typography sx={{ color: '#90caf9', fontSize: '0.9rem' }}>Defense</Typography>
-                        <Typography sx={{ color: '#ffffff', fontWeight: 600 }}>{currentDrifter.base_defense}</Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        p: '8px 12px',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 0.75,
-                        borderLeft: '3px solid #64b5f6'
-                      }}>
-                        <Typography sx={{ color: '#90caf9', fontSize: '0.9rem' }}>Speed</Typography>
-                        <Typography sx={{ color: '#ffffff', fontWeight: 600 }}>{currentDrifter.base_speed}</Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-
-                  <Box sx={{ textAlign: 'center', mt: 1.875 }}>
-                    <Button
-                      variant="contained"
+                  {/* Drifter Stats */}
+                  <Box
+                    sx={{
+                      background:
+                        'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))',
+                      borderRadius: 1.25,
+                      p: 2,
+                      mb: 2.5,
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Typography
                       sx={{
-                        background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
-                        color: 'white',
-                        border: 'none',
-                        p: '10px 20px',
-                        borderRadius: 1,
-                        fontSize: '0.9rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 15px rgba(100, 181, 246, 0.3)',
-                        '&:hover': {
-                          background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 20px rgba(100, 181, 246, 0.4)'
-                        }
+                        color: '#ffffff',
+                        fontSize: '1.2rem',
+                        fontWeight: 700,
+                        textAlign: 'center',
+                        pb: 1.25,
+                        mb: 2,
+                        borderBottom: '1px solid rgba(100,181,246,0.35)',
                       }}
                     >
-                      Change Drifter
-                    </Button>
+                      Basic stats of the drifter
+                    </Typography>
+
+                    {/*
+                      Build a small model for the chips so it's easy to tweak labels or colors later.
+                    */}
+                    {(() => {
+                      const statItems = [
+                        { label: 'Health',  value: currentDrifter.base_health,  Icon: Healing,      accent: '#66bb6a' },
+                        { label: 'Energy',  value: currentDrifter.base_energy,  Icon: FlashOn,      accent: '#64b5f6' },
+                        { label: 'Damage',  value: currentDrifter.base_damage,  Icon: MilitaryTech, accent: '#ffb74d' },
+                        { label: 'Defense', value: currentDrifter.base_defense, Icon: Shield,       accent: '#b39ddb' },
+                        { label: 'Speed',   value: currentDrifter.base_speed,   Icon: Speed,        accent: '#4dd0e1' },
+                      ];
+
+                      return (
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: 1.25,
+                            justifyContent: { xs: 'center', md: 'flex-start' },
+                          }}
+                        >
+                          {statItems.map(({ label, value, Icon, accent }) => (
+                            <Paper
+                              key={label}
+                              elevation={0}
+                              sx={{
+                                minWidth: 190,
+                                px: 1.5,
+                                py: 1.25,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.25,
+                                borderRadius: 1.25,
+                                background:
+                                  'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.04))',
+                                border: '1px solid rgba(255,255,255,0.08)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                transition: 'transform .2s ease, box-shadow .2s ease',
+                                '&::before': {
+                                  content: '""',
+                                  position: 'absolute',
+                                  left: 0,
+                                  top: 0,
+                                  bottom: 0,
+                                  width: 4,
+                                  background: accent,
+                                  opacity: 0.9,
+                                },
+                                '&:hover': {
+                                  transform: 'translateY(-2px)',
+                                  boxShadow: '0 10px 24px rgba(100,181,246,.18)',
+                                },
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  p: 0.75,
+                                  borderRadius: 1,
+                                  background: `linear-gradient(135deg, ${accent}33, ${accent}22)`,
+                                  display: 'grid',
+                                  placeItems: 'center',
+                                }}
+                              >
+                                <Icon sx={{ fontSize: 20, color: accent }} />
+                              </Box>
+                              <Box sx={{ lineHeight: 1 }}>
+                                <Typography sx={{ color: '#b0bec5', fontSize: '.9rem', fontWeight: 600 }}>
+                                  {label}
+                                </Typography>
+                                <Typography sx={{ color: '#fff', fontWeight: 800, fontSize: '1.15rem' }}>
+                                  {value}
+                                </Typography>
+                              </Box>
+                            </Paper>
+                          ))}
+                        </Box>
+                      );
+                    })()}
+
+                    <Box sx={{ textAlign: 'center', mt: 2.25 }}>
+                      <Button
+                        variant="contained"
+                        sx={{
+                          background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
+                          color: 'white',
+                          border: 'none',
+                          px: 3,
+                          py: 1.2,
+                          borderRadius: 1,
+                          fontWeight: 700,
+                          boxShadow: '0 12px 30px rgba(66,165,245,.25)',
+                          transition: 'all .25s ease',
+                          '&:hover': {
+                            background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 18px 36px rgba(66,165,245,.35)',
+                          },
+                        }}
+                      >
+                        Change Drifter
+                      </Button>
+                    </Box>
                   </Box>
                 </Box>
 
