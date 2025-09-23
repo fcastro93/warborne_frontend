@@ -1,6 +1,7 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { navigationCustomizations } from '../theme/navigationCustomizations';
 
 const theme = createTheme({
   colorSchemes: {
@@ -96,6 +97,7 @@ const theme = createTheme({
     },
   },
   components: {
+    ...navigationCustomizations,
     MuiCard: {
       styleOverrides: {
         root: {
@@ -154,15 +156,6 @@ const theme = createTheme({
           background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
           backdropFilter: 'blur(20px)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        },
-      },
-    },
-    MuiDrawer: {
-      styleOverrides: {
-        paper: {
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-          backdropFilter: 'blur(20px)',
-          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
         },
       },
     },
