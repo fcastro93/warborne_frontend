@@ -72,6 +72,9 @@ const EventDetails = () => {
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showCreatePartyDialog, setShowCreatePartyDialog] = useState(false);
+  const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
+  const [selectedPartyId, setSelectedPartyId] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -392,6 +395,85 @@ const EventDetails = () => {
     return roleNames[role] || role;
   };
 
+  const handleCreateParty = async (partyData) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/create-party/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(partyData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAlert({ type: 'success', message: data.message });
+        await fetchEventData(); // Refresh data
+        setShowCreatePartyDialog(false);
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', message: errorData.error || 'Failed to create party' });
+      }
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Error creating party: ' + error.message });
+    }
+  };
+
+  const handleAddMemberToParty = (partyId) => {
+    setSelectedPartyId(partyId);
+    setAddMemberDialogOpen(true);
+  };
+
+  const handleRemoveMemberFromParty = async (partyId, memberId) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/parties/${partyId}/remove-member/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ member_id: memberId })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAlert({ type: 'success', message: data.message });
+        await fetchEventData(); // Refresh data
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', message: errorData.error || 'Failed to remove member' });
+      }
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Error removing member: ' + error.message });
+    }
+  };
+
+  const handleAddMemberToPartySubmit = async (participantId) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/parties/${selectedPartyId}/add-member/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ participant_id: participantId })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAlert({ type: 'success', message: data.message });
+        await fetchEventData(); // Refresh data
+        setAddMemberDialogOpen(false);
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', message: errorData.error || 'Failed to add member' });
+      }
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Error adding member: ' + error.message });
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -602,7 +684,17 @@ const EventDetails = () => {
             {/* Parties Tab */}
             {activeTab === 1 && (
               <Box>
-                <Typography variant="h6" sx={{ mb: 2 }}>Event Parties</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">Event Parties ({parties.length})</Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<AddIcon />}
+                    onClick={() => setShowCreatePartyDialog(true)}
+                  >
+                    Create Party
+                  </Button>
+                </Box>
                 
                 {parties.length === 0 ? (
                   <Typography color="text.secondary">No parties created yet</Typography>
@@ -612,9 +704,20 @@ const EventDetails = () => {
                       <Grid item xs={12} md={6} lg={4} key={party.id}>
                         <Card>
                           <CardContent>
-                            <Typography variant="h6" gutterBottom>
-                              Party {party.party_number}
-                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                              <Typography variant="h6">
+                                Party {party.party_number}
+                                {party.party_name && ` - ${party.party_name}`}
+                              </Typography>
+                              <IconButton 
+                                size="small" 
+                                onClick={() => handleAddMemberToParty(party.id)}
+                                disabled={party.member_count >= party.max_members}
+                              >
+                                <AddIcon />
+                              </IconButton>
+                            </Box>
+                            
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                               {party.member_count} / {party.max_members} members
                             </Typography>
@@ -640,6 +743,12 @@ const EventDetails = () => {
                                         </Typography>
                                       }
                                     />
+                                    <IconButton 
+                                      size="small" 
+                                      onClick={() => handleRemoveMemberFromParty(party.id, member.id)}
+                                    >
+                                      <RemoveIcon />
+                                    </IconButton>
                                   </ListItem>
                                 ))}
                               </List>
@@ -801,6 +910,76 @@ const EventDetails = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* Create Party Modal */}
+        <Dialog open={showCreatePartyDialog} onClose={() => setShowCreatePartyDialog(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>Create New Party</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ pt: 2 }}>
+              <TextField
+                label="Party Name (Optional)"
+                placeholder="e.g., Tommy's Party, Lytsu's Party"
+                fullWidth
+                onChange={(e) => setFormData({...formData, party_name: e.target.value})}
+              />
+              
+              <TextField
+                label="Max Members"
+                type="number"
+                defaultValue={15}
+                inputProps={{ min: 1, max: 50 }}
+                fullWidth
+                onChange={(e) => setFormData({...formData, max_members: parseInt(e.target.value)})}
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowCreatePartyDialog(false)}>Cancel</Button>
+            <Button onClick={() => handleCreateParty(formData)} variant="contained">Create Party</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Add Member to Party Modal */}
+        <Dialog open={addMemberDialogOpen} onClose={() => setAddMemberDialogOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>Add Member to Party</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ pt: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Select a participant to add to this party:
+              </Typography>
+              
+              <List>
+                {participants.filter(p => !parties.some(party => 
+                  party.members?.some(member => member.event_participant?.id === p.id)
+                )).map((participant) => (
+                  <ListItem key={participant.id} button onClick={() => handleAddMemberToPartySubmit(participant.id)}>
+                    <ListItemAvatar>
+                      <Avatar>
+                        {participant.discord_name?.charAt(0) || '?'}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={participant.discord_name}
+                      secondary={participant.player?.game_role ? getRoleDisplayName(participant.player.game_role) : 'No role'}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+              
+              {participants.filter(p => !parties.some(party => 
+                party.members?.some(member => member.event_participant?.id === p.id)
+              )).length === 0 && (
+                <Typography variant="body2" color="text.secondary">
+                  All participants are already assigned to parties.
+                </Typography>
+              )}
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setAddMemberDialogOpen(false)}>Cancel</Button>
+          </DialogActions>
+        </Dialog>
+
       </Box>
     </Layout>
   );
