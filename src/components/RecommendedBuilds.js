@@ -127,6 +127,7 @@ export default function RecommendedBuilds() {
       if (buildId && buildsData.builds) {
         const build = buildsData.builds.find(b => b.id === parseInt(buildId));
         if (build) {
+          console.log('Build data:', build);
           setCurrentBuild(build);
           // Set up the drifter data from the build
           if (build.drifter) {
@@ -248,6 +249,19 @@ export default function RecommendedBuilds() {
     try {
       // For recommended builds, we need to update the build's equipment
       if (buildId && currentBuild) {
+        // Determine slot type based on the slot index
+        const slotIndex = currentDrifter.gear_slots.findIndex(slot => 
+          slot && slot.gear_item && slot.gear_item.id === item.id
+        );
+        
+        let slotType = 'weapon'; // default
+        if (slotIndex === 0) slotType = 'weapon';
+        else if (slotIndex === 1) slotType = 'helmet';
+        else if (slotIndex === 2) slotType = 'chest';
+        else if (slotIndex === 3) slotType = 'boots';
+        else if (slotIndex === 4) slotType = 'consumable';
+        else if (slotIndex >= 5) slotType = 'mod';
+        
         const response = await fetch(`/api/builds/${buildId}/unequip-item/`, {
           method: 'POST',
           headers: {
@@ -256,7 +270,7 @@ export default function RecommendedBuilds() {
           },
           credentials: 'include',
           body: JSON.stringify({
-            slot_type: item.gear_type.category
+            slot_type: slotType
           })
         });
 
@@ -986,6 +1000,9 @@ export default function RecommendedBuilds() {
                   >
                     {slotLabels.map((label, i) => {
                       const gear = currentDrifter.gear_slots?.[i] || null;
+                      if (gear && gear.gear_item) {
+                        console.log(`Gear slot ${i}:`, gear.gear_item);
+                      }
                       return (
                         <Box
                           key={i}
