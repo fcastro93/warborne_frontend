@@ -56,7 +56,7 @@ import {
   // New icons for visual improvements
   MilitaryTech,
   Public,
-  Badge,
+  WorkspacePremium,
   Inventory,
   Speed,
   Favorite,
@@ -350,7 +350,7 @@ export default function PlayerLoadout() {
                   </Grid>
                   <Grid item xs={12} sm={6} md={2}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Badge sx={{ color: 'info.main', fontSize: 20 }} />
+                      <WorkspacePremium sx={{ color: 'info.main', fontSize: 20 }} />
                       <Box>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                           Faction
