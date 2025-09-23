@@ -177,7 +177,26 @@ export default function GearItemsTable() {
 
   return (
     <TableContainer>
-      <Table sx={{ minWidth: 650 }} aria-label="gear items table">
+      <Table 
+        sx={{
+          minWidth: 650,
+          '& .MuiTableRow-root': {
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+            },
+          },
+          '& .MuiTableCell-root': {
+            borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+            padding: '8px 16px',
+          },
+          '& .MuiTableHead-root .MuiTableCell-root': {
+            borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+          },
+        }}
+        aria-label="gear items table"
+      >
         <TableHead>
           <TableRow>
             <TableCell>Item</TableCell>
@@ -190,13 +209,10 @@ export default function GearItemsTable() {
         </TableHead>
         <TableBody>
           {filteredGear.map((gear) => (
-            <TableRow
-              key={gear.id}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
+            <TableRow key={gear.id}>
               <TableCell component="th" scope="row">
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Avatar sx={{ bgcolor: `${getRarityColor(gear.rarity)}.main` }}>
+                  <Avatar sx={{ bgcolor: `${getRarityColor(gear.rarity)}.main`, width: 32, height: 32 }}>
                     {getGearTypeIcon(gear.type)}
                   </Avatar>
                   <Box>

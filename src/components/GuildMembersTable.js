@@ -152,7 +152,24 @@ export default function GuildMembersTable() {
 
   return (
     <TableContainer>
-      <Table>
+      <Table 
+        sx={{
+          '& .MuiTableRow-root': {
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+            },
+          },
+          '& .MuiTableCell-root': {
+            borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+            padding: '8px 16px',
+          },
+          '& .MuiTableHead-root .MuiTableCell-root': {
+            borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+          },
+        }}
+      >
         <TableHead>
           <TableRow>
             <TableCell>Player</TableCell>
@@ -168,7 +185,7 @@ export default function GuildMembersTable() {
             <TableRow key={member.id}>
               <TableCell>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Avatar sx={{ bgcolor: 'primary.main' }}>
+                  <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32 }}>
                     {member.avatar}
                   </Avatar>
                   <Box>
