@@ -472,6 +472,54 @@ export default function LegacyPlayerLoadout() {
     return ['all', ...sortedRarities];
   };
 
+  // Get available weapon types dynamically from game_id prefixes
+  const getWeaponTypeOptions = () => {
+    if (getCurrentCategory() !== 'weapon') return [{ key: 'all', label: 'All', icon: null }];
+    
+    const categoryItems = getCurrentCategoryItems();
+    
+    // Extract weapon types from game_id prefixes
+    const weaponTypeMap = {};
+    categoryItems.forEach(item => {
+      if (item.game_id) {
+        const prefix = item.game_id.split('_')[0].toLowerCase();
+        if (!weaponTypeMap[prefix]) {
+          weaponTypeMap[prefix] = {
+            key: prefix,
+            label: prefix.charAt(0).toUpperCase() + prefix.slice(1),
+            icon: getWeaponTypeIcon(prefix)
+          };
+        }
+      }
+    });
+    
+    // Convert to array and sort alphabetically
+    const weaponTypes = Object.values(weaponTypeMap).sort((a, b) => a.label.localeCompare(b.label));
+    
+    return [
+      { key: 'all', label: 'All', icon: null },
+      ...weaponTypes
+    ];
+  };
+
+  const getWeaponTypeIcon = (weaponType) => {
+    const iconMap = {
+      'sword': '⚔️',
+      'axe': '🪓',
+      'mace': '🔨',
+      'bow': '🏹',
+      'dagger': '🗡️',
+      'spear': '🔱',
+      'gun': '🔫',
+      'fire': '🔥',
+      'frost': '❄️',
+      'nature': '🌿',
+      'holy': '✨',
+      'curse': '💀'
+    };
+    return iconMap[weaponType] || '⚔️';
+  };
+
   // Filter items by search, rarity, stat, and weapon type
   const getFilteredItems = () => {
     const categoryItems = getCurrentCategoryItems();
@@ -497,47 +545,13 @@ export default function LegacyPlayerLoadout() {
         const name = item.base_name.toLowerCase();
         const skill = item.skill_name?.toLowerCase() || '';
         
-        // Check weapon type filter (including element weapon types)
+        // Check weapon type filter using game_id prefix
         if (filterWeaponType !== 'all') {
-          switch (filterWeaponType) {
-            case 'sword':
-              matchesWeaponType = name.includes('sword') || name.includes('blade') || name.includes('saber') || skill.includes('sword');
-              break;
-            case 'axe':
-              matchesWeaponType = name.includes('axe') || name.includes('hatchet') || skill.includes('axe');
-              break;
-            case 'mace':
-              matchesWeaponType = name.includes('mace') || name.includes('hammer') || name.includes('club') || skill.includes('mace');
-              break;
-            case 'bow':
-              matchesWeaponType = name.includes('bow') || name.includes('arrow') || name.includes('archer') || skill.includes('bow');
-              break;
-            case 'dagger':
-              matchesWeaponType = name.includes('dagger') || name.includes('knife') || name.includes('blade') || skill.includes('dagger');
-              break;
-            case 'spear':
-              matchesWeaponType = name.includes('spear') || name.includes('lance') || name.includes('pole') || skill.includes('spear');
-              break;
-            case 'gun':
-              matchesWeaponType = name.includes('gun') || name.includes('rifle') || name.includes('pistol') || skill.includes('gun');
-              break;
-            case 'fire':
-              matchesWeaponType = name.includes('fire') || name.includes('flame') || name.includes('burn') || skill.includes('fire');
-              break;
-            case 'frost':
-              matchesWeaponType = name.includes('frost') || name.includes('ice') || name.includes('cold') || skill.includes('frost');
-              break;
-            case 'nature':
-              matchesWeaponType = name.includes('nature') || name.includes('earth') || name.includes('plant') || skill.includes('nature');
-              break;
-            case 'holy':
-              matchesWeaponType = name.includes('holy') || name.includes('divine') || name.includes('sacred') || skill.includes('holy');
-              break;
-            case 'curse':
-              matchesWeaponType = name.includes('curse') || name.includes('dark') || name.includes('shadow') || skill.includes('curse');
-              break;
-            default:
-              matchesWeaponType = true;
+          if (item.game_id) {
+            const itemPrefix = item.game_id.split('_')[0].toLowerCase();
+            matchesWeaponType = itemPrefix === filterWeaponType;
+          } else {
+            matchesWeaponType = false;
           }
         }
       }
@@ -1356,21 +1370,7 @@ export default function LegacyPlayerLoadout() {
                     <Typography sx={{ color: '#64b5f6', fontSize: '12px', fontWeight: 600, mb: 0.5, width: '100%' }}>
                       Weapon Types:
                     </Typography>
-                    {[
-                      { key: 'all', label: 'All', icon: null },
-                      { key: 'sword', label: 'Sword', icon: '⚔️' },
-                      { key: 'axe', label: 'Axe', icon: '🪓' },
-                      { key: 'mace', label: 'Mace', icon: '🔨' },
-                      { key: 'bow', label: 'Bow', icon: '🏹' },
-                      { key: 'dagger', label: 'Dagger', icon: '🗡️' },
-                      { key: 'spear', label: 'Spear', icon: '🔱' },
-                      { key: 'gun', label: 'Gun', icon: '🔫' },
-                      { key: 'fire', label: 'Fire', icon: '🔥' },
-                      { key: 'frost', label: 'Frost', icon: '❄️' },
-                      { key: 'nature', label: 'Nature', icon: '🌿' },
-                      { key: 'holy', label: 'Holy', icon: '✨' },
-                      { key: 'curse', label: 'Curse', icon: '💀' }
-                    ].map((weaponType) => (
+                    {getWeaponTypeOptions().map((weaponType) => (
                       <Button
                         key={weaponType.key}
                         onClick={() => setFilterWeaponType(weaponType.key)}
