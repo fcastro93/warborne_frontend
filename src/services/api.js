@@ -39,7 +39,8 @@ export const apiService = {
 
   async getGearItems() {
     const response = await fetch(`${API_BASE_URL}/gear/`);
-    return response.json();
+    const data = await response.json();
+    return data.gear_items || [];
   },
 
   async getPlayerEquippedGear(playerId) {

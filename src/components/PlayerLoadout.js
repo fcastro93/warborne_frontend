@@ -100,11 +100,11 @@ export default function PlayerLoadout() {
       
       // Fetch drifters data
       const driftersData = await apiService.getPlayerDrifters(playerId);
-      setDrifters(driftersData);
+      setDrifters(driftersData.drifters || []);
       
       // Fetch gear items
       const gearData = await apiService.getGearItems();
-      setGearItems(gearData);
+      setGearItems(Array.isArray(gearData) ? gearData : []);
       
       // Fetch equipped gear
       const equippedData = await apiService.getPlayerEquippedGear(playerId);
