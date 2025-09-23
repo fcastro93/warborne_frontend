@@ -448,7 +448,12 @@ export default function LegacyPlayerLoadout() {
                   {/* First Row - 5 Equipment Slots */}
                   <Box sx={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(5, 1fr)',
+                    gridTemplateColumns: {
+                      xs: 'repeat(2, minmax(120px, 1fr))',
+                      sm: 'repeat(3, minmax(120px, 1fr))',
+                      md: 'repeat(4, minmax(140px, 1fr))',
+                      lg: 'repeat(5, minmax(150px, 1fr))'
+                    },
                     gap: 1.25,
                     mb: 2
                   }}>
@@ -456,6 +461,8 @@ export default function LegacyPlayerLoadout() {
                       <Box
                         key={index}
                         sx={{
+                          width: '100%',
+                          minWidth: 0,
                           aspectRatio: '1',
                           background: gear ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                           border: gear ? '2px solid #4caf50' : '2px solid rgba(255, 255, 255, 0.1)',
@@ -477,8 +484,16 @@ export default function LegacyPlayerLoadout() {
                       >
                         {gear ? (
                           <>
-                            <Box sx={{ width: 90, height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-                              <Avatar sx={{ width: 60, height: 60, bgcolor: 'rgba(255, 255, 255, 0.1)' }}>
+                            <Box sx={{ 
+                              width: { xs: 64, sm: 72, md: 90 }, 
+                              height: { xs: 64, sm: 72, md: 90 }, 
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 
+                            }}>
+                              <Avatar sx={{ 
+                                width: { xs: 44, sm: 52, md: 60 }, 
+                                height: { xs: 44, sm: 52, md: 60 }, 
+                                bgcolor: 'rgba(255, 255, 255, 0.1)' 
+                              }}>
                                 <Inventory2 />
                               </Avatar>
                             </Box>
@@ -558,15 +573,21 @@ export default function LegacyPlayerLoadout() {
                   {/* Second Row - 4 Mod Slots (centered) */}
                   <Box sx={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gridTemplateColumns: {
+                      xs: 'repeat(2, minmax(120px, 1fr))',
+                      sm: 'repeat(3, minmax(120px, 1fr))',
+                      md: 'repeat(4, minmax(140px, 1fr))'
+                    },
                     gap: 1.25,
-                    maxWidth: '80%',
-                    margin: '0 auto'
+                    margin: '0 auto',
+                    width: '100%'
                   }}>
                     {currentDrifter.gear_slots.slice(5, 9).map((gear, index) => (
                       <Box
                         key={index + 5}
                         sx={{
+                          width: '100%',
+                          minWidth: 0,
                           aspectRatio: '1',
                           background: gear ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                           border: gear ? '2px solid #4caf50' : '2px solid rgba(255, 255, 255, 0.1)',
@@ -588,8 +609,16 @@ export default function LegacyPlayerLoadout() {
                       >
                         {gear ? (
                           <>
-                            <Box sx={{ width: 90, height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-                              <Avatar sx={{ width: 60, height: 60, bgcolor: 'rgba(255, 255, 255, 0.1)' }}>
+                            <Box sx={{ 
+                              width: { xs: 64, sm: 72, md: 90 }, 
+                              height: { xs: 64, sm: 72, md: 90 }, 
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 
+                            }}>
+                              <Avatar sx={{ 
+                                width: { xs: 44, sm: 52, md: 60 }, 
+                                height: { xs: 44, sm: 52, md: 60 }, 
+                                bgcolor: 'rgba(255, 255, 255, 0.1)' 
+                              }}>
                                 <Inventory2 />
                               </Avatar>
                             </Box>
