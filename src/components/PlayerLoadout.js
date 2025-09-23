@@ -24,6 +24,16 @@ import {
   Paper,
   Badge,
   Alert,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  ListItemButton,
+  ListSubheader,
 } from '@mui/material';
 import {
   Person,
@@ -38,9 +48,13 @@ import {
   Star,
   Diamond,
   AutoAwesome,
+  Edit,
+  Check,
+  Cancel,
+  FilterList,
+  ArrowBack,
 } from '@mui/icons-material';
 import Layout from './Layout';
-import GearItemsTable from './GearItemsTable';
 import { apiService } from '../services/api';
 
 // Helper functions for styling
@@ -87,6 +101,10 @@ export default function PlayerLoadout() {
   const [gearDialogOpen, setGearDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [filterRarity, setFilterRarity] = useState('all');
+  const [filterStat, setFilterStat] = useState('all');
+  const [editingName, setEditingName] = useState(false);
+  const [editName, setEditName] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -149,11 +167,36 @@ export default function PlayerLoadout() {
   };
 
   const filteredGear = gearItems.filter(gear => {
-    const matchesSearch = gear.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = gear.base_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          gear.skill_name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'all' || gear.type === filterType;
-    return matchesSearch && matchesType;
+    const matchesType = filterType === 'all' || gear.gear_type?.category === filterType;
+    const matchesRarity = filterRarity === 'all' || gear.rarity === filterRarity;
+    
+    // Stat filtering (Strength, Agility, Intelligence)
+    let matchesStat = true;
+    if (filterStat !== 'all') {
+      // This would need to be implemented based on your stat system
+      matchesStat = true; // Placeholder
+    }
+    
+    return matchesSearch && matchesType && matchesRarity && matchesStat;
   });
+
+  const handleEditName = () => {
+    setEditName(player.name);
+    setEditingName(true);
+  };
+
+  const handleSaveName = async () => {
+    // TODO: Implement API call to update player name
+    setPlayer({...player, name: editName});
+    setEditingName(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingName(false);
+    setEditName('');
+  };
 
   if (loading) {
     return (
@@ -178,18 +221,50 @@ export default function PlayerLoadout() {
   return (
     <Layout>
       <Box sx={{ p: 3 }}>
-        {/* Header */}
+        {/* Header with Back Button */}
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h4" component="h1" sx={{ 
-            fontWeight: 600, 
-            mb: 1, 
-            textAlign: 'center',
-            color: '#64b5f6',
-            textShadow: '0 0 20px rgba(100, 181, 246, 0.5)'
-          }}>
-            {player.name}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 2 }}>
+          <Button 
+            startIcon={<ArrowBack />} 
+            onClick={() => window.history.back()}
+            sx={{ mb: 2 }}
+          >
+            Back
+          </Button>
+          
+          {/* Player Name with Edit */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            {editingName ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <TextField
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  size="small"
+                  variant="outlined"
+                />
+                <IconButton onClick={handleSaveName} color="primary">
+                  <Check />
+                </IconButton>
+                <IconButton onClick={handleCancelEdit}>
+                  <Cancel />
+                </IconButton>
+              </Box>
+            ) : (
+              <>
+                <Typography variant="h4" component="h1" sx={{ 
+                  fontWeight: 600,
+                  color: '#64b5f6',
+                  textShadow: '0 0 20px rgba(100, 181, 246, 0.5)'
+                }}>
+                  {player.name}
+                </Typography>
+                <IconButton onClick={handleEditName} size="small">
+                  <Edit />
+                </IconButton>
+              </>
+            )}
+          </Box>
+          
+          <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
             Player Loadout
           </Typography>
         </Box>
@@ -377,9 +452,144 @@ export default function PlayerLoadout() {
             </Card>
           </Grid>
 
-          {/* Right Panel - Inventory */}
+          {/* Right Panel - Game Items */}
           <Grid item xs={12} md={4}>
-            <GearItemsTable />
+            <Card>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  Game Items
+                </Typography>
+                
+                {/* Filters */}
+                <Stack spacing={2} sx={{ mb: 2 }}>
+                  {/* Category Filter */}
+                  <FormControl size="small" fullWidth>
+                    <InputLabel>Category</InputLabel>
+                    <Select
+                      value={filterType}
+                      label="Category"
+                      onChange={(e) => setFilterType(e.target.value)}
+                    >
+                      <MenuItem value="all">All</MenuItem>
+                      <MenuItem value="weapon">Weapon</MenuItem>
+                      <MenuItem value="helmet">Helmet</MenuItem>
+                      <MenuItem value="chest">Chest</MenuItem>
+                      <MenuItem value="boots">Boots</MenuItem>
+                      <MenuItem value="consumable">Consumable</MenuItem>
+                      <MenuItem value="mod">Mod</MenuItem>
+                    </Select>
+                  </FormControl>
+                  
+                  {/* Rarity Filter */}
+                  <FormControl size="small" fullWidth>
+                    <InputLabel>Rarity</InputLabel>
+                    <Select
+                      value={filterRarity}
+                      label="Rarity"
+                      onChange={(e) => setFilterRarity(e.target.value)}
+                    >
+                      <MenuItem value="all">All</MenuItem>
+                      <MenuItem value="common">Common</MenuItem>
+                      <MenuItem value="rare">Rare</MenuItem>
+                      <MenuItem value="epic">Epic</MenuItem>
+                      <MenuItem value="legendary">Legendary</MenuItem>
+                    </Select>
+                  </FormControl>
+                  
+                  {/* Search */}
+                  <TextField
+                    size="small"
+                    placeholder="Search items..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Stack>
+                
+                {/* Items List */}
+                <Box sx={{ maxHeight: 600, overflow: 'auto' }}>
+                  <List dense>
+                    {filteredGear.map((gear) => (
+                      <ListItemButton
+                        key={gear.id}
+                        onClick={() => handleGearClick(gear)}
+                        sx={{
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          borderRadius: 1,
+                          mb: 1,
+                          '&:hover': {
+                            borderColor: 'primary.main',
+                            bgcolor: 'action.hover',
+                          },
+                        }}
+                      >
+                        <ListItemIcon>
+                          <Avatar sx={{ 
+                            bgcolor: `${getRarityColor(gear.rarity)}.main`,
+                            width: 32,
+                            height: 32,
+                          }}>
+                            {getGearTypeIcon(gear.gear_type?.category)}
+                          </Avatar>
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={
+                            <Box>
+                              <Typography variant="body2" fontWeight="medium">
+                                {gear.base_name}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {gear.skill_name} • {gear.gear_type?.category}
+                              </Typography>
+                            </Box>
+                          }
+                          secondary={
+                            <Box sx={{ mt: 0.5 }}>
+                              <Chip
+                                label={gear.rarity}
+                                color={getRarityColor(gear.rarity)}
+                                size="small"
+                                sx={{ mr: 1 }}
+                              />
+                              {gear.damage > 0 && (
+                                <Typography variant="caption" sx={{ mr: 1 }}>
+                                  Damage: +{gear.damage}%
+                                </Typography>
+                              )}
+                              {gear.health_bonus > 0 && (
+                                <Typography variant="caption" sx={{ mr: 1 }}>
+                                  HP: +{gear.health_bonus}
+                                </Typography>
+                              )}
+                              {gear.defense > 0 && (
+                                <Typography variant="caption">
+                                  Defense: +{gear.defense}
+                                </Typography>
+                              )}
+                            </Box>
+                          }
+                        />
+                        {equippedGear[gear.id] && (
+                          <Chip
+                            label="Equipped"
+                            color="success"
+                            size="small"
+                            sx={{ ml: 1 }}
+                          />
+                        )}
+                      </ListItemButton>
+                    ))}
+                  </List>
+                </Box>
+              </CardContent>
+            </Card>
           </Grid>
         </Grid>
 
