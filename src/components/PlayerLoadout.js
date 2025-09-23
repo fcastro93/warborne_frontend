@@ -274,44 +274,37 @@ export default function PlayerLoadout() {
           <Grid item xs={12}>
             <Card sx={{ mb: 3, bgcolor: 'grey.900' }}>
               <CardContent>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Discord:</Typography>
-                      <Typography variant="body2" fontWeight="medium">{player?.discord_name || 'N/A'}</Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Guild:</Typography>
-                      <Typography variant="body2" fontWeight="medium">Violence2</Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Level:</Typography>
-                      <Typography variant="body2" fontWeight="medium">{player?.level || 'N/A'}</Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Faction:</Typography>
-                      <Typography variant="body2" fontWeight="medium">{player?.faction || 'N/A'}</Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Role:</Typography>
-                      <Typography variant="body2" fontWeight="medium">{player?.role || 'N/A'}</Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Total Gear:</Typography>
-                      <Typography variant="body2" fontWeight="medium">{gearItems?.length || 0}</Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
+                <Stack spacing={1}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Discord:</Typography>
+                    <Typography variant="body2" fontWeight="medium">{player?.discord_name || 'N/A'}</Typography>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Guild:</Typography>
+                    <Typography variant="body2" fontWeight="medium">Violence2</Typography>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Level:</Typography>
+                    <Typography variant="body2" fontWeight="medium">{player?.level || 'N/A'}</Typography>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Faction:</Typography>
+                    <Typography variant="body2" fontWeight="medium">{player?.faction || 'N/A'}</Typography>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Role:</Typography>
+                    <Typography variant="body2" fontWeight="medium">{player?.role || 'N/A'}</Typography>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Total Gear:</Typography>
+                    <Typography variant="body2" fontWeight="medium">{gearItems?.length || 0}</Typography>
+                  </Box>
+                </Stack>
               </CardContent>
             </Card>
           </Grid>
@@ -343,14 +336,14 @@ export default function PlayerLoadout() {
                     {drifter.name ? (
                       <>
                         {/* Basic Stats */}
-                        <Paper sx={{ p: 3, mb: 3, bgcolor: 'grey.50' }}>
+                        <Paper sx={{ p: 2, mb: 2, bgcolor: 'grey.50' }}>
                           <Typography variant="h6" sx={{ mb: 2 }}>
                             Basic stats of the drifter
                           </Typography>
-                          <Grid container spacing={3}>
+                          <Grid container spacing={2}>
                             <Grid item xs={6} sm={4}>
                               <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="h4" color="primary" fontWeight="bold">
+                                <Typography variant="h5" color="primary" fontWeight="bold">
                                   {drifter.base_health || 315}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
@@ -360,7 +353,7 @@ export default function PlayerLoadout() {
                             </Grid>
                             <Grid item xs={6} sm={4}>
                               <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="h4" color="primary" fontWeight="bold">
+                                <Typography variant="h5" color="primary" fontWeight="bold">
                                   {drifter.base_energy || 375}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
@@ -370,7 +363,7 @@ export default function PlayerLoadout() {
                             </Grid>
                             <Grid item xs={6} sm={4}>
                               <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="h4" color="primary" fontWeight="bold">
+                                <Typography variant="h5" color="primary" fontWeight="bold">
                                   {drifter.base_damage || 82}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
@@ -380,7 +373,7 @@ export default function PlayerLoadout() {
                             </Grid>
                             <Grid item xs={6} sm={4}>
                               <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="h4" color="primary" fontWeight="bold">
+                                <Typography variant="h5" color="primary" fontWeight="bold">
                                   {drifter.base_defense || 52}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
@@ -390,7 +383,7 @@ export default function PlayerLoadout() {
                             </Grid>
                             <Grid item xs={6} sm={4}>
                               <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="h4" color="primary" fontWeight="bold">
+                                <Typography variant="h5" color="primary" fontWeight="bold">
                                   75
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
@@ -400,7 +393,7 @@ export default function PlayerLoadout() {
                             </Grid>
                           </Grid>
                           <Box sx={{ mt: 2, textAlign: 'center' }}>
-                            <Button variant="contained" color="primary">
+                            <Button variant="contained" color="primary" size="small">
                               Change Drifter
                             </Button>
                           </Box>
