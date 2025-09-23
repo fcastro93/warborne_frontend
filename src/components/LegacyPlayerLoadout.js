@@ -226,8 +226,14 @@ export default function LegacyPlayerLoadout() {
 
   // Helper function to get icon URL
   const getIconUrl = (item, fallback = '⚔️') => {
-    // If item has icon_url, use it
+    // If item has icon_url, check if it's a backend path and convert to frontend path
     if (item?.icon_url) {
+      // If it's a backend static path, convert to frontend path
+      if (item.icon_url.includes('/static/icons/')) {
+        const filename = item.icon_url.split('/static/icons/')[1];
+        return `/icons/${filename}`;
+      }
+      // If it's already a frontend path or external URL, use as is
       return item.icon_url;
     }
     

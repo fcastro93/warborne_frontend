@@ -1,5 +1,15 @@
 const API_BASE_URL = 'https://violenceguild.duckdns.org/api';
 
+// Helper function to get CSRF token from cookies
+const getCSRFToken = () => {
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  };
+  return getCookie('csrftoken');
+};
+
 export const apiService = {
   async getGuildStats() {
     const response = await fetch(`${API_BASE_URL}/stats/`);
@@ -49,11 +59,15 @@ export const apiService = {
   },
 
   async equipGear(playerId, gearId, drifterNum, slotType) {
+    const csrfToken = getCSRFToken();
+    
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/equip-gear/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
       },
+      credentials: 'include', // Include cookies
       body: JSON.stringify({
         gear_id: gearId,
         drifter_num: drifterNum,
@@ -64,11 +78,15 @@ export const apiService = {
   },
 
   async unequipGear(playerId, gearId) {
+    const csrfToken = getCSRFToken();
+    
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/unequip-gear/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
       },
+      credentials: 'include', // Include cookies
       body: JSON.stringify({
         gear_id: gearId,
       }),
