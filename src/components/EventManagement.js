@@ -200,6 +200,9 @@ const EventManagement = () => {
 
   const formatDateTime = (dateTimeString) => {
     const date = new Date(dateTimeString);
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
     return date.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
