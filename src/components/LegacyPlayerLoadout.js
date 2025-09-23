@@ -152,13 +152,15 @@ export default function LegacyPlayerLoadout() {
       }}>
         {/* Container with 3 panels */}
         <Box sx={{
-          display: 'flex',
-          minHeight: 'calc(100vh - 40px)',
-          gap: 2.5
+          display: { xs: 'block', md: 'grid' },
+          gridTemplateColumns: { md: '3fr 5fr 6fr' },  // ≈ 25% / 35% / 40%
+          gap: 2.5,
+          minHeight: 'calc(100vh - 40px)'
         }}>
           {/* LEFT PANEL - Player Info */}
           <Box sx={{
-            width: '25%',
+            minWidth: 0,          // allow panel to shrink inside grid/flex
+            overflow: 'hidden',   // prevent children from bleeding out
             background: 'rgba(255, 255, 255, 0.05)',
             borderRadius: 2,
             p: 2.5,
@@ -266,7 +268,8 @@ export default function LegacyPlayerLoadout() {
 
           {/* MIDDLE PANEL - Drifter Loadouts */}
           <Box sx={{
-            width: '35%',
+            minWidth: 0,          // allow panel to shrink inside grid/flex
+            overflow: 'hidden',   // prevent children from bleeding out
             background: 'rgba(255, 255, 255, 0.05)',
             borderRadius: 2,
             p: 2.5,
@@ -669,7 +672,8 @@ export default function LegacyPlayerLoadout() {
 
           {/* RIGHT PANEL - Game Items */}
           <Box sx={{
-            width: '40%',
+            minWidth: 0,          // allow panel to shrink inside grid/flex
+            overflow: 'hidden',   // prevent children from bleeding out
             background: 'rgba(255, 255, 255, 0.05)',
             borderRadius: 2,
             p: 2.5,
@@ -677,7 +681,7 @@ export default function LegacyPlayerLoadout() {
             border: '1px solid rgba(255, 255, 255, 0.1)',
             display: 'flex',
             flexDirection: 'column',
-            height: 'calc(100vh - 40px)'
+            height: { xs: 'auto', md: 'calc(100vh - 40px)' }
           }}>
             <Typography variant="h6" sx={{
               color: '#64b5f6',
