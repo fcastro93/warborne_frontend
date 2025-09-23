@@ -56,13 +56,31 @@ export default function SideMenu() {
       <Box
         sx={{
           display: 'flex',
+          alignItems: 'center',
           mt: 'calc(var(--template-frame-height, 0px) + 4px)',
-          p: 1.5,
+          p: 2,
+          gap: 1.5,
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-          Warborne Guild
-        </Typography>
+        <Avatar
+          sx={{
+            width: 32,
+            height: 32,
+            bgcolor: 'primary.main',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+          }}
+        >
+          V
+        </Avatar>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main', lineHeight: 1.2, fontSize: '1.1rem' }}>
+            Warborne Guild
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
+            Guild Tools
+          </Typography>
+        </Box>
       </Box>
       <Divider />
       <Box
