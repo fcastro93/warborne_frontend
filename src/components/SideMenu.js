@@ -60,28 +60,20 @@ export default function SideMenu() {
       <Box
         sx={{
           display: 'flex',
+          justifyContent: 'center',
           alignItems: 'center',
           mt: 'calc(var(--template-frame-height, 0px) + 4px)',
           p: 2,
-          gap: 1.5,
         }}
       >
         <Avatar
           src="/violence-logo.png"
           alt="Violence Guild"
           sx={{
-            width: 32,
-            height: 32,
+            width: 60,
+            height: 60,
           }}
         />
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main', lineHeight: 1.2, fontSize: '1.1rem' }}>
-            Warborne Guild
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
-            Guild Tools
-          </Typography>
-        </Box>
       </Box>
       <Divider />
       <Box
