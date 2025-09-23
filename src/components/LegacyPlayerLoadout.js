@@ -81,8 +81,7 @@ export default function LegacyPlayerLoadout() {
   const [player, setPlayer] = useState(null);
   const [drifters, setDrifters] = useState([]);
   const [gearItems, setGearItems] = useState([]);
-  const [activeDrifterTab, setActiveDrifterTab] = useState(-1); // -1 means no drifter selected
-  const [showDrifterModal, setShowDrifterModal] = useState(false);
+  const [activeDrifterTab, setActiveDrifterTab] = useState(0);
   const [activeItemTab, setActiveItemTab] = useState(0);
   const [activeAttributeTab, setActiveAttributeTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -94,6 +93,7 @@ export default function LegacyPlayerLoadout() {
   const [editName, setEditName] = useState('');
   const [skillModalOpen, setSkillModalOpen] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState(null);
+  const [showDrifterModal, setShowDrifterModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const slotLabels = [
@@ -570,14 +570,8 @@ export default function LegacyPlayerLoadout() {
     });
   };
 
-  const currentDrifter = activeDrifterTab >= 0 ? drifters[activeDrifterTab] || null : null;
-  const isDrifterSelected = activeDrifterTab >= 0 && currentDrifter !== null;
-
-  // Handle drifter selection
-  const handleDrifterSelect = (drifterIndex) => {
-    setActiveDrifterTab(drifterIndex);
-    setShowDrifterModal(false);
-  };
+  const currentDrifter = drifters[activeDrifterTab] || null;
+  const hasSelectedDrifter = currentDrifter !== null;
 
   if (loading) {
     return (
@@ -830,31 +824,30 @@ export default function LegacyPlayerLoadout() {
                   {drifter.name}
                 </Button>
               ))}
-              {/* Show "No Drifter Selected" if no drifter is selected */}
-              {activeDrifterTab === -1 && (
+              {!hasSelectedDrifter && (
                 <Button
-                  disabled
                   sx={{
                     flex: 1,
                     p: '12px 20px',
                     textAlign: 'center',
-                    background: 'rgba(255, 255, 255, 0.05)',
+                    background: 'transparent',
                     color: '#b0bec5',
                     borderRadius: 1,
+                    fontWeight: 500,
+                    opacity: 0.6,
+                    fontStyle: 'italic',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 1,
-                    opacity: 0.6
+                    gap: 1
                   }}
                 >
-                  <span style={{ fontSize: '20px' }}>❌</span>
-                  No Drifter Selected
+                  Drifter X
                 </Button>
               )}
             </Box>
 
             {/* Drifter Content */}
-            {isDrifterSelected ? (
+            {hasSelectedDrifter ? (
               <Box>
                 {/* Drifter Stats */}
                 <Box sx={{
@@ -972,8 +965,8 @@ export default function LegacyPlayerLoadout() {
 
                     <Box sx={{ textAlign: 'center', mt: 2.25 }}>
                       <Button
-                        onClick={() => setShowDrifterModal(true)}
                         variant="contained"
+                        onClick={() => setShowDrifterModal(true)}
                         sx={{
                           background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
                           color: 'white',
@@ -1171,70 +1164,30 @@ export default function LegacyPlayerLoadout() {
                 </Box>
               </Box>
             ) : (
-              /* No Drifter Selected Content */
-              <Box>
-                {/* No Drifter Selected Stats */}
-                <Box sx={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderRadius: 1.25,
-                  p: 1.875,
-                  mb: 2.5,
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  position: 'relative',
-                  overflow: 'hidden',
+              <Box sx={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: 1.25,
+                p: 3,
+                textAlign: 'center',
+                border: '2px dashed rgba(255, 255, 255, 0.1)'
+              }}>
+                <Typography sx={{
+                  color: '#b0bec5',
+                  fontSize: '1.1rem',
+                  fontWeight: 500,
+                  opacity: 0.7,
+                  fontStyle: 'italic'
                 }}>
-                  <Typography sx={{
-                    color: '#ffffff',
-                    fontSize: '1.2rem',
-                    fontWeight: 700,
-                    textAlign: 'center',
-                    pb: 1.25,
-                    mb: 2,
-                    borderBottom: '1px solid rgba(100,181,246,0.35)',
-                  }}>
-                    No Drifter Selected
-                  </Typography>
-                  
-                  <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 2,
-                    py: 3
-                  }}>
-                    <Typography sx={{
-                      color: '#b0bec5',
-                      fontSize: '1rem',
-                      textAlign: 'center',
-                      mb: 2
-                    }}>
-                      Select a drifter to view their stats and equipment
-                    </Typography>
-                    
-                    <Button
-                      onClick={() => setShowDrifterModal(true)}
-                      variant="contained"
-                      sx={{
-                        background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
-                        color: 'white',
-                        border: 'none',
-                        px: 3,
-                        py: 1.2,
-                        borderRadius: 1,
-                        fontWeight: 700,
-                        boxShadow: '0 12px 30px rgba(66,165,245,.25)',
-                        transition: 'all .25s ease',
-                        '&:hover': {
-                          background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 18px 36px rgba(66,165,245,.35)',
-                        },
-                      }}
-                    >
-                      Select Drifter
-                    </Button>
-                  </Box>
-                </Box>
+                  No Drifter Selected
+                </Typography>
+                <Typography sx={{
+                  color: '#90caf9',
+                  fontSize: '0.9rem',
+                  mt: 1,
+                  opacity: 0.8
+                }}>
+                  Select a drifter to view stats and equipment
+                </Typography>
               </Box>
             )}
           </Box>
@@ -1767,95 +1720,103 @@ export default function LegacyPlayerLoadout() {
           fullWidth
           PaperProps={{
             sx: {
-              background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
+              background: 'linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(45, 45, 45, 0.95))',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: 2,
-              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)'
+              backdropFilter: 'blur(20px)',
+              color: '#ffffff'
             }
           }}
         >
-          <DialogTitle sx={{
-            color: '#ffffff',
-            fontSize: '1.5rem',
-            fontWeight: 700,
+          <DialogTitle sx={{ 
+            color: '#64b5f6', 
+            fontSize: '1.5rem', 
+            fontWeight: 700, 
             textAlign: 'center',
             borderBottom: '2px solid rgba(100, 181, 246, 0.3)',
-            pb: 2,
-            mb: 2
+            pb: 2
           }}>
             Select Drifter
           </DialogTitle>
-          <DialogContent>
-            <Box sx={{
-              display: 'grid',
+          
+          <Box sx={{ p: 3 }}>
+            <Box sx={{ 
+              display: 'grid', 
               gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
               gap: 2,
-              p: 1
+              mb: 3
             }}>
               {drifters.map((drifter, index) => (
                 <Button
                   key={index}
-                  onClick={() => handleDrifterSelect(index)}
+                  onClick={() => {
+                    setActiveDrifterTab(index);
+                    setShowDrifterModal(false);
+                  }}
                   sx={{
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     gap: 1.5,
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
+                    background: activeDrifterTab === index 
+                      ? 'rgba(100, 181, 246, 0.2)' 
+                      : 'rgba(255, 255, 255, 0.05)',
+                    border: activeDrifterTab === index 
+                      ? '2px solid #64b5f6' 
+                      : '2px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: 2,
-                    color: '#ffffff',
+                    color: activeDrifterTab === index ? '#64b5f6' : '#b0bec5',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       background: 'rgba(100, 181, 246, 0.1)',
                       borderColor: '#64b5f6',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 8px 25px rgba(100, 181, 246, 0.3)'
+                      color: '#64b5f6'
                     }
                   }}
                 >
-                  <Avatar sx={{ width: 64, height: 64, mb: 1 }}>
-                    {drifterIconMap[drifter.name] && (
-                      <img 
-                        src={getDrifterIconUrl(drifterIconMap[drifter.name])} 
-                        alt={drifter.name}
-                        style={{ 
-                          width: '100%', 
-                          height: '100%', 
-                          objectFit: 'contain',
-                          borderRadius: '4px'
-                        }}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'block';
-                        }}
-                      />
-                    )}
-                    <span style={{ display: drifterIconMap[drifter.name] ? 'none' : 'block', fontSize: '32px' }}>👤</span>
-                  </Avatar>
-                  <Typography sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
+                  {drifterIconMap[drifter.name] && (
+                    <img 
+                      src={getDrifterIconUrl(drifterIconMap[drifter.name])} 
+                      alt={drifter.name}
+                      style={{ 
+                        width: 48, 
+                        height: 48, 
+                        objectFit: 'contain',
+                        borderRadius: '8px'
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  )}
+                  <Typography sx={{ 
+                    fontWeight: 600, 
+                    fontSize: '1rem',
+                    textAlign: 'center'
+                  }}>
                     {drifter.name}
                   </Typography>
-                  <Typography sx={{ color: '#b0bec5', fontSize: '0.9rem' }}>
+                  <Typography sx={{ 
+                    fontSize: '0.8rem',
+                    opacity: 0.7,
+                    textAlign: 'center'
+                  }}>
                     Level {drifter.level || 1}
                   </Typography>
                 </Button>
               ))}
             </Box>
-          </DialogContent>
+          </Box>
+          
           <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
             <Button
               onClick={() => setShowDrifterModal(false)}
               sx={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                color: '#ffffff',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                px: 3,
-                py: 1,
-                borderRadius: 1,
+                color: '#b0bec5',
                 '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.2)'
+                  color: '#ffffff',
+                  background: 'rgba(255, 255, 255, 0.1)'
                 }
               }}
             >
