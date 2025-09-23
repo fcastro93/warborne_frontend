@@ -67,23 +67,6 @@ const EventManagement = () => {
     { value: 'other', label: 'Other' }
   ];
 
-  const timezones = [
-    'UTC',
-    'America/New_York',
-    'America/Chicago', 
-    'America/Denver',
-    'America/Los_Angeles',
-    'Europe/London',
-    'Europe/Paris',
-    'Europe/Berlin',
-    'Asia/Tokyo',
-    'Australia/Sydney',
-    'America/Toronto',
-    'America/Vancouver',
-    'Europe/Rome',
-    'Asia/Shanghai',
-    'America/Sao_Paulo'
-  ];
 
   useEffect(() => {
     fetchEvents();
@@ -127,7 +110,7 @@ const EventManagement = () => {
       description: event.description,
       event_type: event.event_type,
       event_datetime: new Date(event.event_datetime).toISOString().slice(0, 16),
-      timezone: event.timezone,
+      timezone: event.timezone, // Keep original timezone
       max_participants: event.max_participants || ''
     });
     setEditModalOpen(true);
@@ -353,9 +336,6 @@ const EventManagement = () => {
                       color={isEventUpcoming(event.event_datetime) ? 'success' : 'default'}
                       size="small"
                     />
-                    <Typography variant="caption" color="text.secondary">
-                      by {event.created_by_discord_name}
-                    </Typography>
                   </Box>
                 </CardContent>
 
@@ -431,20 +411,18 @@ const EventManagement = () => {
               required
             />
             
-            <FormControl fullWidth>
-              <InputLabel>Timezone</InputLabel>
-              <Select
-                value={formData.timezone}
-                onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
-                label="Timezone"
-              >
-                {timezones.map((tz) => (
-                  <MenuItem key={tz} value={tz}>
-                    {tz}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <TextField
+              fullWidth
+              label="Timezone"
+              value={formData.timezone}
+              disabled
+              helperText="Automatically detected from your browser"
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: 'text.secondary'
+                }
+              }}
+            />
             
             <TextField
               fullWidth
@@ -519,20 +497,18 @@ const EventManagement = () => {
               required
             />
             
-            <FormControl fullWidth>
-              <InputLabel>Timezone</InputLabel>
-              <Select
-                value={formData.timezone}
-                onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
-                label="Timezone"
-              >
-                {timezones.map((tz) => (
-                  <MenuItem key={tz} value={tz}>
-                    {tz}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <TextField
+              fullWidth
+              label="Timezone"
+              value={formData.timezone}
+              disabled
+              helperText="Automatically detected from your browser"
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: 'text.secondary'
+                }
+              }}
+            />
             
             <TextField
               fullWidth
