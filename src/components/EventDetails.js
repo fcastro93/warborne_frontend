@@ -75,6 +75,7 @@ const EventDetails = () => {
   const [showCreatePartyDialog, setShowCreatePartyDialog] = useState(false);
   const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
   const [selectedPartyId, setSelectedPartyId] = useState(null);
+  const [showAddParticipantDialog, setShowAddParticipantDialog] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -474,6 +475,31 @@ const EventDetails = () => {
     }
   };
 
+  const handleAddParticipant = async (participantData) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/join/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(participantData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAlert({ type: 'success', message: data.message });
+        await fetchEventDetails(); // Refresh data
+        setShowAddParticipantDialog(false);
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', message: errorData.error || 'Failed to add participant' });
+      }
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Error adding participant: ' + error.message });
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -625,15 +651,25 @@ const EventDetails = () => {
             {activeTab === 0 && (
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6">Event Participants</Typography>
-                  <Button
-                    variant="outlined"
-                    startIcon={<SettingsIcon />}
-                    onClick={() => setConfigModalOpen(true)}
-                    size="small"
-                  >
-                    Configure Parties
-                  </Button>
+                  <Typography variant="h6">Event Participants ({participants.length})</Typography>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<AddIcon />}
+                      onClick={() => setShowAddParticipantDialog(true)}
+                    >
+                      Add Participant
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={<SettingsIcon />}
+                      onClick={() => setConfigModalOpen(true)}
+                      size="small"
+                    >
+                      Configure Parties
+                    </Button>
+                  </Box>
                 </Box>
                 
                 {participants.length === 0 ? (
@@ -949,34 +985,95 @@ const EventDetails = () => {
               </Typography>
               
               <List>
-                {participants.filter(p => !parties.some(party => 
-                  party.members?.some(member => member.event_participant?.id === p.id)
-                )).map((participant) => (
-                  <ListItem key={participant.id} button onClick={() => handleAddMemberToPartySubmit(participant.id)}>
-                    <ListItemAvatar>
-                      <Avatar>
-                        {participant.discord_name?.charAt(0) || '?'}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={participant.discord_name}
-                      secondary={participant.player?.game_role ? getRoleDisplayName(participant.player.game_role) : 'No role'}
-                    />
-                  </ListItem>
-                ))}
+                {participants.map((participant) => {
+                  // Find which party this participant is currently in
+                  const currentParty = parties.find(party => 
+                    party.members?.some(member => member.event_participant?.id === participant.id)
+                  );
+                  
+                  // Check if they're already in the selected party
+                  const isInSelectedParty = currentParty?.id === selectedPartyId;
+                  
+                  return (
+                    <ListItem 
+                      key={participant.id} 
+                      button 
+                      onClick={() => !isInSelectedParty && handleAddMemberToPartySubmit(participant.id)}
+                      disabled={isInSelectedParty}
+                    >
+                      <ListItemAvatar>
+                        <Avatar>
+                          {participant.discord_name?.charAt(0) || '?'}
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={participant.discord_name}
+                        secondary={
+                          <Box>
+                            <Typography variant="caption" display="block">
+                              {participant.player?.game_role ? getRoleDisplayName(participant.player.game_role) : 'No role'}
+                            </Typography>
+                            {isInSelectedParty ? (
+                              <Typography variant="caption" color="success.main" display="block">
+                                Already in this party
+                              </Typography>
+                            ) : currentParty ? (
+                              <Typography variant="caption" color="warning.main" display="block">
+                                Currently in Party {currentParty.party_number}{currentParty.party_name ? ` (${currentParty.party_name})` : ''}
+                              </Typography>
+                            ) : (
+                              <Typography variant="caption" color="text.secondary" display="block">
+                                Not in any party
+                              </Typography>
+                            )}
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                  );
+                })}
               </List>
-              
-              {participants.filter(p => !parties.some(party => 
-                party.members?.some(member => member.event_participant?.id === p.id)
-              )).length === 0 && (
-                <Typography variant="body2" color="text.secondary">
-                  All participants are already assigned to parties.
-                </Typography>
-              )}
             </Stack>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setAddMemberDialogOpen(false)}>Cancel</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Add Participant Modal */}
+        <Dialog open={showAddParticipantDialog} onClose={() => setShowAddParticipantDialog(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>Add Participant to Event</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ pt: 2 }}>
+              <TextField
+                label="Discord Name"
+                placeholder="e.g., PlayerName#1234"
+                fullWidth
+                required
+                onChange={(e) => setFormData({...formData, discord_name: e.target.value})}
+              />
+              
+              <FormControl fullWidth>
+                <InputLabel>Role</InputLabel>
+                <Select
+                  value={formData.assigned_role || ''}
+                  onChange={(e) => setFormData({...formData, assigned_role: e.target.value})}
+                  label="Role"
+                >
+                  <MenuItem value="healer">Healer</MenuItem>
+                  <MenuItem value="ranged_dps">Ranged DPS</MenuItem>
+                  <MenuItem value="melee_dps">Melee DPS</MenuItem>
+                  <MenuItem value="defensive_tank">Defensive Tank</MenuItem>
+                  <MenuItem value="offensive_tank">Offensive Tank</MenuItem>
+                  <MenuItem value="offensive_support">Offensive Support</MenuItem>
+                  <MenuItem value="defensive_support">Defensive Support</MenuItem>
+                </Select>
+              </FormControl>
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowAddParticipantDialog(false)}>Cancel</Button>
+            <Button onClick={() => handleAddParticipant(formData)} variant="contained">Add Participant</Button>
           </DialogActions>
         </Dialog>
 
