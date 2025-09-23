@@ -53,7 +53,7 @@ const EventManagement = () => {
     description: '',
     event_type: 'other',
     event_datetime: '',
-    timezone: 'UTC',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Get user's timezone
     max_participants: ''
   });
 
@@ -68,7 +68,21 @@ const EventManagement = () => {
   ];
 
   const timezones = [
-    'UTC', 'EST', 'PST', 'CST', 'MST', 'CET', 'GMT', 'JST', 'AEST', 'PDT', 'EDT', 'CDT', 'MDT'
+    'UTC',
+    'America/New_York',
+    'America/Chicago', 
+    'America/Denver',
+    'America/Los_Angeles',
+    'Europe/London',
+    'Europe/Paris',
+    'Europe/Berlin',
+    'Asia/Tokyo',
+    'Australia/Sydney',
+    'America/Toronto',
+    'America/Vancouver',
+    'Europe/Rome',
+    'Asia/Shanghai',
+    'America/Sao_Paulo'
   ];
 
   useEffect(() => {
@@ -100,7 +114,7 @@ const EventManagement = () => {
       description: '',
       event_type: 'other',
       event_datetime: '',
-      timezone: 'UTC',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Get user's timezone
       max_participants: ''
     });
     setCreateModalOpen(true);
@@ -203,12 +217,14 @@ const EventManagement = () => {
     if (isNaN(date.getTime())) {
       return 'Invalid Date';
     }
+    // Format in user's local timezone
     return date.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZoneName: 'short'
     });
   };
 
@@ -349,7 +365,6 @@ const EventManagement = () => {
                       size="small"
                       startIcon={<EditIcon />}
                       onClick={() => handleEditEvent(event)}
-                      disabled={!isEventUpcoming(event.event_datetime)}
                     >
                       Edit
                     </Button>
@@ -358,7 +373,6 @@ const EventManagement = () => {
                       color="error"
                       startIcon={<DeleteIcon />}
                       onClick={() => handleDeleteEvent(event.id)}
-                      disabled={!isEventUpcoming(event.event_datetime)}
                     >
                       Cancel
                     </Button>
