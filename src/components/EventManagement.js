@@ -196,7 +196,9 @@ const EventManagement = () => {
   };
 
   const formatDateTime = (dateTimeString) => {
-    const date = new Date(dateTimeString);
+    // Fix the double Z issue in the API response
+    const cleanDateTime = dateTimeString.replace(/\+00:00Z$/, 'Z');
+    const date = new Date(cleanDateTime);
     if (isNaN(date.getTime())) {
       return 'Invalid Date';
     }
@@ -322,12 +324,6 @@ const EventManagement = () => {
                       </Typography>
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <LocationIcon fontSize="small" color="action" />
-                      <Typography variant="body2">
-                        {event.timezone}
-                      </Typography>
-                    </Box>
                   </Stack>
 
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -411,18 +407,6 @@ const EventManagement = () => {
               required
             />
             
-            <TextField
-              fullWidth
-              label="Timezone"
-              value={formData.timezone}
-              disabled
-              helperText="Automatically detected from your browser"
-              sx={{
-                '& .MuiInputBase-input': {
-                  color: 'text.secondary'
-                }
-              }}
-            />
             
             <TextField
               fullWidth
@@ -497,18 +481,6 @@ const EventManagement = () => {
               required
             />
             
-            <TextField
-              fullWidth
-              label="Timezone"
-              value={formData.timezone}
-              disabled
-              helperText="Automatically detected from your browser"
-              sx={{
-                '& .MuiInputBase-input': {
-                  color: 'text.secondary'
-                }
-              }}
-            />
             
             <TextField
               fullWidth
