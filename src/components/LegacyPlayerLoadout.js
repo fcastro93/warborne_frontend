@@ -168,14 +168,16 @@ export default function LegacyPlayerLoadout() {
   // Group gear by type
   console.log('All gear items:', gearItems);
   console.log('Gear items length:', gearItems.length);
+  console.log('Gear items type:', typeof gearItems);
+  console.log('Is gear items array?', Array.isArray(gearItems));
   
   const gearByType = {
-    weapon: gearItems.filter(item => item.gear_type.category === 'weapon'),
-    helmet: gearItems.filter(item => item.gear_type.category === 'helmet'),
-    chest: gearItems.filter(item => item.gear_type.category === 'chest'),
-    boots: gearItems.filter(item => item.gear_type.category === 'boots'),
-    consumable: gearItems.filter(item => item.gear_type.category === 'consumable'),
-    mod: gearItems.filter(item => item.gear_type.category === 'mod')
+    weapon: (gearItems || []).filter(item => item.gear_type?.category === 'weapon'),
+    helmet: (gearItems || []).filter(item => item.gear_type?.category === 'helmet'),
+    chest: (gearItems || []).filter(item => item.gear_type?.category === 'chest'),
+    boots: (gearItems || []).filter(item => item.gear_type?.category === 'boots'),
+    consumable: (gearItems || []).filter(item => item.gear_type?.category === 'consumable'),
+    mod: (gearItems || []).filter(item => item.gear_type?.category === 'mod')
   };
   
   console.log('Gear by type counts:', {
@@ -193,7 +195,9 @@ export default function LegacyPlayerLoadout() {
     const currentCategory = categories[activeItemTab];
     console.log('Current category:', currentCategory, 'Active tab:', activeItemTab);
     console.log('Gear by type:', gearByType);
-    return gearByType[currentCategory] || [];
+    const items = gearByType[currentCategory] || [];
+    console.log('Items for category:', currentCategory, 'Count:', items.length);
+    return items;
   };
 
   // Filter items by search and rarity
@@ -883,7 +887,7 @@ export default function LegacyPlayerLoadout() {
               p: '10px 0',
               alignContent: 'start'
             }}>
-              {getFilteredItems().map((item) => (
+              {getFilteredItems().length > 0 ? getFilteredItems().map((item) => (
                 <Box
                   key={item.id}
                   sx={{
@@ -1001,7 +1005,24 @@ export default function LegacyPlayerLoadout() {
                     </Button>
                   </Box>
                 </Box>
-              ))}
+              )) : (
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  p: 4,
+                  color: '#b0bec5',
+                  textAlign: 'center'
+                }}>
+                  <Typography sx={{ fontSize: '1.2rem', mb: 1 }}>
+                    No items found
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.9rem', opacity: 0.7 }}>
+                    Try adjusting your search or filters
+                  </Typography>
+                </Box>
+              )}
             </Box>
           </Box>
         </Box>
