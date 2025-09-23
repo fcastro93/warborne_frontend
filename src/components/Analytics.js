@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Grid,
-  Paper,
   Typography,
   IconButton,
   Menu,
   MenuItem,
   Chip,
-  Avatar,
   Button,
   Dialog,
   DialogTitle,
@@ -20,10 +18,8 @@ import {
   ListItemText,
   Checkbox,
   FormControlLabel,
-  Divider,
   Card,
   CardContent,
-  LinearProgress,
   Stack,
   Tooltip,
 } from '@mui/material';
@@ -31,7 +27,6 @@ import {
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-  DragIndicator as DragIndicatorIcon,
   Settings as SettingsIcon,
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
@@ -44,7 +39,6 @@ import {
   BarChart as BarChartIcon,
   ShowChart as ShowChartIcon,
 } from '@mui/icons-material';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 // Sample data for widgets (will be replaced with real data later)
 const sampleData = {
@@ -273,17 +267,6 @@ export default function Analytics() {
     localStorage.setItem('analytics-widgets', JSON.stringify(newWidgets));
   };
 
-  // Handle drag and drop
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
-
-    const newWidgets = Array.from(widgets);
-    const [reorderedItem] = newWidgets.splice(result.source.index, 1);
-    newWidgets.splice(result.destination.index, 0, reorderedItem);
-
-    saveWidgets(newWidgets);
-  };
-
   // Toggle widget visibility
   const toggleWidgetVisibility = (widgetId) => {
     const newWidgets = widgets.map(widget =>
@@ -399,7 +382,6 @@ export default function Analytics() {
         </Typography>
         <Button
           variant="outlined"
-          startIcon={<DragIndicatorIcon />}
           onClick={() => setCustomizeDialog(true)}
         >
           Customize Dashboard
@@ -414,37 +396,15 @@ export default function Analytics() {
       </Box>
 
       {/* Widgets Grid */}
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="widgets">
-          {(provided) => (
-            <Grid container spacing={3} {...provided.droppableProps} ref={provided.innerRef}>
-              {widgets
-                .filter(widget => widget.visible)
-                .map((widget, index) => (
-                  <Draggable key={widget.id} draggableId={widget.id} index={index}>
-                    {(provided, snapshot) => (
-                      <Grid
-                        item
-                        {...widget.size}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        sx={{
-                          opacity: snapshot.isDragging ? 0.8 : 1,
-                          transform: snapshot.isDragging ? 'rotate(5deg)' : 'none',
-                          transition: 'all 0.2s ease',
-                        }}
-                      >
-                        {renderWidget(widget)}
-                      </Grid>
-                    )}
-                  </Draggable>
-                ))}
-              {provided.placeholder}
+      <Grid container spacing={3}>
+        {widgets
+          .filter(widget => widget.visible)
+          .map((widget) => (
+            <Grid key={widget.id} item {...widget.size}>
+              {renderWidget(widget)}
             </Grid>
-          )}
-        </Droppable>
-      </DragDropContext>
+          ))}
+      </Grid>
 
       {/* Settings Menu */}
       <Menu
