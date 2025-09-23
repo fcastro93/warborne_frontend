@@ -321,10 +321,16 @@ export default function RecommendedBuilds() {
 
     if (isEquipping) {
       // Equip the item
-      updatedDrifters[drifterIndex].gear_slots[slotIndex] = {
-        gear_item: item,
-        gear_type: { category: item.gear_type.category }
-      };
+        // Ensure the equipped item has a 'name' property for consistent display
+        const equippedItem = {
+          ...item,
+          name: item.name || item.base_name // Use existing 'name' or fallback to 'base_name'
+        };
+
+        updatedDrifters[drifterIndex].gear_slots[slotIndex] = {
+          gear_item: equippedItem,
+          gear_type: { category: item.gear_type.category }
+        };
     } else {
       // Unequip the item
       updatedDrifters[drifterIndex].gear_slots[slotIndex] = null;
@@ -1045,7 +1051,7 @@ export default function RecommendedBuilds() {
                                 {getIconUrl(gear.gear_item) ? (
                                   <img 
                                     src={getIconUrl(gear.gear_item)} 
-                                    alt={gear.gear_item.name}
+                                    alt={gear.gear_item.name || gear.gear_item.base_name}
                                     style={{ 
                                       width: '100%', 
                                       height: '100%', 
@@ -1084,7 +1090,7 @@ export default function RecommendedBuilds() {
                                   maxWidth: '100%'
                                 }}
                               >
-                                {gear.gear_item.name}
+                                {gear.gear_item.name || gear.gear_item.base_name}
                               </Typography>
 
                               {gear.gear_item.skill_name && (
