@@ -23,6 +23,7 @@ import {
   Stack,
   Tooltip,
 } from '@mui/material';
+import Layout from './Layout';
 import {
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
@@ -374,37 +375,38 @@ export default function Analytics() {
   };
 
   return (
-    <Box sx={{ flexGrow: 1, p: 3 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
-          Analytics
-        </Typography>
-        <Button
-          variant="outlined"
-          onClick={() => setCustomizeDialog(true)}
-        >
-          Customize Dashboard
-        </Button>
-      </Box>
+    <Layout>
+      <Box sx={{ flexGrow: 1, p: 3 }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+            Analytics
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => setCustomizeDialog(true)}
+          >
+            Customize Dashboard
+          </Button>
+        </Box>
 
-      {/* Breadcrumbs */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="body2" color="text.secondary">
-          Analytics {'>'} Overview
-        </Typography>
-      </Box>
+        {/* Breadcrumbs */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary">
+            Analytics {'>'} Overview
+          </Typography>
+        </Box>
 
-      {/* Widgets Grid */}
-      <Grid container spacing={3}>
-        {widgets
-          .filter(widget => widget.visible)
-          .map((widget) => (
-            <Grid key={widget.id} item {...widget.size}>
-              {renderWidget(widget)}
-            </Grid>
-          ))}
-      </Grid>
+        {/* Widgets Grid */}
+        <Grid container spacing={3}>
+          {widgets
+            .filter(widget => widget.visible)
+            .map((widget) => (
+              <Grid key={widget.id} item {...widget.size}>
+                {renderWidget(widget)}
+              </Grid>
+            ))}
+        </Grid>
 
       {/* Settings Menu */}
       <Menu
@@ -478,6 +480,7 @@ export default function Analytics() {
           <Button onClick={() => setCustomizeDialog(false)}>Close</Button>
         </DialogActions>
       </Dialog>
-    </Box>
+      </Box>
+    </Layout>
   );
 }
