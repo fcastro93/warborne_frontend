@@ -302,9 +302,6 @@ export default function RecommendedBuildsList() {
 
                     {/* Equipment Preview */}
                     <Box sx={{ mb: 2 }}>
-                      <Typography sx={{ color: '#90caf9', fontSize: '0.8rem', fontWeight: 600, mb: 1 }}>
-                        Equipment:
-                      </Typography>
                       <Stack direction="row" spacing={1} flexWrap="wrap">
                         {build.weapon && (
                           <Chip
@@ -358,10 +355,7 @@ export default function RecommendedBuildsList() {
                     </Box>
 
                     {/* Footer */}
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <Typography sx={{ color: '#b0bec5', fontSize: '0.8rem' }}>
-                        by {build.created_by}
-                      </Typography>
+                    <Stack direction="row" justifyContent="flex-end" alignItems="center">
                       <Button
                         variant="contained"
                         size="small"
@@ -431,7 +425,7 @@ export default function RecommendedBuildsList() {
         <Dialog
           open={createModalOpen}
           onClose={handleCloseModal}
-          maxWidth="md"
+          maxWidth="sm"
           fullWidth
           PaperProps={{
             sx: {
@@ -439,7 +433,9 @@ export default function RecommendedBuildsList() {
               border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: 2,
               backdropFilter: 'blur(20px)',
-              color: '#ffffff'
+              color: '#ffffff',
+              maxHeight: '90vh',
+              overflow: 'auto'
             }
           }}
         >
@@ -449,7 +445,9 @@ export default function RecommendedBuildsList() {
             fontWeight: 700, 
             textAlign: 'center',
             borderBottom: '2px solid rgba(100, 181, 246, 0.3)',
-            pb: 2
+            pb: 2,
+            pt: 3,
+            px: 3
           }}>
             Create New Build
           </DialogTitle>
@@ -489,10 +487,18 @@ export default function RecommendedBuildsList() {
                 }}
               />
               <FormControl fullWidth>
-                <InputLabel sx={{ color: '#b0bec5' }}>Role</InputLabel>
+                <InputLabel 
+                  sx={{ 
+                    color: '#b0bec5',
+                    '&.Mui-focused': { color: '#64b5f6' }
+                  }}
+                >
+                  Role
+                </InputLabel>
                 <Select
                   value={createForm.role}
                   onChange={(e) => handleFormChange('role', e.target.value)}
+                  label="Role"
                   sx={{
                     color: 'white',
                     '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },

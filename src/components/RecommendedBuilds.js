@@ -544,6 +544,22 @@ export default function RecommendedBuilds() {
   const currentDrifter = activeDrifterTab >= 0 ? drifters[activeDrifterTab] || null : null;
   const hasSelectedDrifter = currentDrifter !== null && currentDrifter.name !== null;
 
+  // Helper function to get CSRF token
+  const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -562,23 +578,8 @@ export default function RecommendedBuilds() {
     );
   }
 
-  if (!currentDrifter) {
-    return (
-      <Layout>
-        <Box sx={{
-          minHeight: '100vh',
-          background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <Typography sx={{ color: '#ffffff', fontSize: '1.5rem' }}>
-            No drifter data available
-          </Typography>
-        </Box>
-      </Layout>
-    );
-  }
+  // For recommended builds, we should always show the interface even without a drifter
+  // The user can select a drifter in the editor
 
   return (
     <Layout>
@@ -1025,7 +1026,7 @@ export default function RecommendedBuilds() {
                   opacity: 0.7,
                   fontStyle: 'italic'
                 }}>
-                  No Drifter Selected
+                  No Drifter Assigned
                 </Typography>
                 <Typography sx={{
                   color: '#90caf9',
@@ -1033,7 +1034,7 @@ export default function RecommendedBuilds() {
                   mt: 1,
                   opacity: 0.8
                 }}>
-                  Select a drifter to view their stats and equipment
+                  Select a drifter for this recommended build
                 </Typography>
               </Box>
             )}
@@ -1060,7 +1061,7 @@ export default function RecommendedBuilds() {
                   },
                 }}
               >
-                Change Drifter
+                {hasSelectedDrifter ? 'Change Drifter' : 'Select Drifter'}
               </Button>
             </Box>
           </Box>
@@ -1589,7 +1590,7 @@ export default function RecommendedBuilds() {
               textAlign: 'center',
               mb: 3
             }}>
-              Choose a drifter for slot {activeDrifterTab + 1}
+              {buildId ? 'Choose a drifter for this recommended build' : `Choose a drifter for slot ${activeDrifterTab + 1}`}
             </Typography>
             
             <Box sx={{ 
@@ -1669,16 +1670,51 @@ export default function RecommendedBuilds() {
               {allDrifters.map((drifter, index) => (
                 <Button
                   key={index}
-                  onClick={() => {
-                    // Update local state
-                    const updatedDrifters = [...drifters];
-                    updatedDrifters[activeDrifterTab] = {
-                      ...drifter,
-                      number: activeDrifterTab + 1,
-                      gear_slots: updatedDrifters[activeDrifterTab]?.gear_slots || new Array(9).fill(null)
-                    };
-                    setDrifters(updatedDrifters);
-                    setShowDrifterModal(false);
+                  onClick={async () => {
+                    if (buildId && currentBuild) {
+                      // For recommended builds, we need to update the build's drifter assignment
+                      try {
+                        const response = await fetch(`/api/builds/${buildId}/assign-drifter/`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                          },
+                          credentials: 'include',
+                          body: JSON.stringify({
+                            drifter_id: drifter.id
+                          })
+                        });
+
+                        if (response.ok) {
+                          // Update local state
+                          const updatedDrifters = [...drifters];
+                          updatedDrifters[activeDrifterTab] = {
+                            ...drifter,
+                            number: activeDrifterTab + 1,
+                            gear_slots: updatedDrifters[activeDrifterTab]?.gear_slots || new Array(9).fill(null)
+                          };
+                          setDrifters(updatedDrifters);
+                          setShowDrifterModal(false);
+                        } else {
+                          const error = await response.json();
+                          alert('Error assigning drifter: ' + (error.error || 'Unknown error'));
+                        }
+                      } catch (error) {
+                        console.error('Error assigning drifter:', error);
+                        alert('Error assigning drifter: ' + error.message);
+                      }
+                    } else {
+                      // For regular player loadout, update local state
+                      const updatedDrifters = [...drifters];
+                      updatedDrifters[activeDrifterTab] = {
+                        ...drifter,
+                        number: activeDrifterTab + 1,
+                        gear_slots: updatedDrifters[activeDrifterTab]?.gear_slots || new Array(9).fill(null)
+                      };
+                      setDrifters(updatedDrifters);
+                      setShowDrifterModal(false);
+                    }
                   }}
                   sx={{
                     p: 2,
