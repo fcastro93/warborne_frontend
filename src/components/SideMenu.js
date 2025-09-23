@@ -9,13 +9,13 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import HomeIcon from '@mui/icons-material/Home';
-import PeopleIcon from '@mui/icons-material/People';
-import BuildIcon from '@mui/icons-material/Build';
-import SettingsIcon from '@mui/icons-material/Settings';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
+import BuildRoundedIcon from '@mui/icons-material/BuildRounded';
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 
 const drawerWidth = 240;
 
@@ -30,11 +30,14 @@ const Drawer = styled(MuiDrawer)({
   },
 });
 
-const menuItems = [
-  { text: 'Dashboard', icon: <HomeIcon />, path: '/dashboard' },
-  { text: 'Members', icon: <PeopleIcon />, path: '/members' },
-  { text: 'Loadouts', icon: <BuildIcon />, path: '/loadouts' },
-  { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+const mainListItems = [
+  { text: 'Dashboard', icon: <HomeRoundedIcon />, path: '/dashboard' },
+  { text: 'Members', icon: <PeopleRoundedIcon />, path: '/members' },
+  { text: 'Loadouts', icon: <BuildRoundedIcon />, path: '/loadouts' },
+];
+
+const secondaryListItems = [
+  { text: 'Settings', icon: <SettingsRoundedIcon />, path: '/settings' },
 ];
 
 export default function SideMenu() {
@@ -70,33 +73,44 @@ export default function SideMenu() {
           flexDirection: 'column',
         }}
       >
-        <List>
-          {menuItems.map((item) => (
-            <ListItem 
-              key={item.text} 
-              component={Link} 
-              to={item.path}
-              sx={{
-                textDecoration: 'none',
-                color: 'inherit',
-                backgroundColor: location.pathname === item.path ? 'primary.main' : 'transparent',
-                '&:hover': {
-                  backgroundColor: location.pathname === item.path ? 'primary.dark' : 'action.hover',
-                },
-                '& .MuiListItemIcon-root': {
-                  color: location.pathname === item.path ? 'white' : 'inherit',
-                },
-                '& .MuiListItemText-primary': {
-                  color: location.pathname === item.path ? 'white' : 'inherit',
-                  fontWeight: location.pathname === item.path ? 600 : 400,
-                },
-              }}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItem>
-          ))}
-        </List>
+        <Stack sx={{ flexGrow: 1, p: 1, justifyContent: 'space-between' }}>
+          <List dense>
+            {mainListItems.map((item, index) => (
+              <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+                <ListItemButton 
+                  component={Link} 
+                  to={item.path}
+                  selected={location.pathname === item.path}
+                  sx={{
+                    textDecoration: 'none',
+                    color: 'inherit',
+                  }}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+          <List dense>
+            {secondaryListItems.map((item, index) => (
+              <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+                <ListItemButton 
+                  component={Link} 
+                  to={item.path}
+                  selected={location.pathname === item.path}
+                  sx={{
+                    textDecoration: 'none',
+                    color: 'inherit',
+                  }}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Stack>
       </Box>
       <Stack
         direction="row"
