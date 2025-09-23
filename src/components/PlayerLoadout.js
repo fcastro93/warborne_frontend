@@ -58,6 +58,7 @@ import {
   Public,
   WorkspacePremium,
   Inventory,
+  Inventory2,
   Speed,
   Favorite,
   Security,
@@ -116,6 +117,181 @@ const getRarityColor = (rarity) => {
 
 const getRarityConfig = (rarity) => {
   return RARITY_COLORS[rarity?.toLowerCase()] || RARITY_COLORS.common;
+};
+
+// Rarity colors for slot cards - using existing color mapping
+const rarityColor = {
+  common: 'grey.600',
+  uncommon: 'success.main',
+  rare: 'info.main',
+  epic: 'secondary.main',
+  legendary: 'warning.main',
+};
+
+// Slot card component
+const SlotCard = ({ state, label, item, selected, onClick }) => {
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onClick?.();
+    }
+  };
+
+  const getAriaLabel = () => {
+    const slotType = label.toLowerCase();
+    if (slotType.startsWith('mod')) {
+      return `${label} slot`;
+    }
+    return `${slotType} slot`;
+  };
+
+  return (
+    <Paper
+      elevation={1}
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-label={getAriaLabel()}
+      sx={[
+        {
+          aspectRatio: '1 / 1',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: 2,
+          position: 'relative',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'translateY(-1px)',
+            boxShadow: 3,
+          },
+          '&:focus': {
+            outline: 'none',
+            boxShadow: theme => `0 0 0 2px ${theme.palette.primary.main}`,
+          }
+        },
+        // Empty slot styling
+        state === 'empty' && {
+          p: 1.5,
+          bgcolor: 'background.default',
+          border: '1px dashed',
+          borderColor: 'divider',
+          color: 'text.secondary',
+        },
+        // Filled slot styling
+        state === 'filled' && {
+          p: 2, // Increased padding for better image spacing
+          background: theme => `linear-gradient(180deg, ${theme.palette.background.paper} 0%, rgba(255,255,255,0.02) 100%)`,
+          border: '1px solid',
+          borderColor: theme => rarityColor[item?.rarity || 'common'],
+        },
+        selected && { 
+          boxShadow: theme => `0 0 0 2px ${theme.palette.primary.main} inset` 
+        },
+      ]}
+    >
+      {state === 'empty' ? (
+        <>
+          <IconButton size="small" sx={{ color: 'text.secondary' }}>
+            <Add />
+          </IconButton>
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              position: 'absolute', 
+              bottom: 6, 
+              left: 0, 
+              right: 0, 
+              textAlign: 'center', 
+              opacity: 0.7,
+              color: 'text.secondary'
+            }}
+          >
+            {label}
+          </Typography>
+        </>
+      ) : (
+        <>
+          {item?.imageUrl ? (
+            <Box sx={{ 
+              flex: 1, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              maxHeight: '55%',
+              width: '100%',
+              p: 1 // Additional padding to prevent image from touching edges
+            }}>
+              <Box 
+                component="img" 
+                src={item.imageUrl} 
+                alt={item?.name} 
+                sx={{ 
+                  maxWidth: '100%', 
+                  maxHeight: '100%', 
+                  objectFit: 'contain' 
+                }} 
+              />
+            </Box>
+          ) : (
+            <Avatar sx={{ mb: 1, width: 40, height: 40 }}>
+              <Inventory2 />
+            </Avatar>
+          )}
+          <Typography 
+            variant="body2" 
+            fontWeight={700} 
+            textAlign="center"
+            sx={{ mb: 0.5 }}
+          >
+            {item?.name}
+          </Typography>
+          {item?.subtitle && (
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                opacity: 0.8, 
+                mb: 0.5,
+                textAlign: 'center',
+                fontSize: '0.75rem'
+              }}
+            >
+              {item.subtitle}
+            </Typography>
+          )}
+          {item?.stat && (
+            <Typography 
+              variant="caption" 
+              sx={{ 
+                mt: 0.5, 
+                color: 'success.main',
+                textAlign: 'center',
+                display: 'block'
+              }}
+            >
+              {item.stat}
+            </Typography>
+          )}
+          <Chip 
+            size="small" 
+            variant="outlined" 
+            sx={{ 
+              mt: 0.5, 
+              borderColor: theme => rarityColor[item?.rarity || 'common'], 
+              color: theme => rarityColor[item?.rarity || 'common'],
+              fontSize: '0.7rem',
+              height: 20
+            }} 
+            label={label} 
+          />
+        </>
+      )}
+    </Paper>
+  );
 };
 
 // Typography Hierarchy
@@ -291,6 +467,51 @@ export default function PlayerLoadout() {
   const handleCancelEdit = () => {
     setEditingName(false);
     setEditName('');
+  };
+
+  // Equipment data mapping
+  const equipmentData = [
+    { name: 'Luminous Ward', skill: 'Sanctum Arc', type: 'weapon', stats: '', rarity: 'epic', flavor: 'Forged in the Sanctum of Dawn' },
+    { name: 'Healer\'s Hood', skill: 'Swift Aid', type: 'helmet', stats: 'HP: +714', rarity: 'rare', flavor: 'Blessed by the Ancient Healers' },
+    { name: 'Cleansing Robe', skill: 'Purify', type: 'chest', stats: '', rarity: 'common', flavor: 'Woven with purifying threads' },
+    { name: 'Arcaneflow Boots', skill: 'Abundance', type: 'boots', stats: 'HP: +675', rarity: 'rare', flavor: 'Infused with mana currents' },
+    { name: 'Mass Healing Elixir', skill: 'Mass Healing Elixir', type: 'consumable', stats: '', rarity: 'common', isConsumable: true, flavor: 'A potent healing brew' }
+  ];
+
+  // Create equipment object mapping
+  const equipment = equipmentData.reduce((acc, item) => {
+    const slot = item.type;
+    if (slot) {
+      const imageUrl = getItemImageUrl(item.name, item.type);
+      acc[slot] = {
+        id: `${slot}-${item.name.toLowerCase().replace(/\s+/g, '-')}`,
+        slot: slot,
+        name: item.name,
+        subtitle: item.skill,
+        rarity: item.rarity,
+        stat: item.stats,
+        imageUrl: imageUrl || undefined, // Only include if available, otherwise fallback to Avatar
+      };
+    }
+    return acc;
+  }, {});
+
+  // Helper function to get item image URL from asset pipeline
+  const getItemImageUrl = (itemName, itemType) => {
+    // TODO: Implement asset pipeline URL generation
+    // For now, return null to use Avatar fallback
+    return null;
+  };
+
+  // Mod handlers
+  const handleAddMod = (modSlot) => {
+    console.log(`Adding mod to ${modSlot}`);
+    // TODO: Implement add mod functionality
+  };
+
+  const handleOpenModDetails = (modSlot) => {
+    console.log(`Opening mod details for ${modSlot}`);
+    // TODO: Implement open mod details functionality
   };
 
   if (loading) {
@@ -771,205 +992,46 @@ export default function PlayerLoadout() {
                   </Box>
                   
                   {/* Equipped Items Grid */}
-                  <Grid container spacing={2}>
-                  {/* Main Equipment Slots */}
-                  {[
-                    { name: 'Luminous Ward', skill: 'Sanctum Arc', type: 'weapon', stats: '', rarity: 'epic', flavor: 'Forged in the Sanctum of Dawn' },
-                    { name: 'Healer\'s Hood', skill: 'Swift Aid', type: 'helmet', stats: 'HP: +714', rarity: 'rare', flavor: 'Blessed by the Ancient Healers' },
-                    { name: 'Cleansing Robe', skill: 'Purify', type: 'chest', stats: '', rarity: 'common', flavor: 'Woven with purifying threads' },
-                    { name: 'Arcaneflow Boots', skill: 'Abundance', type: 'boots', stats: 'HP: +675', rarity: 'rare', flavor: 'Infused with mana currents' },
-                    { name: 'Mass Healing Elixir', skill: 'Mass Healing Elixir', type: 'consumable', stats: '', rarity: 'common', isConsumable: true, flavor: 'A potent healing brew' }
-                  ].map((item, index) => {
-                    const rarityConfig = getRarityConfig(item.rarity);
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gap: 2,
+                      gridTemplateColumns: {
+                        xs: 'repeat(2, 1fr)',
+                        sm: 'repeat(3, 1fr)',
+                        md: 'repeat(5, 1fr)',
+                      },
+                    }}
+                  >
+                    {/* Equipment Slots - First Row (5 slots) */}
+                    {['weapon', 'helmet', 'chest', 'boots', 'consumable'].map((slot) => {
+                      const item = equipment[slot];
+                      return (
+                        <SlotCard
+                          key={slot}
+                          state={item ? "filled" : "empty"}
+                          label={slot}
+                          item={item}
+                          onClick={() => console.log(`Clicked ${slot}`)}
+                        />
+                      );
+                    })}
                     
-                    return (
-                      <Grid item xs={6} key={index}>
-                        <Tooltip 
-                          title={
-                            <Box>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                                {item.name}
-                              </Typography>
-                              <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
-                                {item.flavor}
-                              </Typography>
-                              {item.stats && (
-                                <Typography variant="caption" sx={{ display: 'block', color: 'success.light' }}>
-                                  {item.stats}
-                                </Typography>
-                              )}
-                            </Box>
-                          }
-                          arrow
-                          placement="top"
-                        >
-                          <Paper
-                            sx={{
-                              p: 2,
-                              textAlign: 'center',
-                              border: '2px solid',
-                              borderColor: rarityConfig.border,
-                              bgcolor: rarityConfig.bg,
-                              cursor: 'pointer',
-                              borderRadius: item.isConsumable ? '50%' : 2,
-                              width: item.isConsumable ? 80 : 'auto',
-                              height: item.isConsumable ? 80 : 'auto',
-                              mx: 'auto',
-                              transition: 'all 0.3s ease',
-                              position: 'relative',
-                              overflow: 'hidden',
-                              '&::before': {
-                                content: '""',
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                background: `linear-gradient(45deg, transparent 30%, ${rarityConfig.glow} 50%, transparent 70%)`,
-                                transform: 'translateX(-100%)',
-                                transition: 'transform 0.6s ease',
-                              },
-                              '&:hover': {
-                                borderColor: rarityConfig.border,
-                                bgcolor: rarityConfig.bg,
-                                transform: 'translateY(-4px) scale(1.05)',
-                                boxShadow: `0 8px 25px ${rarityConfig.glow}`,
-                                '&::before': {
-                                  transform: 'translateX(100%)',
-                                },
-                              },
-                            }}
-                          >
-                            <Avatar sx={{ 
-                              width: item.isConsumable ? 40 : 48, 
-                              height: item.isConsumable ? 40 : 48, 
-                              mx: 'auto', 
-                              mb: 1,
-                              bgcolor: rarityConfig.border,
-                              boxShadow: `0 0 10px ${rarityConfig.glow}`,
-                              position: 'relative',
-                              zIndex: 1,
-                            }}>
-                              {getGearTypeIcon(item.type)}
-                            </Avatar>
-                            {!item.isConsumable && (
-                              <>
-                                <Typography 
-                                  {...TYPOGRAPHY.body}
-                                  sx={{ mb: 0.5, color: rarityConfig.text }}
-                                >
-                                  {item.name}
-                                </Typography>
-                                <Typography 
-                                  {...TYPOGRAPHY.secondary}
-                                  sx={{ display: 'block', mb: 0.5 }}
-                                >
-                                  {item.skill}
-                                </Typography>
-                                <Chip 
-                                  label={item.type} 
-                                  size="small" 
-                                  color={getRarityColor(item.rarity)}
-                                  variant="outlined"
-                                  sx={{ mb: 0.5 }}
-                                />
-                                {item.stats && (
-                                  <Typography 
-                                    {...TYPOGRAPHY.caption}
-                                    sx={{ display: 'block', fontWeight: 'bold', color: 'success.main' }}
-                                  >
-                                    {item.stats}
-                                  </Typography>
-                                )}
-                              </>
-                            )}
-                          </Paper>
-                        </Tooltip>
-                      </Grid>
-                    );
-                  })}
-                    
-                    {/* Mod Slots */}
-                    {[1, 2, 3, 4].map((modNum) => (
-                      <Grid item xs={6} key={`mod-${modNum}`}>
-                        <Tooltip 
-                          title="Click to add a mod"
-                          arrow
-                          placement="top"
-                        >
-                          <Paper
-                            sx={{
-                              p: 2,
-                              textAlign: 'center',
-                              border: '2px dashed',
-                              borderColor: 'grey.300',
-                              borderRadius: '50%',
-                              width: 80,
-                              height: 80,
-                              mx: 'auto',
-                              cursor: 'pointer',
-                              transition: 'all 0.3s ease',
-                              position: 'relative',
-                              animation: 'pulse 2s infinite',
-                              '@keyframes pulse': {
-                                '0%': {
-                                  boxShadow: '0 0 0 0 rgba(100, 181, 246, 0.4)',
-                                },
-                                '70%': {
-                                  boxShadow: '0 0 0 10px rgba(100, 181, 246, 0)',
-                                },
-                                '100%': {
-                                  boxShadow: '0 0 0 0 rgba(100, 181, 246, 0)',
-                                },
-                              },
-                              '&:hover': {
-                                borderColor: 'primary.main',
-                                bgcolor: 'primary.50',
-                                transform: 'scale(1.1)',
-                                boxShadow: '0 0 20px rgba(100, 181, 246, 0.4)',
-                                animation: 'none',
-                              },
-                            }}
-                          >
-                            <Box sx={{ 
-                              width: 40, 
-                              height: 40, 
-                              mx: 'auto', 
-                              border: '2px solid',
-                              borderColor: 'grey.400',
-                              borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              background: 'radial-gradient(circle, rgba(100, 181, 246, 0.1) 0%, transparent 70%)',
-                              transition: 'all 0.3s ease',
-                              '&:hover': {
-                                borderColor: 'primary.main',
-                                background: 'radial-gradient(circle, rgba(100, 181, 246, 0.3) 0%, transparent 70%)',
-                                boxShadow: '0 0 15px rgba(100, 181, 246, 0.6)',
-                              }
-                            }}>
-                              <Add sx={{ 
-                                color: 'grey.500',
-                                fontSize: 20,
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                  color: 'primary.main',
-                                  transform: 'rotate(90deg)',
-                                }
-                              }} />
-                            </Box>
-                            <Typography 
-                              {...TYPOGRAPHY.caption}
-                              sx={{ mt: 0.5, display: 'block' }}
-                            >
-                              Mod {modNum}
-                            </Typography>
-                          </Paper>
-                        </Tooltip>
-                      </Grid>
-                    ))}
-                  </Grid>
+                    {/* Mod Slots - Second Row (4 slots) */}
+                    {[1, 2, 3, 4].map((modNum) => {
+                      const modSlot = `mod${modNum}`;
+                      const modItem = equipment[modSlot]; // Check if mod exists
+                      return (
+                        <SlotCard
+                          key={modSlot}
+                          state={modItem ? "filled" : "empty"}
+                          label={`Mod ${modNum}`}
+                          item={modItem}
+                          onClick={modItem ? () => handleOpenModDetails(modSlot) : () => handleAddMod(modSlot)}
+                        />
+                      );
+                    })}
+                  </Box>
                 </CardContent>
               </Card>
 
