@@ -280,68 +280,6 @@ export default function Login() {
                 )}
               </Button>
 
-              {/* Divider */}
-              <Divider sx={{ 
-                mb: 3,
-                '&::before, &::after': {
-                  content: '""',
-                  flex: 1,
-                  height: '1px',
-                  background: 'rgba(255, 255, 255, 0.2)',
-                },
-              }}>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: 'text.secondary',
-                    px: 2,
-                    fontWeight: 600
-                  }}
-                >
-                  OR
-                </Typography>
-              </Divider>
-
-              {/* Demo Credentials */}
-              <Box sx={{ 
-                p: 2, 
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '8px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                textAlign: 'center'
-              }}>
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    color: 'text.secondary',
-                    display: 'block',
-                    mb: 1,
-                    fontWeight: 600
-                  }}
-                >
-                  Demo Credentials:
-                </Typography>
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    color: 'text.primary',
-                    display: 'block',
-                    fontFamily: 'monospace'
-                  }}
-                >
-                  Username: admin
-                </Typography>
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    color: 'text.primary',
-                    display: 'block',
-                    fontFamily: 'monospace'
-                  }}
-                >
-                  Password: admin
-                </Typography>
-              </Box>
             </Box>
           </Box>
         </Grid>
