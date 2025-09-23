@@ -167,6 +167,10 @@ export default function GuildMembersTable() {
             borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
             fontWeight: 600,
             fontSize: '0.875rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.02)',
+            color: 'rgba(255, 255, 255, 0.87)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
           },
         }}
       >
