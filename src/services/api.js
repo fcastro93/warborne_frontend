@@ -53,6 +53,11 @@ export const apiService = {
     return data.gear_items || [];
   },
 
+  async getAllDrifters() {
+    const response = await fetch(`${API_BASE_URL}/drifters/`);
+    return response.json();
+  },
+
   async getPlayerEquippedGear(playerId) {
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/equipped-gear/`);
     return response.json();

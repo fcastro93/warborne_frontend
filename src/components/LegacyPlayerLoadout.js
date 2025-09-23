@@ -80,6 +80,7 @@ export default function LegacyPlayerLoadout() {
   const { playerId } = useParams();
   const [player, setPlayer] = useState(null);
   const [drifters, setDrifters] = useState([]);
+  const [allDrifters, setAllDrifters] = useState([]);
   const [gearItems, setGearItems] = useState([]);
   const [activeDrifterTab, setActiveDrifterTab] = useState(0);
   const [activeItemTab, setActiveItemTab] = useState(0);
@@ -132,6 +133,11 @@ export default function LegacyPlayerLoadout() {
       console.log('Gear items data:', gearData);
       // The API returns the array directly, not wrapped in a gear_items property
       setGearItems(Array.isArray(gearData) ? gearData : (gearData.gear_items || []));
+
+      // Fetch all available drifters
+      const allDriftersData = await apiService.getAllDrifters();
+      console.log('All drifters data:', allDriftersData);
+      setAllDrifters(allDriftersData.drifters || []);
 
     } catch (error) {
       console.error('Error fetching player data:', error);
@@ -1734,17 +1740,35 @@ export default function LegacyPlayerLoadout() {
           </DialogTitle>
           
           <Box sx={{ p: 3 }}>
+            <Typography sx={{ 
+              color: '#b0bec5', 
+              fontSize: '1rem', 
+              textAlign: 'center',
+              mb: 3
+            }}>
+              Choose a drifter for slot {activeDrifterTab + 1}
+            </Typography>
+            
             <Box sx={{ 
               display: 'grid', 
               gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
               gap: 2,
-              mb: 3
+              mb: 3,
+              maxHeight: '400px',
+              overflowY: 'auto'
             }}>
-              {drifters.map((drifter, index) => (
+              {allDrifters.map((drifter, index) => (
                 <Button
                   key={index}
                   onClick={() => {
-                    setActiveDrifterTab(index);
+                    // Replace the current drifter in the active slot with the selected one
+                    const updatedDrifters = [...drifters];
+                    updatedDrifters[activeDrifterTab] = {
+                      ...drifter,
+                      number: activeDrifterTab + 1,
+                      gear_slots: updatedDrifters[activeDrifterTab]?.gear_slots || new Array(9).fill(null)
+                    };
+                    setDrifters(updatedDrifters);
                     setShowDrifterModal(false);
                   }}
                   sx={{
@@ -1753,14 +1777,14 @@ export default function LegacyPlayerLoadout() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     gap: 1.5,
-                    background: activeDrifterTab === index 
+                    background: drifters[activeDrifterTab]?.name === drifter.name
                       ? 'rgba(100, 181, 246, 0.2)' 
                       : 'rgba(255, 255, 255, 0.05)',
-                    border: activeDrifterTab === index 
+                    border: drifters[activeDrifterTab]?.name === drifter.name
                       ? '2px solid #64b5f6' 
                       : '2px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: 2,
-                    color: activeDrifterTab === index ? '#64b5f6' : '#b0bec5',
+                    color: drifters[activeDrifterTab]?.name === drifter.name ? '#64b5f6' : '#b0bec5',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       background: 'rgba(100, 181, 246, 0.1)',
