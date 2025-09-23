@@ -38,7 +38,7 @@ export const apiService = {
   },
 
   async getGearItems() {
-    const response = await fetch(`${API_BASE_URL}/gear/`);
+    const response = await fetch(`${API_BASE_URL}/gear-items/`);
     const data = await response.json();
     return data.gear_items || [];
   },
