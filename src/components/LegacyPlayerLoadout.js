@@ -847,7 +847,7 @@ export default function LegacyPlayerLoadout() {
             </Box>
 
             {/* Drifter Content */}
-            {hasSelectedDrifter ? (
+            {currentDrifter ? (
               <Box>
                 {/* Drifter Stats */}
                 <Box sx={{
