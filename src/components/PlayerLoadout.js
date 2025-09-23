@@ -469,6 +469,13 @@ export default function PlayerLoadout() {
     setEditName('');
   };
 
+  // Helper function to get item image URL from asset pipeline
+  const getItemImageUrl = (itemName, itemType) => {
+    // TODO: Implement asset pipeline URL generation
+    // For now, return null to use Avatar fallback
+    return null;
+  };
+
   // Equipment data mapping
   const equipmentData = [
     { name: 'Luminous Ward', skill: 'Sanctum Arc', type: 'weapon', stats: '', rarity: 'epic', flavor: 'Forged in the Sanctum of Dawn' },
@@ -495,13 +502,6 @@ export default function PlayerLoadout() {
     }
     return acc;
   }, {});
-
-  // Helper function to get item image URL from asset pipeline
-  const getItemImageUrl = (itemName, itemType) => {
-    // TODO: Implement asset pipeline URL generation
-    // For now, return null to use Avatar fallback
-    return null;
-  };
 
   // Mod handlers
   const handleAddMod = (modSlot) => {
