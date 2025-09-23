@@ -31,7 +31,14 @@ import {
   ListItem,
   ListItemText,
   ListItemAvatar,
-  ListItemSecondaryAction
+  ListItemSecondaryAction,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Checkbox
 } from '@mui/material';
 import {
   Schedule as ScheduleIcon,
@@ -43,7 +50,12 @@ import {
   Cancel as CancelIcon,
   Add as AddIcon,
   Remove as RemoveIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Shield as ShieldIcon,
+  LocalHospital as HealerIcon,
+  SportsEsports as DPSIcon,
+  Security as TankIcon,
+  Support as SupportIcon
 } from '@mui/icons-material';
 import Layout from './Layout';
 
@@ -76,6 +88,10 @@ const EventDetails = () => {
   const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
   const [selectedPartyId, setSelectedPartyId] = useState(null);
   const [showAddParticipantDialog, setShowAddParticipantDialog] = useState(false);
+  const [guildMembers, setGuildMembers] = useState([]);
+  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [showEditPartyDialog, setShowEditPartyDialog] = useState(false);
+  const [selectedPartyForEdit, setSelectedPartyForEdit] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -102,6 +118,13 @@ const EventDetails = () => {
   useEffect(() => {
     fetchEventDetails();
   }, [eventId]);
+
+  useEffect(() => {
+    if (showAddParticipantDialog) {
+      fetchGuildMembers();
+      setSelectedMembers([]); // Reset selection when opening modal
+    }
+  }, [showAddParticipantDialog]);
 
   const fetchEventDetails = async () => {
     try {
@@ -396,6 +419,19 @@ const EventDetails = () => {
     return roleNames[role] || role;
   };
 
+  const getRoleIcon = (role) => {
+    const roleIcons = {
+      healer: <HealerIcon />,
+      ranged_dps: <DPSIcon />,
+      melee_dps: <DPSIcon />,
+      defensive_tank: <ShieldIcon />,
+      offensive_tank: <TankIcon />,
+      offensive_support: <SupportIcon />,
+      defensive_support: <SupportIcon />
+    };
+    return roleIcons[role] || <PeopleIcon />;
+  };
+
   const handleCreateParty = async (partyData) => {
     try {
       const response = await fetch(`/api/events/${eventId}/create-party/`, {
@@ -497,6 +533,139 @@ const EventDetails = () => {
       }
     } catch (error) {
       setAlert({ type: 'error', message: 'Error adding participant: ' + error.message });
+    }
+  };
+
+  const fetchGuildMembers = async () => {
+    try {
+      const response = await fetch('/api/members/');
+      if (response.ok) {
+        const data = await response.json();
+        setGuildMembers(data.members || []);
+      }
+    } catch (error) {
+      console.error('Error fetching guild members:', error);
+    }
+  };
+
+  const handleSelectMember = (memberId) => {
+    setSelectedMembers(prev => {
+      if (prev.includes(memberId)) {
+        return prev.filter(id => id !== memberId);
+      } else {
+        return [...prev, memberId];
+      }
+    });
+  };
+
+  const handleSelectAllMembers = () => {
+    const availableMembers = guildMembers.filter(member => 
+      !participants.some(p => p.player?.id === member.id)
+    );
+    
+    if (selectedMembers.length === availableMembers.length) {
+      setSelectedMembers([]);
+    } else {
+      setSelectedMembers(availableMembers.map(member => member.id));
+    }
+  };
+
+  const handleAddSelectedParticipants = async () => {
+    try {
+      const selectedGuildMembers = guildMembers.filter(member => 
+        selectedMembers.includes(member.id)
+      );
+
+      for (const member of selectedGuildMembers) {
+        const participantData = {
+          discord_name: member.discord_name || member.name,
+          assigned_role: member.game_role
+        };
+
+        await fetch(`/api/events/${eventId}/join/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify(participantData)
+        });
+      }
+
+      setAlert({ 
+        type: 'success', 
+        message: `Successfully added ${selectedGuildMembers.length} participants to the event` 
+      });
+      await fetchEventDetails(); // Refresh data
+      setShowAddParticipantDialog(false);
+      setSelectedMembers([]);
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Error adding participants: ' + error.message });
+    }
+  };
+
+  const handleDeleteParty = async (partyId) => {
+    if (!window.confirm('Are you sure you want to delete this party? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/events/${eventId}/parties/${partyId}/delete/`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAlert({ type: 'success', message: data.message });
+        await fetchEventDetails(); // Refresh data
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', message: errorData.error || 'Failed to delete party' });
+      }
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Error deleting party: ' + error.message });
+    }
+  };
+
+  const handleEditParty = (party) => {
+    setSelectedPartyForEdit(party);
+    setFormData({
+      ...formData,
+      party_name: party.party_name || '',
+      max_members: party.max_members
+    });
+    setShowEditPartyDialog(true);
+  };
+
+  const handleUpdateParty = async () => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/parties/${selectedPartyForEdit.id}/update/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          party_name: formData.party_name,
+          max_members: formData.max_members
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAlert({ type: 'success', message: data.message });
+        await fetchEventDetails(); // Refresh data
+        setShowEditPartyDialog(false);
+        setSelectedPartyForEdit(null);
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', message: errorData.error || 'Failed to update party' });
+      }
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Error updating party: ' + error.message });
     }
   };
 
@@ -745,13 +914,31 @@ const EventDetails = () => {
                                 Party {party.party_number}
                                 {party.party_name && ` - ${party.party_name}`}
                               </Typography>
-                              <IconButton 
-                                size="small" 
-                                onClick={() => handleAddMemberToParty(party.id)}
-                                disabled={party.member_count >= party.max_members}
-                              >
-                                <AddIcon />
-                              </IconButton>
+                              <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => handleEditParty(party)}
+                                  title="Edit Party"
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => handleDeleteParty(party.id)}
+                                  title="Delete Party"
+                                  color="error"
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => handleAddMemberToParty(party.id)}
+                                  disabled={party.member_count >= party.max_members}
+                                  title="Add Member"
+                                >
+                                  <AddIcon />
+                                </IconButton>
+                              </Box>
                             </Box>
                             
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -763,8 +950,8 @@ const EventDetails = () => {
                                 {party.members.map((member) => (
                                   <ListItem key={member.id} sx={{ px: 0 }}>
                                     <ListItemAvatar>
-                                      <Avatar sx={{ width: 32, height: 32 }}>
-                                        {member.player?.discord_name?.charAt(0) || '?'}
+                                      <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
+                                        {getRoleIcon(member.assigned_role || 'unknown')}
                                       </Avatar>
                                     </ListItemAvatar>
                                     <ListItemText
@@ -782,6 +969,7 @@ const EventDetails = () => {
                                     <IconButton 
                                       size="small" 
                                       onClick={() => handleRemoveMemberFromParty(party.id, member.id)}
+                                      title="Remove from Party"
                                     >
                                       <RemoveIcon />
                                     </IconButton>
@@ -1007,7 +1195,7 @@ const EventDetails = () => {
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
-                        primary={participant.discord_name}
+                        primary={participant.discord_name || participant.player?.discord_name || 'Unknown Player'}
                         secondary={
                           <Box>
                             <Typography variant="caption" display="block">
@@ -1041,39 +1229,145 @@ const EventDetails = () => {
         </Dialog>
 
         {/* Add Participant Modal */}
-        <Dialog open={showAddParticipantDialog} onClose={() => setShowAddParticipantDialog(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Add Participant to Event</DialogTitle>
+        <Dialog open={showAddParticipantDialog} onClose={() => setShowAddParticipantDialog(false)} maxWidth="lg" fullWidth>
+          <DialogTitle>Add Participants to Event</DialogTitle>
           <DialogContent>
             <Stack spacing={3} sx={{ pt: 2 }}>
-              <TextField
-                label="Discord Name"
-                placeholder="e.g., PlayerName#1234"
-                fullWidth
-                required
-                onChange={(e) => setFormData({...formData, discord_name: e.target.value})}
-              />
+              <Typography variant="body2" color="text.secondary">
+                Select guild members to add to this event. Already participating members are shown with their status.
+              </Typography>
               
-              <FormControl fullWidth>
-                <InputLabel>Role</InputLabel>
-                <Select
-                  value={formData.assigned_role || ''}
-                  onChange={(e) => setFormData({...formData, assigned_role: e.target.value})}
-                  label="Role"
-                >
-                  <MenuItem value="healer">Healer</MenuItem>
-                  <MenuItem value="ranged_dps">Ranged DPS</MenuItem>
-                  <MenuItem value="melee_dps">Melee DPS</MenuItem>
-                  <MenuItem value="defensive_tank">Defensive Tank</MenuItem>
-                  <MenuItem value="offensive_tank">Offensive Tank</MenuItem>
-                  <MenuItem value="offensive_support">Offensive Support</MenuItem>
-                  <MenuItem value="defensive_support">Defensive Support</MenuItem>
-                </Select>
-              </FormControl>
+              <TableContainer component={Paper} variant="outlined">
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          indeterminate={selectedMembers.length > 0 && selectedMembers.length < guildMembers.length}
+                          checked={guildMembers.length > 0 && selectedMembers.length === guildMembers.length}
+                          onChange={handleSelectAllMembers}
+                        />
+                      </TableCell>
+                      <TableCell>Member</TableCell>
+                      <TableCell>Guild</TableCell>
+                      <TableCell>Role</TableCell>
+                      <TableCell>Status</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {guildMembers.map((member) => {
+                      const isParticipating = participants.some(p => p.player?.id === member.id);
+                      const isSelected = selectedMembers.includes(member.id);
+                      
+                      return (
+                        <TableRow key={member.id}>
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={isSelected}
+                              onChange={() => handleSelectMember(member.id)}
+                              disabled={isParticipating}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Avatar sx={{ width: 32, height: 32 }}>
+                                {member.avatar || 'XX'}
+                              </Avatar>
+                              <Box>
+                                <Typography variant="body2" fontWeight="medium">
+                                  {member.name}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  {member.discord_name || 'No Discord'}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Chip 
+                              label={member.guild?.name || 'No Guild'} 
+                              size="small"
+                              color={member.guild?.name ? 'primary' : 'default'}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Chip 
+                              label={getRoleDisplayName(member.game_role || 'unknown')} 
+                              size="small"
+                              variant="outlined"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            {isParticipating ? (
+                              <Chip 
+                                label="Already Participating" 
+                                size="small"
+                                color="success"
+                                variant="outlined"
+                              />
+                            ) : (
+                              <Chip 
+                                label="Available" 
+                                size="small"
+                                color="default"
+                                variant="outlined"
+                              />
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              
+              {selectedMembers.length > 0 && (
+                <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {selectedMembers.length} member(s) selected for addition
+                  </Typography>
+                </Box>
+              )}
             </Stack>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setShowAddParticipantDialog(false)}>Cancel</Button>
-            <Button onClick={() => handleAddParticipant(formData)} variant="contained">Add Participant</Button>
+            <Button 
+              onClick={handleAddSelectedParticipants} 
+              variant="contained"
+              disabled={selectedMembers.length === 0}
+            >
+              Add Selected Members ({selectedMembers.length})
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Edit Party Modal */}
+        <Dialog open={showEditPartyDialog} onClose={() => setShowEditPartyDialog(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>Edit Party</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ pt: 2 }}>
+              <TextField
+                label="Party Name"
+                value={formData.party_name || ''}
+                onChange={(e) => setFormData({...formData, party_name: e.target.value})}
+                fullWidth
+                placeholder="e.g., Tommy's Party, Lytsu's Party"
+              />
+              
+              <TextField
+                label="Max Members"
+                type="number"
+                value={formData.max_members || 15}
+                inputProps={{ min: 1, max: 50 }}
+                fullWidth
+                onChange={(e) => setFormData({...formData, max_members: parseInt(e.target.value)})}
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowEditPartyDialog(false)}>Cancel</Button>
+            <Button onClick={handleUpdateParty} variant="contained">Update Party</Button>
           </DialogActions>
         </Dialog>
 
