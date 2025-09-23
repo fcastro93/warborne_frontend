@@ -123,8 +123,6 @@ export default function RecommendedBuildsList() {
     switch (role?.toLowerCase()) {
       case 'healer':
         return '#4caf50'; // Green
-      case 'tank':
-        return '#ff9800'; // Orange
       case 'dps':
         return '#f44336'; // Red
       case 'support':
@@ -508,7 +506,6 @@ export default function RecommendedBuildsList() {
                 >
                   <MenuItem value="ranged_dps">Ranged DPS</MenuItem>
                   <MenuItem value="melee_dps">Melee DPS</MenuItem>
-                  <MenuItem value="tank">Tank</MenuItem>
                   <MenuItem value="healer">Healer</MenuItem>
                   <MenuItem value="defensive_tank">Defensive Tank</MenuItem>
                   <MenuItem value="offensive_tank">Offensive Tank</MenuItem>

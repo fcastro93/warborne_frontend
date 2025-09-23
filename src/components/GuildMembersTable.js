@@ -96,7 +96,6 @@ const getRoleColor = (role) => {
 
 const getGameRoleIcon = (gameRole) => {
   switch (gameRole) {
-    case 'Tank':
     case 'Defensive Tank':
     case 'Offensive Tank':
       return <Shield color="primary" />;

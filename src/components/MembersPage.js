@@ -20,6 +20,15 @@ import {
   Grid,
   TextField,
   InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Alert,
 } from '@mui/material';
 import {
   Person,
@@ -57,7 +66,6 @@ const getRoleColor = (role) => {
 
 const getGameRoleIcon = (gameRole) => {
   switch (gameRole?.toLowerCase()) {
-    case 'tank':
     case 'defensive_tank':
     case 'offensive_tank':
       return <Shield color="primary" />;
@@ -90,6 +98,17 @@ export default function MembersPage() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    role: '',
+    game_role: '',
+    level: '',
+    faction: '',
+    status: ''
+  });
+  const [alert, setAlert] = useState(null);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -114,6 +133,50 @@ export default function MembersPage() {
     member.game_role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     member.faction?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleEditMember = (member) => {
+    setSelectedMember(member);
+    setEditFormData({
+      name: member.name || '',
+      role: member.role || '',
+      game_role: member.game_role || '',
+      level: member.level || '',
+      faction: member.faction || '',
+      status: member.status || ''
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleFormChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveMember = async () => {
+    try {
+      // TODO: Implement API call to update member
+      console.log('Updating member:', selectedMember.id, editFormData);
+      
+      // For now, just update local state
+      setMembers(prev => prev.map(member => 
+        member.id === selectedMember.id 
+          ? { ...member, ...editFormData }
+          : member
+      ));
+      
+      setAlert({ type: 'success', message: 'Member updated successfully!' });
+      setEditModalOpen(false);
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Error updating member: ' + error.message });
+    }
+  };
+
+  const showAlert = (type, message) => {
+    setAlert({ type, message });
+    setTimeout(() => setAlert(null), 5000);
+  };
 
   if (loading) {
     return (
@@ -289,7 +352,11 @@ export default function MembersPage() {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Edit Member">
-                      <IconButton size="small" color="secondary">
+                      <IconButton 
+                        size="small" 
+                        color="secondary"
+                        onClick={() => handleEditMember(member)}
+                      >
                         <Edit fontSize="small" />
                       </IconButton>
                     </Tooltip>
@@ -316,6 +383,103 @@ export default function MembersPage() {
           </Typography>
         </Box>
       )}
+
+      {/* Alert */}
+      {alert && (
+        <Alert 
+          severity={alert.type} 
+          onClose={() => setAlert(null)}
+          sx={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}
+        >
+          {alert.message}
+        </Alert>
+      )}
+
+      {/* Edit Member Modal */}
+      <Dialog open={editModalOpen} onClose={() => setEditModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Member</DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ pt: 2 }}>
+            <TextField
+              label="Member Name"
+              value={editFormData.name}
+              onChange={(e) => handleFormChange('name', e.target.value)}
+              fullWidth
+              required
+            />
+            
+            <FormControl fullWidth>
+              <InputLabel>Guild Role</InputLabel>
+              <Select
+                value={editFormData.role}
+                onChange={(e) => handleFormChange('role', e.target.value)}
+                label="Guild Role"
+              >
+                <MenuItem value="leader">Leader</MenuItem>
+                <MenuItem value="officer">Officer</MenuItem>
+                <MenuItem value="member">Member</MenuItem>
+                <MenuItem value="recruiter">Recruiter</MenuItem>
+              </Select>
+            </FormControl>
+            
+            <FormControl fullWidth>
+              <InputLabel>Game Role</InputLabel>
+              <Select
+                value={editFormData.game_role}
+                onChange={(e) => handleFormChange('game_role', e.target.value)}
+                label="Game Role"
+              >
+                <MenuItem value="ranged_dps">Ranged DPS</MenuItem>
+                <MenuItem value="melee_dps">Melee DPS</MenuItem>
+                <MenuItem value="healer">Healer</MenuItem>
+                <MenuItem value="defensive_tank">Defensive Tank</MenuItem>
+                <MenuItem value="offensive_tank">Offensive Tank</MenuItem>
+                <MenuItem value="offensive_support">Offensive Support</MenuItem>
+                <MenuItem value="defensive_support">Defensive Support</MenuItem>
+              </Select>
+            </FormControl>
+            
+            <TextField
+              label="Level"
+              type="number"
+              value={editFormData.level}
+              onChange={(e) => handleFormChange('level', e.target.value)}
+              fullWidth
+              inputProps={{ min: 1, max: 100 }}
+            />
+            
+            <FormControl fullWidth>
+              <InputLabel>Faction</InputLabel>
+              <Select
+                value={editFormData.faction}
+                onChange={(e) => handleFormChange('faction', e.target.value)}
+                label="Faction"
+              >
+                <MenuItem value="empire">Empire</MenuItem>
+                <MenuItem value="rebellion">Rebellion</MenuItem>
+                <MenuItem value="shroud">Shroud</MenuItem>
+              </Select>
+            </FormControl>
+            
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={editFormData.status}
+                onChange={(e) => handleFormChange('status', e.target.value)}
+                label="Status"
+              >
+                <MenuItem value="online">Online</MenuItem>
+                <MenuItem value="offline">Offline</MenuItem>
+                <MenuItem value="away">Away</MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleSaveMember} variant="contained">Save Changes</Button>
+        </DialogActions>
+      </Dialog>
       </Box>
     </Layout>
   );

@@ -81,7 +81,6 @@ const EventDetails = () => {
   // Party configuration state
   const [partyConfig, setPartyConfig] = useState({
     roleComposition: {
-      tank: 0,
       healer: 2,
       ranged_dps: 0,
       melee_dps: 0,
@@ -379,7 +378,6 @@ const EventDetails = () => {
 
   const getRoleDisplayName = (role) => {
     const roleNames = {
-      tank: 'Tank',
       healer: 'Healer',
       ranged_dps: 'Ranged DPS',
       melee_dps: 'Melee DPS',
