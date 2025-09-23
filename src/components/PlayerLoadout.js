@@ -383,219 +383,167 @@ export default function PlayerLoadout() {
           </Typography>
         </Box>
 
-        <Grid container spacing={3}>
-          {/* Player Information Panel - 3-3 Layout */}
-          <Grid item xs={12}>
-            {/* Top Row - 3 Cards: Discord, Guild, Level */}
-            <Grid container spacing={2} sx={{ 
-              mb: 2,
-              '& .MuiCard-root': {
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: '120px',
-                minHeight: '120px',
-                width: '100%',
-                height: '140px'
-              }
-            }}>
-              <Grid item xs={12} sm={4} md={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(100, 181, 246, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  height: 140,
-                  minHeight: 140,
-                  width: '100%',
+        {/* Main Layout - 2 Column Grid */}
+        <Grid container spacing={3} alignItems="stretch">
+          {/* LEFT Column - 6 Cards Grid */}
+          <Grid item xs={12} md={6}>
+            <Box
+              sx={{
+                height: '100%',
+                display: 'grid',
+                gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+                gridTemplateRows: 'repeat(2, 1fr)',
+                gap: 2,
+                '& .MuiCard-root': {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
-                  }
-                }}>
-                  <Public sx={{ color: 'primary.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    Discord
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="white" sx={{ wordBreak: 'break-word' }}>
-                    {player?.discord_name || 'N/A'}
-                  </Typography>
-                </Card>
-              </Grid>
-              <Grid item xs={12} sm={4} md={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(76, 175, 80, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  height: 140,
-                  minHeight: 140,
+                  minWidth: '120px',
+                  minHeight: '120px',
                   width: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)',
-                  }
-                }}>
-                  <Shield sx={{ color: 'success.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    Guild
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="success.main" sx={{ wordBreak: 'break-word' }}>
-                    Violence2
-                  </Typography>
-                </Card>
-              </Grid>
-              <Grid item xs={12} sm={4} md={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(255, 152, 0, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  height: 140,
-                  minHeight: 140,
-                  width: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(255, 152, 0, 0.3)',
-                  }
-                }}>
-                  <MilitaryTech sx={{ color: 'warning.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    Level
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="warning.main" sx={{ wordBreak: 'break-word' }}>
-                    {player?.level || 'N/A'}
-                  </Typography>
-                </Card>
-              </Grid>
-            </Grid>
-            
-            {/* Bottom Row - 3 Cards: Role, In-Game Role, Total Gear */}
-            <Grid container spacing={2} sx={{ 
-              mb: 3,
-              '& .MuiCard-root': {
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: '120px',
-                minHeight: '120px',
-                width: '100%',
-                height: '140px'
-              }
-            }}>
-              <Grid item xs={12} sm={4} md={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(156, 39, 176, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  height: 140,
-                  minHeight: 140,
-                  width: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(156, 39, 176, 0.3)',
-                  }
-                }}>
-                  <Security sx={{ color: 'secondary.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    Role
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="secondary.main" sx={{ wordBreak: 'break-word' }}>
-                    {player?.role || 'N/A'}
-                  </Typography>
-                </Card>
-              </Grid>
-              <Grid item xs={12} sm={4} md={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(244, 67, 54, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  height: 140,
-                  minHeight: 140,
-                  width: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)',
-                  }
-                }}>
-                  <LocalFireDepartment sx={{ color: 'error.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    In-Game Role
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="error.main" sx={{ wordBreak: 'break-word' }}>
-                    {player?.game_role || player?.in_game_role || 'N/A'}
-                  </Typography>
-                </Card>
-              </Grid>
-              <Grid item xs={12} sm={4} md={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(100, 181, 246, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  height: 140,
-                  minHeight: 140,
-                  width: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
-                  }
-                }}>
-                  <Inventory sx={{ color: 'primary.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    Total Gear
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="primary.main" sx={{ wordBreak: 'break-word' }}>
-                    {gearItems?.length || 0}
-                  </Typography>
-                </Card>
-              </Grid>
-            </Grid>
+                  height: '100%'
+                }
+              }}
+            >
+              {/* Discord Card */}
+              <Card sx={{ 
+                p: 3,
+                bgcolor: 'grey.800',
+                border: '1px solid rgba(100, 181, 246, 0.2)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease',
+                textAlign: 'center',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
+                }
+              }}>
+                <Public sx={{ color: 'primary.main', fontSize: 32, mb: 1 }} />
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                  Discord
+                </Typography>
+                <Typography variant="body2" fontWeight="bold" color="white" sx={{ wordBreak: 'break-word' }}>
+                  {player?.discord_name || 'N/A'}
+                </Typography>
+              </Card>
+
+              {/* Guild Card */}
+              <Card sx={{ 
+                p: 3,
+                bgcolor: 'grey.800',
+                border: '1px solid rgba(76, 175, 80, 0.2)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease',
+                textAlign: 'center',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)',
+                }
+              }}>
+                <Shield sx={{ color: 'success.main', fontSize: 32, mb: 1 }} />
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                  Guild
+                </Typography>
+                <Typography variant="body2" fontWeight="bold" color="success.main" sx={{ wordBreak: 'break-word' }}>
+                  Violence2
+                </Typography>
+              </Card>
+
+              {/* Level Card */}
+              <Card sx={{ 
+                p: 3,
+                bgcolor: 'grey.800',
+                border: '1px solid rgba(255, 152, 0, 0.2)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease',
+                textAlign: 'center',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(255, 152, 0, 0.3)',
+                }
+              }}>
+                <MilitaryTech sx={{ color: 'warning.main', fontSize: 32, mb: 1 }} />
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                  Level
+                </Typography>
+                <Typography variant="body2" fontWeight="bold" color="warning.main" sx={{ wordBreak: 'break-word' }}>
+                  {player?.level || 'N/A'}
+                </Typography>
+              </Card>
+
+              {/* Role Card */}
+              <Card sx={{ 
+                p: 3,
+                bgcolor: 'grey.800',
+                border: '1px solid rgba(156, 39, 176, 0.2)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease',
+                textAlign: 'center',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(156, 39, 176, 0.3)',
+                }
+              }}>
+                <Security sx={{ color: 'secondary.main', fontSize: 32, mb: 1 }} />
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                  Role
+                </Typography>
+                <Typography variant="body2" fontWeight="bold" color="secondary.main" sx={{ wordBreak: 'break-word' }}>
+                  {player?.role || 'N/A'}
+                </Typography>
+              </Card>
+
+              {/* In-Game Role Card */}
+              <Card sx={{ 
+                p: 3,
+                bgcolor: 'grey.800',
+                border: '1px solid rgba(244, 67, 54, 0.2)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease',
+                textAlign: 'center',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)',
+                }
+              }}>
+                <LocalFireDepartment sx={{ color: 'error.main', fontSize: 32, mb: 1 }} />
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                  In-Game Role
+                </Typography>
+                <Typography variant="body2" fontWeight="bold" color="error.main" sx={{ wordBreak: 'break-word' }}>
+                  {player?.game_role || player?.in_game_role || 'N/A'}
+                </Typography>
+              </Card>
+
+              {/* Total Gear Card */}
+              <Card sx={{ 
+                p: 3,
+                bgcolor: 'grey.800',
+                border: '1px solid rgba(100, 181, 246, 0.2)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease',
+                textAlign: 'center',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
+                }
+              }}>
+                <Inventory sx={{ color: 'primary.main', fontSize: 32, mb: 1 }} />
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                  Total Gear
+                </Typography>
+                <Typography variant="body2" fontWeight="bold" color="primary.main" sx={{ wordBreak: 'break-word' }}>
+                  {gearItems?.length || 0}
+                </Typography>
+              </Card>
+            </Box>
           </Grid>
-          {/* Left Panel - Drifter Loadouts */}
-          <Grid item xs={12} md={8}>
-            <Card>
-              <CardContent>
+
+          {/* RIGHT Column - Drifter Loadouts */}
+          <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+            <Card sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Drifter Loadouts
                 </Typography>
@@ -804,9 +752,11 @@ export default function PlayerLoadout() {
               </CardContent>
             </Card>
           </Grid>
+        </Grid>
 
-          {/* Right Panel - Equipped Items and Game Items */}
-          <Grid item xs={12} md={4}>
+        {/* Bottom Section - Equipped Items and Game Items */}
+        <Grid container spacing={3} sx={{ mt: 3 }}>
+          <Grid item xs={12} md={8}>
             <Stack spacing={3}>
               {/* Equipped Items Card */}
               <Card>
