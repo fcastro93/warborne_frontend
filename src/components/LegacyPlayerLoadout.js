@@ -81,7 +81,7 @@ export default function LegacyPlayerLoadout() {
   const [player, setPlayer] = useState(null);
   const [drifters, setDrifters] = useState([]);
   const [gearItems, setGearItems] = useState([]);
-  const [activeDrifterTab, setActiveDrifterTab] = useState(-1);
+  const [activeDrifterTab, setActiveDrifterTab] = useState(0);
   const [activeItemTab, setActiveItemTab] = useState(0);
   const [activeAttributeTab, setActiveAttributeTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -571,12 +571,13 @@ export default function LegacyPlayerLoadout() {
   };
 
   const currentDrifter = activeDrifterTab >= 0 ? drifters[activeDrifterTab] || null : null;
-  const hasSelectedDrifter = currentDrifter !== null;
+  const hasSelectedDrifter = currentDrifter !== null && currentDrifter.gear_slots && currentDrifter.gear_slots.length > 0;
   
   // Debug logging
   console.log('Debug - activeDrifterTab:', activeDrifterTab);
   console.log('Debug - currentDrifter:', currentDrifter);
   console.log('Debug - hasSelectedDrifter:', hasSelectedDrifter);
+  console.log('Debug - gear_slots:', currentDrifter?.gear_slots);
 
   if (loading) {
     return (
@@ -788,67 +789,59 @@ export default function LegacyPlayerLoadout() {
               borderRadius: 1.25,
               p: 0.625
             }}>
-              {drifters.map((drifter, index) => (
-                <Button
-                  key={index}
-                  onClick={() => setActiveDrifterTab(index)}
-                  sx={{
-                    flex: 1,
-                    p: '12px 20px',
-                    textAlign: 'center',
-                    background: activeDrifterTab === index ? 'rgba(100, 181, 246, 0.2)' : 'transparent',
-                    color: activeDrifterTab === index ? '#64b5f6' : '#b0bec5',
-                    borderRadius: 1,
-                    transition: 'all 0.3s ease',
-                    fontWeight: 600,
-                    boxShadow: activeDrifterTab === index ? '0 0 15px rgba(100, 181, 246, 0.3)' : 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    '&:hover': {
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      color: '#ffffff'
-                    }
-                  }}
-                >
-                  {drifterIconMap[drifter.name] && (
-                    <img 
-                      src={getDrifterIconUrl(drifterIconMap[drifter.name])} 
-                      alt={drifter.name}
-                      style={{ 
-                        width: 24, 
-                        height: 24, 
-                        objectFit: 'contain',
-                        borderRadius: '4px'
-                      }}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                  )}
-                  {drifter.name}
-                </Button>
-              ))}
-              {!hasSelectedDrifter && (
-                <Button
-                  sx={{
-                    flex: 1,
-                    p: '12px 20px',
-                    textAlign: 'center',
-                    background: 'transparent',
-                    color: '#b0bec5',
-                    borderRadius: 1,
-                    fontWeight: 500,
-                    opacity: 0.6,
-                    fontStyle: 'italic',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1
-                  }}
-                >
-                  Drifter X
-                </Button>
-              )}
+              {drifters.map((drifter, index) => {
+                const hasGearSlots = drifter.gear_slots && drifter.gear_slots.length > 0;
+                return (
+                  <Button
+                    key={index}
+                    onClick={() => setActiveDrifterTab(index)}
+                    sx={{
+                      flex: 1,
+                      p: '12px 20px',
+                      textAlign: 'center',
+                      background: activeDrifterTab === index ? 'rgba(100, 181, 246, 0.2)' : 'transparent',
+                      color: activeDrifterTab === index ? '#64b5f6' : '#b0bec5',
+                      borderRadius: 1,
+                      transition: 'all 0.3s ease',
+                      fontWeight: 600,
+                      boxShadow: activeDrifterTab === index ? '0 0 15px rgba(100, 181, 246, 0.3)' : 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      '&:hover': {
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        color: '#ffffff'
+                      }
+                    }}
+                  >
+                    {hasGearSlots ? (
+                      <>
+                        {drifterIconMap[drifter.name] && (
+                          <img 
+                            src={getDrifterIconUrl(drifterIconMap[drifter.name])} 
+                            alt={drifter.name}
+                            style={{ 
+                              width: 24, 
+                              height: 24, 
+                              objectFit: 'contain',
+                              borderRadius: '4px'
+                            }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        )}
+                        {drifter.name}
+                      </>
+                    ) : (
+                      <>
+                        <Typography sx={{ fontSize: '20px', opacity: 0.3 }}>⚪</Typography>
+                        <Typography sx={{ fontStyle: 'italic', opacity: 0.6 }}>Drifter X</Typography>
+                      </>
+                    )}
+                  </Button>
+                );
+              })}
             </Box>
 
             {/* Drifter Content */}
@@ -1191,7 +1184,7 @@ export default function LegacyPlayerLoadout() {
                   mt: 1,
                   opacity: 0.8
                 }}>
-                  Select a drifter to view stats and equipment
+                  This drifter has no equipment data
                 </Typography>
               </Box>
             )}
