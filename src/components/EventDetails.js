@@ -91,6 +91,8 @@ const EventDetails = () => {
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [showEditPartyDialog, setShowEditPartyDialog] = useState(false);
   const [selectedPartyForEdit, setSelectedPartyForEdit] = useState(null);
+  const [showGuildConflictDialog, setShowGuildConflictDialog] = useState(false);
+  const [guildConflictData, setGuildConflictData] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -236,13 +238,19 @@ const EventDetails = () => {
       const data = await response.json();
       
       if (response.ok) {
-        showAlert('success', data.message || 'Parties filled successfully!');
-        fetchEventDetails(); // Refresh data
+        setAlert({ type: 'success', message: data.message || 'Parties filled successfully!' });
+        await fetchEventDetails(); // Refresh data
       } else {
-        showAlert('error', data.error || 'Failed to fill parties');
+        // Check for guild split conflict
+        if (data.error === 'guild_split_conflict') {
+          setGuildConflictData(data);
+          setShowGuildConflictDialog(true);
+        } else {
+          setAlert({ type: 'error', message: data.error || 'Failed to fill parties' });
+        }
       }
     } catch (error) {
-      showAlert('error', 'Error filling parties: ' + error.message);
+      setAlert({ type: 'error', message: 'Error filling parties: ' + error.message });
     }
   };
 
@@ -1367,6 +1375,78 @@ const EventDetails = () => {
           <DialogActions>
             <Button onClick={() => setShowEditPartyDialog(false)}>Cancel</Button>
             <Button onClick={handleUpdateParty} variant="contained">Update Party</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Guild Conflict Dialog */}
+        <Dialog open={showGuildConflictDialog} onClose={() => setShowGuildConflictDialog(false)} maxWidth="md" fullWidth>
+          <DialogTitle>Guild Splitting Conflict</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ pt: 2 }}>
+              <Alert severity="warning">
+                {guildConflictData?.message}
+              </Alert>
+              
+              <Typography variant="body1">
+                The following parties contain members from multiple guilds:
+              </Typography>
+              
+              <List>
+                {guildConflictData?.mixed_parties?.map((party, index) => (
+                  <ListItem key={index} divider>
+                    <ListItemText
+                      primary={
+                        <Typography variant="h6">
+                          Party {party.party_number}{party.party_name ? ` - ${party.party_name}` : ''}
+                        </Typography>
+                      }
+                      secondary={
+                        <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                          {party.guilds.map((guild, guildIndex) => (
+                            <Chip 
+                              key={guildIndex}
+                              label={guild} 
+                              size="small"
+                              color="primary"
+                              variant="outlined"
+                            />
+                          ))}
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+              
+              <Alert severity="info">
+                <Typography variant="body2">
+                  <strong>Options to resolve this conflict:</strong>
+                </Typography>
+                <Typography variant="body2" component="div" sx={{ mt: 1 }}>
+                  1. <strong>Remove mixed-guild members</strong> from parties to allow guild splitting
+                  <br />
+                  2. <strong>Disable guild splitting</strong> to fill parties without guild restrictions
+                  <br />
+                  3. <strong>Create separate parties</strong> for each guild manually
+                </Typography>
+              </Alert>
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowGuildConflictDialog(false)}>Close</Button>
+            <Button 
+              onClick={() => {
+                // Disable guild splitting and try again
+                setPartyConfig({...partyConfig, guildSplit: false});
+                setShowGuildConflictDialog(false);
+                // Trigger fill parties again without guild split
+                setTimeout(() => handleFillParties(), 100);
+              }}
+              variant="contained"
+              color="primary"
+            >
+              Disable Guild Split & Fill Parties
+            </Button>
           </DialogActions>
         </Dialog>
 
