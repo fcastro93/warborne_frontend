@@ -470,6 +470,19 @@ const EventDetails = () => {
   };
 
   const handleRemoveMemberFromParty = async (partyId, memberId) => {
+    // Optimistic update - remove member from local state immediately
+    setParties(prevParties => 
+      prevParties.map(party => 
+        party.id === partyId 
+          ? {
+              ...party,
+              members: party.members.filter(member => member.id !== memberId),
+              member_count: party.member_count - 1
+            }
+          : party
+      )
+    );
+
     try {
       const response = await fetch(`/api/events/${eventId}/parties/${partyId}/remove-member/`, {
         method: 'POST',
@@ -483,17 +496,50 @@ const EventDetails = () => {
       if (response.ok) {
         const data = await response.json();
         setAlert({ type: 'success', message: data.message });
-        await fetchEventDetails(); // Refresh data
+        // No need to refresh - optimistic update already handled it
       } else {
+        // Revert optimistic update on error
+        await fetchEventDetails();
         const errorData = await response.json();
         setAlert({ type: 'error', message: errorData.error || 'Failed to remove member' });
       }
     } catch (error) {
+      // Revert optimistic update on error
+      await fetchEventDetails();
       setAlert({ type: 'error', message: 'Error removing member: ' + error.message });
     }
   };
 
   const handleAddMemberToPartySubmit = async (participantId) => {
+    // Find the participant and party for optimistic update
+    const participant = participants.find(p => p.id === participantId);
+    const targetParty = parties.find(p => p.id === selectedPartyId);
+    
+    if (!participant || !targetParty) {
+      setAlert({ type: 'error', message: 'Participant or party not found' });
+      return;
+    }
+
+    // Optimistic update - add member to local state immediately
+    const newMember = {
+      id: `temp_${Date.now()}`, // Temporary ID for optimistic update
+      player: participant.player,
+      event_participant: participant,
+      assigned_role: participant.player?.game_role || 'unknown'
+    };
+
+    setParties(prevParties => 
+      prevParties.map(party => 
+        party.id === selectedPartyId 
+          ? {
+              ...party,
+              members: [...party.members, newMember],
+              member_count: party.member_count + 1
+            }
+          : party
+      )
+    );
+
     try {
       const response = await fetch(`/api/events/${eventId}/parties/${selectedPartyId}/add-member/`, {
         method: 'POST',
@@ -507,13 +553,18 @@ const EventDetails = () => {
       if (response.ok) {
         const data = await response.json();
         setAlert({ type: 'success', message: data.message });
-        await fetchEventDetails(); // Refresh data
         setAddMemberDialogOpen(false);
+        // Refresh to get the real member data with proper ID
+        await fetchEventDetails();
       } else {
+        // Revert optimistic update on error
+        await fetchEventDetails();
         const errorData = await response.json();
         setAlert({ type: 'error', message: errorData.error || 'Failed to add member' });
       }
     } catch (error) {
+      // Revert optimistic update on error
+      await fetchEventDetails();
       setAlert({ type: 'error', message: 'Error adding member: ' + error.message });
     }
   };
@@ -616,6 +667,10 @@ const EventDetails = () => {
       return;
     }
 
+    // Optimistic update - remove party from local state immediately
+    const deletedParty = parties.find(p => p.id === partyId);
+    setParties(prevParties => prevParties.filter(party => party.id !== partyId));
+
     try {
       const response = await fetch(`/api/events/${eventId}/parties/${partyId}/delete/`, {
         method: 'DELETE',
@@ -627,12 +682,16 @@ const EventDetails = () => {
       if (response.ok) {
         const data = await response.json();
         setAlert({ type: 'success', message: data.message });
-        await fetchEventDetails(); // Refresh data
+        // No need to refresh - optimistic update already handled it
       } else {
+        // Revert optimistic update on error
+        setParties(prevParties => [...prevParties, deletedParty].sort((a, b) => a.party_number - b.party_number));
         const errorData = await response.json();
         setAlert({ type: 'error', message: errorData.error || 'Failed to delete party' });
       }
     } catch (error) {
+      // Revert optimistic update on error
+      setParties(prevParties => [...prevParties, deletedParty].sort((a, b) => a.party_number - b.party_number));
       setAlert({ type: 'error', message: 'Error deleting party: ' + error.message });
     }
   };
@@ -648,6 +707,22 @@ const EventDetails = () => {
   };
 
   const handleUpdateParty = async () => {
+    // Store original party data for potential revert
+    const originalParty = parties.find(p => p.id === selectedPartyForEdit.id);
+    
+    // Optimistic update - update party in local state immediately
+    setParties(prevParties => 
+      prevParties.map(party => 
+        party.id === selectedPartyForEdit.id 
+          ? {
+              ...party,
+              party_name: formData.party_name,
+              max_members: formData.max_members
+            }
+          : party
+      )
+    );
+
     try {
       const response = await fetch(`/api/events/${eventId}/parties/${selectedPartyForEdit.id}/update/`, {
         method: 'PUT',
@@ -664,14 +739,26 @@ const EventDetails = () => {
       if (response.ok) {
         const data = await response.json();
         setAlert({ type: 'success', message: data.message });
-        await fetchEventDetails(); // Refresh data
         setShowEditPartyDialog(false);
         setSelectedPartyForEdit(null);
+        // No need to refresh - optimistic update already handled it
       } else {
+        // Revert optimistic update on error
+        setParties(prevParties => 
+          prevParties.map(party => 
+            party.id === selectedPartyForEdit.id ? originalParty : party
+          )
+        );
         const errorData = await response.json();
         setAlert({ type: 'error', message: errorData.error || 'Failed to update party' });
       }
     } catch (error) {
+      // Revert optimistic update on error
+      setParties(prevParties => 
+        prevParties.map(party => 
+          party.id === selectedPartyForEdit.id ? originalParty : party
+        )
+      );
       setAlert({ type: 'error', message: 'Error updating party: ' + error.message });
     }
   };
