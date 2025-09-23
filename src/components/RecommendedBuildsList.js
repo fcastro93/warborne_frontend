@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Card, CardContent, Grid, Avatar, Chip, Stack, Button, Fab } from '@mui/material';
-import { RecommendRounded, BuildRounded, PersonRounded, StarRounded, AddRounded } from '@mui/icons-material';
+import { Box, Typography, Card, CardContent, Grid, Avatar, Chip, Stack, Button, Fab, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { RecommendRounded, BuildRounded, PersonRounded, StarRounded, AddRounded, CloseRounded } from '@mui/icons-material';
 import Layout from './Layout';
 import { apiService } from '../services/api';
 
@@ -9,6 +9,24 @@ export default function RecommendedBuildsList() {
   const navigate = useNavigate();
   const [recommendedBuilds, setRecommendedBuilds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    title: '',
+    description: '',
+    role: '',
+    drifter: '',
+    weapon: '',
+    helmet: '',
+    chest: '',
+    boots: '',
+    consumable: '',
+    mod1: '',
+    mod2: '',
+    mod3: '',
+    mod4: ''
+  });
+  const [allDrifters, setAllDrifters] = useState([]);
+  const [gearItems, setGearItems] = useState([]);
 
   useEffect(() => {
     fetchRecommendedBuilds();
@@ -20,6 +38,13 @@ export default function RecommendedBuildsList() {
       const buildsData = await apiService.getRecommendedBuilds();
       console.log('Recommended builds data:', buildsData);
       setRecommendedBuilds(buildsData.builds || []);
+
+      // Also fetch drifters and gear items for the create form
+      const driftersData = await apiService.getAllDrifters();
+      setAllDrifters(driftersData.drifters || []);
+
+      const gearData = await apiService.getGearItems();
+      setGearItems(Array.isArray(gearData) ? gearData : (gearData.gear_items || []));
     } catch (error) {
       console.error('Error fetching recommended builds:', error);
     } finally {
@@ -29,6 +54,50 @@ export default function RecommendedBuildsList() {
 
   const handleBuildClick = (buildId) => {
     navigate(`/recbuilds/${buildId}`);
+  };
+
+  const handleCreateBuild = () => {
+    setCreateModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setCreateModalOpen(false);
+    setCreateForm({
+      title: '',
+      description: '',
+      role: '',
+      drifter: '',
+      weapon: '',
+      helmet: '',
+      chest: '',
+      boots: '',
+      consumable: '',
+      mod1: '',
+      mod2: '',
+      mod3: '',
+      mod4: ''
+    });
+  };
+
+  const handleFormChange = (field, value) => {
+    setCreateForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmitBuild = async () => {
+    try {
+      // Here you would implement the API call to create a new build
+      console.log('Creating build with data:', createForm);
+      
+      // For now, just show a success message
+      alert('Build creation functionality will be implemented soon!');
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error creating build:', error);
+      alert('Error creating build: ' + error.message);
+    }
   };
 
   const getRoleColor = (role) => {
@@ -107,12 +176,7 @@ export default function RecommendedBuildsList() {
           <Button
             variant="contained"
             startIcon={<AddRounded />}
-            onClick={() => {
-              // For now, we'll navigate to a create build page or show a modal
-              // You can implement the actual create functionality later
-              console.log('Create new build clicked');
-              // navigate('/recbuilds/create');
-            }}
+            onClick={handleCreateBuild}
             sx={{
               background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
               color: 'white',
@@ -326,10 +390,7 @@ export default function RecommendedBuildsList() {
         <Fab
           color="primary"
           aria-label="create build"
-          onClick={() => {
-            console.log('Create new build clicked (FAB)');
-            // navigate('/recbuilds/create');
-          }}
+          onClick={handleCreateBuild}
           sx={{
             position: 'fixed',
             bottom: 24,
@@ -346,6 +407,225 @@ export default function RecommendedBuildsList() {
         >
           <AddRounded />
         </Fab>
+
+        {/* Create Build Modal */}
+        <Dialog
+          open={createModalOpen}
+          onClose={handleCloseModal}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              background: 'linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(45, 45, 45, 0.95))',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: 2,
+              backdropFilter: 'blur(20px)',
+              color: '#ffffff'
+            }
+          }}
+        >
+          <DialogTitle sx={{ 
+            color: '#64b5f6', 
+            fontSize: '1.5rem', 
+            fontWeight: 700, 
+            textAlign: 'center',
+            borderBottom: '2px solid rgba(100, 181, 246, 0.3)',
+            pb: 2
+          }}>
+            Create New Build
+          </DialogTitle>
+          
+          <DialogContent sx={{ p: 3 }}>
+            <Grid container spacing={3}>
+              {/* Basic Information */}
+              <Grid item xs={12}>
+                <Typography variant="h6" sx={{ color: '#64b5f6', mb: 2 }}>
+                  Basic Information
+                </Typography>
+                <Stack spacing={2}>
+                  <TextField
+                    fullWidth
+                    label="Build Title"
+                    value={createForm.title}
+                    onChange={(e) => handleFormChange('title', e.target.value)}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        color: 'white',
+                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                        '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                        '&.Mui-focused fieldset': { borderColor: '#64b5f6' }
+                      },
+                      '& .MuiInputLabel-root': { color: '#b0bec5' }
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={3}
+                    label="Description"
+                    value={createForm.description}
+                    onChange={(e) => handleFormChange('description', e.target.value)}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        color: 'white',
+                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                        '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                        '&.Mui-focused fieldset': { borderColor: '#64b5f6' }
+                      },
+                      '& .MuiInputLabel-root': { color: '#b0bec5' }
+                    }}
+                  />
+                  <FormControl fullWidth>
+                    <InputLabel sx={{ color: '#b0bec5' }}>Role</InputLabel>
+                    <Select
+                      value={createForm.role}
+                      onChange={(e) => handleFormChange('role', e.target.value)}
+                      sx={{
+                        color: 'white',
+                        '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#64b5f6' }
+                      }}
+                    >
+                      <MenuItem value="healer">Healer</MenuItem>
+                      <MenuItem value="tank">Tank</MenuItem>
+                      <MenuItem value="dps">DPS</MenuItem>
+                      <MenuItem value="support">Support</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Stack>
+              </Grid>
+
+              {/* Drifter Selection */}
+              <Grid item xs={12}>
+                <Typography variant="h6" sx={{ color: '#64b5f6', mb: 2 }}>
+                  Drifter
+                </Typography>
+                <FormControl fullWidth>
+                  <InputLabel sx={{ color: '#b0bec5' }}>Select Drifter</InputLabel>
+                  <Select
+                    value={createForm.drifter}
+                    onChange={(e) => handleFormChange('drifter', e.target.value)}
+                    sx={{
+                      color: 'white',
+                      '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#64b5f6' }
+                    }}
+                  >
+                    {allDrifters.map((drifter) => (
+                      <MenuItem key={drifter.id} value={drifter.id}>
+                        {drifter.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              {/* Equipment Selection */}
+              <Grid item xs={12}>
+                <Typography variant="h6" sx={{ color: '#64b5f6', mb: 2 }}>
+                  Equipment
+                </Typography>
+                <Grid container spacing={2}>
+                  {['weapon', 'helmet', 'chest', 'boots', 'consumable'].map((equipmentType) => (
+                    <Grid item xs={12} sm={6} key={equipmentType}>
+                      <FormControl fullWidth>
+                        <InputLabel sx={{ color: '#b0bec5' }}>
+                          {equipmentType.charAt(0).toUpperCase() + equipmentType.slice(1)}
+                        </InputLabel>
+                        <Select
+                          value={createForm[equipmentType]}
+                          onChange={(e) => handleFormChange(equipmentType, e.target.value)}
+                          sx={{
+                            color: 'white',
+                            '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#64b5f6' }
+                          }}
+                        >
+                          {gearItems
+                            .filter(item => item.gear_type?.category === equipmentType)
+                            .map((item) => (
+                              <MenuItem key={item.id} value={item.id}>
+                                {item.base_name} ({item.rarity})
+                              </MenuItem>
+                            ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Grid>
+
+              {/* Mods Selection */}
+              <Grid item xs={12}>
+                <Typography variant="h6" sx={{ color: '#64b5f6', mb: 2 }}>
+                  Mods
+                </Typography>
+                <Grid container spacing={2}>
+                  {['mod1', 'mod2', 'mod3', 'mod4'].map((modType) => (
+                    <Grid item xs={12} sm={6} key={modType}>
+                      <FormControl fullWidth>
+                        <InputLabel sx={{ color: '#b0bec5' }}>
+                          {modType.charAt(0).toUpperCase() + modType.slice(1)}
+                        </InputLabel>
+                        <Select
+                          value={createForm[modType]}
+                          onChange={(e) => handleFormChange(modType, e.target.value)}
+                          sx={{
+                            color: 'white',
+                            '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#64b5f6' }
+                          }}
+                        >
+                          {gearItems
+                            .filter(item => item.gear_type?.category === 'mod')
+                            .map((item) => (
+                              <MenuItem key={item.id} value={item.id}>
+                                {item.base_name} ({item.rarity})
+                              </MenuItem>
+                            ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          
+          <DialogActions sx={{ p: 3, justifyContent: 'center' }}>
+            <Button
+              onClick={handleCloseModal}
+              sx={{
+                color: '#b0bec5',
+                mr: 2,
+                '&:hover': {
+                  color: '#ffffff',
+                  background: 'rgba(255, 255, 255, 0.1)'
+                }
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmitBuild}
+              variant="contained"
+              sx={{
+                background: 'linear-gradient(135deg, #64b5f6, #42a5f5)',
+                color: 'white',
+                px: 4,
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #42a5f5, #1e88e5)'
+                }
+              }}
+            >
+              Create Build
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Layout>
   );
