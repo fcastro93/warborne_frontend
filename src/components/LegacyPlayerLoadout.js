@@ -251,6 +251,24 @@ export default function LegacyPlayerLoadout() {
     return `/icons/${iconId}.png`;
   };
 
+  // Helper function to get rarity border color
+  const getRarityBorderColor = (rarity) => {
+    switch (rarity?.toLowerCase()) {
+      case 'common':
+        return '#9e9e9e'; // Grey
+      case 'uncommon':
+        return '#4caf50'; // Green
+      case 'rare':
+        return '#2196f3'; // Blue
+      case 'epic':
+        return '#9c27b0'; // Purple
+      case 'legendary':
+        return '#ff9800'; // Orange
+      default:
+        return 'rgba(255, 255, 255, 0.1)'; // Default
+    }
+  };
+
   // Helper function to check if an item is equipped
   const isItemEquipped = (item) => {
     if (!currentDrifter || !currentDrifter.gear_slots) return false;
@@ -926,8 +944,8 @@ export default function LegacyPlayerLoadout() {
                             minWidth: 0,          // allow shrinking inside grid
                             boxSizing: 'border-box',
                             aspectRatio: '1',
-                            background: gear ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                            border: gear ? '2px solid #4caf50' : '2px solid rgba(255, 255, 255, 0.1)',
+                            background: gear ? `${getRarityBorderColor(gear.gear_item.rarity)}20` : 'rgba(255, 255, 255, 0.05)',
+                            border: gear ? `2px solid ${getRarityBorderColor(gear.gear_item.rarity)}` : '2px solid rgba(255, 255, 255, 0.1)',
                             borderRadius: 1,
                             display: 'flex',
                             flexDirection: 'column',
@@ -937,10 +955,10 @@ export default function LegacyPlayerLoadout() {
                             transition: 'all 0.3s ease',
                             cursor: gear ? 'pointer' : 'default',
                             p: 1,
-                            boxShadow: gear ? '0 0 15px rgba(76, 175, 80, 0.3)' : 'none',
+                            boxShadow: gear ? `0 0 15px ${getRarityBorderColor(gear.gear_item.rarity)}50` : 'none',
                             '&:hover': {
                               transform: gear ? 'translateY(-2px)' : 'none',
-                              boxShadow: gear ? '0 0 20px rgba(76, 175, 80, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.3)'
+                              boxShadow: gear ? `0 0 20px ${getRarityBorderColor(gear.gear_item.rarity)}60` : '0 4px 12px rgba(0, 0, 0, 0.3)'
                             }
                           }}
                         >
@@ -1356,16 +1374,17 @@ export default function LegacyPlayerLoadout() {
                     borderRadius: 1,
                     mb: 1,
                     transition: 'all 0.3s ease',
-                    borderLeft: '3px solid transparent',
+                    borderLeft: `3px solid ${getRarityBorderColor(item.rarity)}`,
                     cursor: 'default',
                     position: 'relative',
-                    border: '2px solid transparent',
+                    border: `2px solid ${getRarityBorderColor(item.rarity)}`,
                     aspectRatio: '1',
                     textAlign: 'center',
                     '&:hover': {
                       background: 'rgba(255, 255, 255, 0.15)',
                       transform: 'scale(1.02)',
-                      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)'
+                      boxShadow: `0 4px 15px ${getRarityBorderColor(item.rarity)}40`,
+                      borderColor: getRarityBorderColor(item.rarity)
                     }
                   }}
                 >
