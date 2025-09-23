@@ -417,259 +417,258 @@ export default function PlayerLoadout() {
             </Card>
           </Grid>
 
-          {/* Right Panel - Equipped Items */}
+          {/* Right Panel - Equipped Items and Game Items */}
           <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6">
-                    Equipped Items:
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    5/9
-                  </Typography>
-                </Box>
-                
-                {/* Equipped Items Grid */}
-                <Grid container spacing={2}>
-                  {/* Main Equipment Slots */}
-                  {[
-                    { name: 'Luminous Ward', skill: 'Sanctum Arc', type: 'weapon', stats: '' },
-                    { name: 'Healer\'s Hood', skill: 'Swift Aid', type: 'helmet', stats: 'HP: +714' },
-                    { name: 'Cleansing Robe', skill: 'Purify', type: 'chest', stats: '' },
-                    { name: 'Arcaneflow Boots', skill: 'Abundance', type: 'boots', stats: 'HP: +675' },
-                    { name: 'Mass Healing Elixir', skill: 'Mass Healing Elixir', type: 'consumable', stats: '' }
-                  ].map((item, index) => (
-                    <Grid item xs={6} key={index}>
-                      <Paper
-                        sx={{
-                          p: 2,
-                          textAlign: 'center',
-                          border: '2px solid',
-                          borderColor: 'success.main',
-                          bgcolor: 'success.50',
-                          cursor: 'pointer',
-                          '&:hover': {
-                            borderColor: 'success.dark',
-                            bgcolor: 'success.100',
-                          },
-                        }}
-                      >
-                        <Avatar sx={{ 
-                          width: 48, 
-                          height: 48, 
-                          mx: 'auto', 
-                          mb: 1,
-                          bgcolor: 'primary.main'
-                        }}>
-                          {getGearTypeIcon(item.type)}
-                        </Avatar>
-                        <Typography variant="body2" fontWeight="medium" sx={{ mb: 0.5 }}>
-                          {item.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                          {item.skill}
-                        </Typography>
-                        <Chip 
-                          label={item.type} 
-                          size="small" 
-                          color="primary" 
-                          variant="outlined"
-                          sx={{ mb: 0.5 }}
-                        />
-                        {item.stats && (
-                          <Typography variant="caption" color="success.main" sx={{ display: 'block' }}>
-                            {item.stats}
-                          </Typography>
-                        )}
-                      </Paper>
-                    </Grid>
-                  ))}
+            <Stack spacing={3}>
+              {/* Equipped Items Card */}
+              <Card>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6">
+                      Equipped Items:
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      5/9
+                    </Typography>
+                  </Box>
                   
-                  {/* Mod Slots */}
-                  {[1, 2, 3, 4].map((modNum) => (
-                    <Grid item xs={6} key={`mod-${modNum}`}>
-                      <Paper
-                        sx={{
-                          p: 2,
-                          textAlign: 'center',
-                          border: '2px dashed',
-                          borderColor: 'grey.300',
-                          cursor: 'pointer',
-                          '&:hover': {
-                            borderColor: 'primary.main',
-                            bgcolor: 'primary.50',
-                          },
-                        }}
-                      >
-                        <Box sx={{ 
-                          width: 48, 
-                          height: 48, 
-                          mx: 'auto', 
-                          mb: 1,
-                          border: '2px solid',
-                          borderColor: 'grey.300',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}>
-                          <Typography variant="h6" color="text.secondary">
-                            ⚪
-                          </Typography>
-                        </Box>
-                        <Typography variant="body2" color="text.secondary">
-                          Mod {modNum}
-                        </Typography>
-                      </Paper>
-                    </Grid>
-                  ))}
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-
-        {/* Bottom Panel - Game Items */}
-        <Grid container spacing={3} sx={{ mt: 2 }}>
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Game Items
-                </Typography>
-                
-                {/* Filters */}
-                <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-                  {/* Category Filter */}
-                  <FormControl size="small" sx={{ minWidth: 120 }}>
-                    <InputLabel>Category</InputLabel>
-                    <Select
-                      value={filterType}
-                      label="Category"
-                      onChange={(e) => setFilterType(e.target.value)}
-                    >
-                      <MenuItem value="all">All</MenuItem>
-                      <MenuItem value="weapon">Weapon</MenuItem>
-                      <MenuItem value="helmet">Helmet</MenuItem>
-                      <MenuItem value="chest">Chest</MenuItem>
-                      <MenuItem value="boots">Boots</MenuItem>
-                      <MenuItem value="consumable">Consumable</MenuItem>
-                      <MenuItem value="mod">Mod</MenuItem>
-                    </Select>
-                  </FormControl>
-                  
-                  {/* Rarity Filter */}
-                  <FormControl size="small" sx={{ minWidth: 120 }}>
-                    <InputLabel>Rarity</InputLabel>
-                    <Select
-                      value={filterRarity}
-                      label="Rarity"
-                      onChange={(e) => setFilterRarity(e.target.value)}
-                    >
-                      <MenuItem value="all">All</MenuItem>
-                      <MenuItem value="common">Common</MenuItem>
-                      <MenuItem value="rare">Rare</MenuItem>
-                      <MenuItem value="epic">Epic</MenuItem>
-                      <MenuItem value="legendary">Legendary</MenuItem>
-                    </Select>
-                  </FormControl>
-                  
-                  {/* Search */}
-                  <TextField
-                    size="small"
-                    placeholder="Search items..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    sx={{ minWidth: 200 }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Search />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Stack>
-                
-                {/* Items List */}
-                <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
-                  <List dense>
-                    {filteredGear.map((gear) => (
-                      <ListItemButton
-                        key={gear.id}
-                        onClick={() => handleGearClick(gear)}
-                        sx={{
-                          border: '1px solid',
-                          borderColor: 'divider',
-                          borderRadius: 1,
-                          mb: 1,
-                          '&:hover': {
-                            borderColor: 'primary.main',
-                            bgcolor: 'action.hover',
-                          },
-                        }}
-                      >
-                        <ListItemIcon>
+                  {/* Equipped Items Grid */}
+                  <Grid container spacing={2}>
+                    {/* Main Equipment Slots */}
+                    {[
+                      { name: 'Luminous Ward', skill: 'Sanctum Arc', type: 'weapon', stats: '' },
+                      { name: 'Healer\'s Hood', skill: 'Swift Aid', type: 'helmet', stats: 'HP: +714' },
+                      { name: 'Cleansing Robe', skill: 'Purify', type: 'chest', stats: '' },
+                      { name: 'Arcaneflow Boots', skill: 'Abundance', type: 'boots', stats: 'HP: +675' },
+                      { name: 'Mass Healing Elixir', skill: 'Mass Healing Elixir', type: 'consumable', stats: '' }
+                    ].map((item, index) => (
+                      <Grid item xs={6} key={index}>
+                        <Paper
+                          sx={{
+                            p: 2,
+                            textAlign: 'center',
+                            border: '2px solid',
+                            borderColor: 'success.main',
+                            bgcolor: 'success.50',
+                            cursor: 'pointer',
+                            '&:hover': {
+                              borderColor: 'success.dark',
+                              bgcolor: 'success.100',
+                            },
+                          }}
+                        >
                           <Avatar sx={{ 
-                            bgcolor: `${getRarityColor(gear.rarity)}.main`,
-                            width: 32,
-                            height: 32,
+                            width: 48, 
+                            height: 48, 
+                            mx: 'auto', 
+                            mb: 1,
+                            bgcolor: 'primary.main'
                           }}>
-                            {getGearTypeIcon(gear.gear_type?.category)}
+                            {getGearTypeIcon(item.type)}
                           </Avatar>
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={
-                            <Box>
-                              <Typography variant="body2" fontWeight="medium">
-                                {gear.base_name}
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                {gear.skill_name} • {gear.gear_type?.category}
-                              </Typography>
-                            </Box>
-                          }
-                          secondary={
-                            <Box sx={{ mt: 0.5 }}>
-                              <Chip
-                                label={gear.rarity}
-                                color={getRarityColor(gear.rarity)}
-                                size="small"
-                                sx={{ mr: 1 }}
-                              />
-                              {gear.damage > 0 && (
-                                <Typography variant="caption" sx={{ mr: 1 }}>
-                                  Damage: +{gear.damage}%
-                                </Typography>
-                              )}
-                              {gear.health_bonus > 0 && (
-                                <Typography variant="caption" sx={{ mr: 1 }}>
-                                  HP: +{gear.health_bonus}
-                                </Typography>
-                              )}
-                              {gear.defense > 0 && (
-                                <Typography variant="caption">
-                                  Defense: +{gear.defense}
-                                </Typography>
-                              )}
-                            </Box>
-                          }
-                        />
-                        {equippedGear[gear.id] && (
-                          <Chip
-                            label="Equipped"
-                            color="success"
-                            size="small"
-                            sx={{ ml: 1 }}
+                          <Typography variant="body2" fontWeight="medium" sx={{ mb: 0.5 }}>
+                            {item.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                            {item.skill}
+                          </Typography>
+                          <Chip 
+                            label={item.type} 
+                            size="small" 
+                            color="primary" 
+                            variant="outlined"
+                            sx={{ mb: 0.5 }}
                           />
-                        )}
-                      </ListItemButton>
+                          {item.stats && (
+                            <Typography variant="caption" color="success.main" sx={{ display: 'block' }}>
+                              {item.stats}
+                            </Typography>
+                          )}
+                        </Paper>
+                      </Grid>
                     ))}
-                  </List>
-                </Box>
-              </CardContent>
-            </Card>
+                    
+                    {/* Mod Slots */}
+                    {[1, 2, 3, 4].map((modNum) => (
+                      <Grid item xs={6} key={`mod-${modNum}`}>
+                        <Paper
+                          sx={{
+                            p: 2,
+                            textAlign: 'center',
+                            border: '2px dashed',
+                            borderColor: 'grey.300',
+                            cursor: 'pointer',
+                            '&:hover': {
+                              borderColor: 'primary.main',
+                              bgcolor: 'primary.50',
+                            },
+                          }}
+                        >
+                          <Box sx={{ 
+                            width: 48, 
+                            height: 48, 
+                            mx: 'auto', 
+                            mb: 1,
+                            border: '2px solid',
+                            borderColor: 'grey.300',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            <Typography variant="h6" color="text.secondary">
+                              ⚪
+                            </Typography>
+                          </Box>
+                          <Typography variant="body2" color="text.secondary">
+                            Mod {modNum}
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </CardContent>
+              </Card>
+
+              {/* Game Items Card */}
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    Game Items
+                  </Typography>
+                  
+                  {/* Filters */}
+                  <Stack spacing={2} sx={{ mb: 2 }}>
+                    {/* Category Filter */}
+                    <FormControl size="small" fullWidth>
+                      <InputLabel>Category</InputLabel>
+                      <Select
+                        value={filterType}
+                        label="Category"
+                        onChange={(e) => setFilterType(e.target.value)}
+                      >
+                        <MenuItem value="all">All</MenuItem>
+                        <MenuItem value="weapon">Weapon</MenuItem>
+                        <MenuItem value="helmet">Helmet</MenuItem>
+                        <MenuItem value="chest">Chest</MenuItem>
+                        <MenuItem value="boots">Boots</MenuItem>
+                        <MenuItem value="consumable">Consumable</MenuItem>
+                        <MenuItem value="mod">Mod</MenuItem>
+                      </Select>
+                    </FormControl>
+                    
+                    {/* Rarity Filter */}
+                    <FormControl size="small" fullWidth>
+                      <InputLabel>Rarity</InputLabel>
+                      <Select
+                        value={filterRarity}
+                        label="Rarity"
+                        onChange={(e) => setFilterRarity(e.target.value)}
+                      >
+                        <MenuItem value="all">All</MenuItem>
+                        <MenuItem value="common">Common</MenuItem>
+                        <MenuItem value="rare">Rare</MenuItem>
+                        <MenuItem value="epic">Epic</MenuItem>
+                        <MenuItem value="legendary">Legendary</MenuItem>
+                      </Select>
+                    </FormControl>
+                    
+                    {/* Search */}
+                    <TextField
+                      size="small"
+                      placeholder="Search items..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      fullWidth
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Search />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Stack>
+                  
+                  {/* Items List */}
+                  <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
+                    <List dense>
+                      {filteredGear.map((gear) => (
+                        <ListItemButton
+                          key={gear.id}
+                          onClick={() => handleGearClick(gear)}
+                          sx={{
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 1,
+                            mb: 1,
+                            '&:hover': {
+                              borderColor: 'primary.main',
+                              bgcolor: 'action.hover',
+                            },
+                          }}
+                        >
+                          <ListItemIcon>
+                            <Avatar sx={{ 
+                              bgcolor: `${getRarityColor(gear.rarity)}.main`,
+                              width: 32,
+                              height: 32,
+                            }}>
+                              {getGearTypeIcon(gear.gear_type?.category)}
+                            </Avatar>
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={
+                              <Box>
+                                <Typography variant="body2" fontWeight="medium">
+                                  {gear.base_name}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  {gear.skill_name} • {gear.gear_type?.category}
+                                </Typography>
+                              </Box>
+                            }
+                            secondary={
+                              <Box sx={{ mt: 0.5 }}>
+                                <Chip
+                                  label={gear.rarity}
+                                  color={getRarityColor(gear.rarity)}
+                                  size="small"
+                                  sx={{ mr: 1 }}
+                                />
+                                {gear.damage > 0 && (
+                                  <Typography variant="caption" sx={{ mr: 1 }}>
+                                    Damage: +{gear.damage}%
+                                  </Typography>
+                                )}
+                                {gear.health_bonus > 0 && (
+                                  <Typography variant="caption" sx={{ mr: 1 }}>
+                                    HP: +{gear.health_bonus}
+                                  </Typography>
+                                )}
+                                {gear.defense > 0 && (
+                                  <Typography variant="caption">
+                                    Defense: +{gear.defense}
+                                  </Typography>
+                                )}
+                              </Box>
+                            }
+                          />
+                          {equippedGear[gear.id] && (
+                            <Chip
+                              label="Equipped"
+                              color="success"
+                              size="small"
+                              sx={{ ml: 1 }}
+                            />
+                          )}
+                        </ListItemButton>
+                      ))}
+                    </List>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Stack>
           </Grid>
         </Grid>
 
