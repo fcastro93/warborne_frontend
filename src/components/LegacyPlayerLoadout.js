@@ -86,6 +86,8 @@ export default function LegacyPlayerLoadout() {
   const [activeAttributeTab, setActiveAttributeTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRarity, setFilterRarity] = useState('all');
+  const [filterStat, setFilterStat] = useState('all');
+  const [filterWeaponType, setFilterWeaponType] = useState('all');
   const [editingName, setEditingName] = useState(false);
   const [editName, setEditName] = useState('');
   const [skillModalOpen, setSkillModalOpen] = useState(false);
@@ -134,6 +136,11 @@ export default function LegacyPlayerLoadout() {
 
   const handleItemTabChange = (event, newValue) => {
     setActiveItemTab(newValue);
+    // Reset filters when switching categories
+    setSearchTerm('');
+    setFilterRarity('all');
+    setFilterStat('all');
+    setFilterWeaponType('all');
   };
 
   const handleAttributeTabChange = (event, newValue) => {
@@ -398,20 +405,83 @@ export default function LegacyPlayerLoadout() {
   
 
   // Get current category items based on active tab
-  const getCurrentCategoryItems = () => {
+  const getCurrentCategory = () => {
     const categories = ['weapon', 'helmet', 'chest', 'boots', 'consumable', 'mod'];
-    const currentCategory = categories[activeItemTab];
+    return categories[activeItemTab];
+  };
+
+  const getCurrentCategoryItems = () => {
+    const currentCategory = getCurrentCategory();
     return gearByType[currentCategory] || [];
   };
 
-  // Filter items by search and rarity
+  // Filter items by search, rarity, stat, and weapon type
   const getFilteredItems = () => {
     const categoryItems = getCurrentCategoryItems();
     return categoryItems.filter(item => {
       const matchesSearch = item.base_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            item.skill_name?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesRarity = filterRarity === 'all' || item.rarity === filterRarity;
-      return matchesSearch && matchesRarity;
+      
+      let matchesStat = true;
+      if (filterStat !== 'all') {
+        if (filterStat === 'strength') {
+          matchesStat = item.damage > 0;
+        } else if (filterStat === 'agility') {
+          matchesStat = item.energy_bonus > 0;
+        } else if (filterStat === 'intelligence') {
+          matchesStat = item.health_bonus > 0;
+        }
+      }
+      
+      let matchesWeaponType = true;
+      if (filterWeaponType !== 'all' && getCurrentCategory() === 'weapon') {
+        const name = item.base_name.toLowerCase();
+        const skill = item.skill_name?.toLowerCase() || '';
+        
+        switch (filterWeaponType) {
+          case 'axe':
+            matchesWeaponType = name.includes('axe') || name.includes('hatchet') || skill.includes('axe');
+            break;
+          case 'fire':
+            matchesWeaponType = name.includes('fire') || name.includes('flame') || name.includes('burn') || skill.includes('fire');
+            break;
+          case 'mace':
+            matchesWeaponType = name.includes('mace') || name.includes('hammer') || name.includes('club') || skill.includes('mace');
+            break;
+          case 'nature':
+            matchesWeaponType = name.includes('nature') || name.includes('earth') || name.includes('plant') || skill.includes('nature');
+            break;
+          case 'frost':
+            matchesWeaponType = name.includes('frost') || name.includes('ice') || name.includes('cold') || skill.includes('frost');
+            break;
+          case 'bow':
+            matchesWeaponType = name.includes('bow') || name.includes('arrow') || name.includes('archer') || skill.includes('bow');
+            break;
+          case 'dagger':
+            matchesWeaponType = name.includes('dagger') || name.includes('knife') || name.includes('blade') || skill.includes('dagger');
+            break;
+          case 'holy':
+            matchesWeaponType = name.includes('holy') || name.includes('divine') || name.includes('sacred') || skill.includes('holy');
+            break;
+          case 'curse':
+            matchesWeaponType = name.includes('curse') || name.includes('dark') || name.includes('shadow') || skill.includes('curse');
+            break;
+          case 'spear':
+            matchesWeaponType = name.includes('spear') || name.includes('lance') || name.includes('pole') || skill.includes('spear');
+            break;
+          case 'gun':
+            matchesWeaponType = name.includes('gun') || name.includes('rifle') || name.includes('pistol') || skill.includes('gun');
+            break;
+          case 'sword':
+            matchesWeaponType = name.includes('sword') || name.includes('blade') || name.includes('saber') || skill.includes('sword');
+            break;
+          default:
+            matchesWeaponType = true;
+        }
+      }
+      
+      return matchesSearch && matchesRarity && matchesStat && matchesWeaponType;
     });
   };
 
@@ -1025,7 +1095,14 @@ export default function LegacyPlayerLoadout() {
               {Object.keys(gearByType).map((category, index) => (
                 <Button
                   key={category}
-                  onClick={() => setActiveItemTab(index)}
+                  onClick={() => {
+                    setActiveItemTab(index);
+                    // Reset filters when switching categories
+                    setSearchTerm('');
+                    setFilterRarity('all');
+                    setFilterStat('all');
+                    setFilterWeaponType('all');
+                  }}
                   sx={{
                     flex: 1,
                     p: '12px 20px',
@@ -1111,6 +1188,91 @@ export default function LegacyPlayerLoadout() {
                   </Button>
                 ))}
               </Box>
+
+              {/* Stat Filters */}
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+                {[
+                  { key: 'all', label: 'All', icon: null },
+                  { key: 'strength', label: 'Strength', icon: '💪' },
+                  { key: 'agility', label: 'Agility', icon: '🏃' },
+                  { key: 'intelligence', label: 'Intelligence', icon: '🧠' }
+                ].map((stat) => (
+                  <Button
+                    key={stat.key}
+                    onClick={() => setFilterStat(stat.key)}
+                    sx={{
+                      p: '8px 16px',
+                      border: '2px solid rgba(100, 181, 246, 0.3)',
+                      borderRadius: 0.75,
+                      background: filterStat === stat.key ? '#64b5f6' : 'rgba(30, 30, 30, 0.8)',
+                      color: filterStat === stat.key ? 'white' : '#64b5f6',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      transition: 'all 0.3s ease',
+                      whiteSpace: 'nowrap',
+                      textTransform: 'capitalize',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5,
+                      '&:hover': {
+                        background: filterStat === stat.key ? '#64b5f6' : 'rgba(100, 181, 246, 0.1)',
+                        borderColor: '#64b5f6'
+                      }
+                    }}
+                  >
+                    {stat.icon && <span>{stat.icon}</span>}
+                    {stat.label}
+                  </Button>
+                ))}
+              </Box>
+
+              {/* Weapon Type Filters (only show for weapon category) */}
+              {getCurrentCategory() === 'weapon' && (
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+                  {[
+                    { key: 'all', label: 'All', icon: null },
+                    { key: 'axe', label: 'Axe', icon: '🪓' },
+                    { key: 'fire', label: 'Fire', icon: '🔥' },
+                    { key: 'mace', label: 'Mace', icon: '🔨' },
+                    { key: 'nature', label: 'Nature', icon: '🌿' },
+                    { key: 'frost', label: 'Frost', icon: '❄️' },
+                    { key: 'bow', label: 'Bow', icon: '🏹' },
+                    { key: 'dagger', label: 'Dagger', icon: '🗡️' },
+                    { key: 'holy', label: 'Holy', icon: '✨' },
+                    { key: 'curse', label: 'Curse', icon: '💀' },
+                    { key: 'spear', label: 'Spear', icon: '🔱' },
+                    { key: 'gun', label: 'Gun', icon: '🔫' },
+                    { key: 'sword', label: 'Sword', icon: '⚔️' }
+                  ].map((weaponType) => (
+                    <Button
+                      key={weaponType.key}
+                      onClick={() => setFilterWeaponType(weaponType.key)}
+                      sx={{
+                        p: '8px 16px',
+                        border: '2px solid rgba(100, 181, 246, 0.3)',
+                        borderRadius: 0.75,
+                        background: filterWeaponType === weaponType.key ? '#64b5f6' : 'rgba(30, 30, 30, 0.8)',
+                        color: filterWeaponType === weaponType.key ? 'white' : '#64b5f6',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        transition: 'all 0.3s ease',
+                        whiteSpace: 'nowrap',
+                        textTransform: 'capitalize',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        '&:hover': {
+                          background: filterWeaponType === weaponType.key ? '#64b5f6' : 'rgba(100, 181, 246, 0.1)',
+                          borderColor: '#64b5f6'
+                        }
+                      }}
+                    >
+                      {weaponType.icon && <span>{weaponType.icon}</span>}
+                      {weaponType.label}
+                    </Button>
+                  ))}
+                </Box>
+              )}
             </Box>
 
             {/* Items Grid */}
