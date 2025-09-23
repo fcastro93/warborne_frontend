@@ -174,29 +174,16 @@ export default function LegacyPlayerLoadout() {
         return;
       }
 
-      // For mods, we need to find the next available slot
-      let actualSlotType = slotType;
-      if (slotType === 'mod') {
-        const nextModSlot = getNextModSlot();
-        if (nextModSlot === null) {
-          alert('All mod slots are full!');
-          return;
-        }
-        // The backend will handle the mod slot assignment
-        actualSlotType = 'mod';
-      }
-
       const response = await apiService.equipGear(
         playerId,
         gearItem.id,
         currentDrifter.number,
-        actualSlotType
+        slotType
       );
 
       if (response.success) {
-        // Refresh the data to show the updated loadout
-        await fetchPlayerData();
-        alert('Gear equipped successfully!');
+        // Update the local state without refreshing the page
+        updateLocalGearState(gearItem, 'equip');
       } else {
         alert('Error equipping gear: ' + (response.error || 'Unknown error'));
       }
@@ -212,9 +199,8 @@ export default function LegacyPlayerLoadout() {
       const response = await apiService.unequipGear(playerId, gearItem.id);
 
       if (response.success) {
-        // Refresh the data to show the updated loadout
-        await fetchPlayerData();
-        alert('Gear unequipped successfully!');
+        // Update the local state without refreshing the page
+        updateLocalGearState(gearItem, 'unequip');
       } else {
         alert('Error unequipping gear: ' + (response.error || 'Unknown error'));
       }
@@ -276,6 +262,93 @@ export default function LegacyPlayerLoadout() {
       }
     }
     return null; // All mod slots are full
+  };
+
+  // Function to update local gear state without page refresh
+  const updateLocalGearState = (gearItem, action) => {
+    if (!currentDrifter) return;
+
+    const updatedDrifters = [...drifters];
+    const currentDrifterIndex = activeDrifterTab;
+    const currentDrifterData = updatedDrifters[currentDrifterIndex];
+
+    if (action === 'equip') {
+      // Find the appropriate slot for this gear type
+      let targetSlotIndex = -1;
+      
+      if (gearItem.gear_type.category === 'weapon') {
+        targetSlotIndex = 0;
+      } else if (gearItem.gear_type.category === 'helmet') {
+        targetSlotIndex = 1;
+      } else if (gearItem.gear_type.category === 'chest') {
+        targetSlotIndex = 2;
+      } else if (gearItem.gear_type.category === 'boots') {
+        targetSlotIndex = 3;
+      } else if (gearItem.gear_type.category === 'consumable') {
+        targetSlotIndex = 4;
+      } else if (gearItem.gear_type.category === 'mod') {
+        // Find the first empty mod slot
+        for (let i = 5; i < 9; i++) {
+          if (!currentDrifterData.gear_slots[i]) {
+            targetSlotIndex = i;
+            break;
+          }
+        }
+      }
+
+      if (targetSlotIndex !== -1) {
+        // Create the gear slot data
+        const gearSlotData = {
+          id: Date.now(), // Temporary ID
+          gear_item: {
+            id: gearItem.id,
+            base_name: gearItem.base_name,
+            skill_name: gearItem.skill_name,
+            rarity: gearItem.rarity,
+            damage: gearItem.damage,
+            defense: gearItem.defense,
+            health_bonus: gearItem.health_bonus,
+            energy_bonus: gearItem.energy_bonus,
+            game_id: gearItem.game_id,
+            icon_url: gearItem.icon_url,
+          },
+          gear_type: {
+            category: gearItem.gear_type.category
+          }
+        };
+
+        // Update the gear slot
+        const updatedGearSlots = [...currentDrifterData.gear_slots];
+        updatedGearSlots[targetSlotIndex] = gearSlotData;
+
+        // Update the drifter data
+        updatedDrifters[currentDrifterIndex] = {
+          ...currentDrifterData,
+          gear_slots: updatedGearSlots,
+          equipped_count: updatedGearSlots.filter(slot => slot !== null).length
+        };
+
+        setDrifters(updatedDrifters);
+      }
+    } else if (action === 'unequip') {
+      // Find and remove the gear item from gear slots
+      const updatedGearSlots = [...currentDrifterData.gear_slots];
+      for (let i = 0; i < updatedGearSlots.length; i++) {
+        if (updatedGearSlots[i] && updatedGearSlots[i].gear_item.id === gearItem.id) {
+          updatedGearSlots[i] = null;
+          break;
+        }
+      }
+
+      // Update the drifter data
+      updatedDrifters[currentDrifterIndex] = {
+        ...currentDrifterData,
+        gear_slots: updatedGearSlots,
+        equipped_count: updatedGearSlots.filter(slot => slot !== null).length
+      };
+
+      setDrifters(updatedDrifters);
+    }
   };
 
   // Drifter name to icon ID mapping
@@ -1175,14 +1248,6 @@ export default function LegacyPlayerLoadout() {
                         if (isItemEquipped(item)) {
                           handleUnequipGear(item);
                         } else {
-                          // For mods, check if there's an available slot
-                          if (item.gear_type.category === 'mod') {
-                            const nextModSlot = getNextModSlot();
-                            if (nextModSlot === null) {
-                              alert('All mod slots are full!');
-                              return;
-                            }
-                          }
                           handleEquipGear(item, item.gear_type.category);
                         }
                       }}
