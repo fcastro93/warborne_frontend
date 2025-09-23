@@ -386,201 +386,92 @@ export default function PlayerLoadout() {
         <Grid container spacing={3}>
           {/* Player Information Panel - 3-3-1 Layout */}
           <Grid item xs={12}>
-            <Grid container spacing={2} sx={{ mb: 3, display: 'flex', flexWrap: 'wrap' }}>
-              {/* Top Row - 3 Cards */}
+            <Grid container spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+              {/* First row: 3 items */}
+              {[
+                { label: "Discord", value: player?.discord_name || 'N/A' },
+                { label: "Guild", value: "Violence2" },
+                { label: "Level", value: player?.level || 'N/A' }
+              ].map((item, index) => (
+                <Grid item xs={12} sm={4} key={index}>
+                  <Paper 
+                    elevation={3} 
+                    sx={{ 
+                      p: 2, 
+                      textAlign: "center",
+                      bgcolor: 'grey.800',
+                      border: '1px solid rgba(100, 181, 246, 0.2)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
+                      }
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                      {item.label}
+                    </Typography>
+                    <Typography variant="body1" fontWeight="bold" color="white">
+                      {item.value}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ))}
+
+              {/* Second row: 3 items */}
+              {[
+                { label: "Faction", value: player?.faction || 'N/A' },
+                { label: "Role", value: player?.role || 'N/A' },
+                { label: "In-Game Role", value: player?.game_role || player?.in_game_role || 'N/A' }
+              ].map((item, index) => (
+                <Grid item xs={12} sm={4} key={index}>
+                  <Paper 
+                    elevation={3} 
+                    sx={{ 
+                      p: 2, 
+                      textAlign: "center",
+                      bgcolor: 'grey.800',
+                      border: '1px solid rgba(100, 181, 246, 0.2)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
+                      }
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                      {item.label}
+                    </Typography>
+                    <Typography variant="body1" fontWeight="bold" color="white">
+                      {item.value}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ))}
+
+              {/* Third row: 1 item (centered) */}
               <Grid item xs={12} sm={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(100, 181, 246, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  minHeight: 120,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
-                  }
-                }}>
-                  <Public sx={{ color: 'primary.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    Discord
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="white">
-                    {player?.discord_name || 'N/A'}
-                  </Typography>
-                </Card>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(76, 175, 80, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  minHeight: 120,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)',
-                  }
-                }}>
-                  <Shield sx={{ color: 'success.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    Guild
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="success.main">
-                    Violence2
-                  </Typography>
-                </Card>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(255, 152, 0, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  minHeight: 120,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(255, 152, 0, 0.3)',
-                  }
-                }}>
-                  <MilitaryTech sx={{ color: 'warning.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    Level
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="warning.main">
-                    {player?.level || 'N/A'}
-                  </Typography>
-                </Card>
-              </Grid>
-              
-              {/* Middle Row - 3 Cards */}
-              <Grid item xs={12} sm={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(33, 150, 243, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  minHeight: 120,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)',
-                  }
-                }}>
-                  <WorkspacePremium sx={{ color: 'info.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    Faction
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="info.main">
-                    {player?.faction || 'N/A'}
-                  </Typography>
-                </Card>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(156, 39, 176, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  minHeight: 120,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(156, 39, 176, 0.3)',
-                  }
-                }}>
-                  <Security sx={{ color: 'secondary.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    Role
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="secondary.main">
-                    {player?.role || 'N/A'}
-                  </Typography>
-                </Card>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(244, 67, 54, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  minHeight: 120,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)',
-                  }
-                }}>
-                  <LocalFireDepartment sx={{ color: 'error.main', fontSize: 32, mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                    In-Game Role
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="error.main">
-                    {player?.game_role || player?.in_game_role || 'N/A'}
-                  </Typography>
-                </Card>
-              </Grid>
-              
-              {/* Bottom Row - 1 Card */}
-              <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Card sx={{ 
-                  p: 3,
-                  bgcolor: 'grey.800',
-                  border: '1px solid rgba(100, 181, 246, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease',
-                  minHeight: 120,
-                  minWidth: 200,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
-                  }
-                }}>
-                  <Inventory sx={{ color: 'primary.main', fontSize: 32, mb: 1 }} />
+                <Paper 
+                  elevation={3} 
+                  sx={{ 
+                    p: 2, 
+                    textAlign: "center",
+                    bgcolor: 'grey.800',
+                    border: '1px solid rgba(100, 181, 246, 0.2)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
+                    }
+                  }}
+                >
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                     Total Gear
                   </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="primary.main">
+                  <Typography variant="body1" fontWeight="bold" color="white">
                     {gearItems?.length || 0}
                   </Typography>
-                </Card>
+                </Paper>
               </Grid>
             </Grid>
           </Grid>
