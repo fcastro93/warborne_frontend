@@ -70,8 +70,8 @@ export default function SideMenu() {
           src="/violence-logo.png"
           alt="Violence Guild"
           sx={{
-            width: 60,
-            height: 60,
+            width: 120,
+            height: 120,
           }}
         />
       </Box>
