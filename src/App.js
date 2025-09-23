@@ -4,6 +4,7 @@ import AppTheme from './components/AppTheme';
 import Dashboard from './components/Dashboard';
 import MembersPage from './components/MembersPage';
 import PlayerLoadout from './components/PlayerLoadout';
+import LegacyPlayerLoadout from './components/LegacyPlayerLoadout';
 import './App.css';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/player/:playerId/loadout" element={<PlayerLoadout />} />
+          <Route path="/player/legacyloadout" element={<LegacyPlayerLoadout />} />
         </Routes>
       </Router>
     </AppTheme>
