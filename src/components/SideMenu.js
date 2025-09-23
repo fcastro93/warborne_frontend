@@ -81,10 +81,7 @@ export default function SideMenu() {
                   component={Link} 
                   to={item.path}
                   selected={location.pathname === item.path}
-                  sx={{
-                    textDecoration: 'none',
-                    color: 'inherit',
-                  }}
+                  sx={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
@@ -99,10 +96,7 @@ export default function SideMenu() {
                   component={Link} 
                   to={item.path}
                   selected={location.pathname === item.path}
-                  sx={{
-                    textDecoration: 'none',
-                    color: 'inherit',
-                  }}
+                  sx={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
