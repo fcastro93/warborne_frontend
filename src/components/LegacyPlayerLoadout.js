@@ -443,11 +443,28 @@ export default function LegacyPlayerLoadout() {
     return gearByType[currentCategory] || [];
   };
 
-  // Get available rarities for current category
+  // Get available rarities for current category, sorted by rarity hierarchy
   const getAvailableRarities = () => {
     const categoryItems = getCurrentCategoryItems();
     const rarities = [...new Set(categoryItems.map(item => item.rarity).filter(Boolean))];
-    return ['all', ...rarities.sort()];
+    
+    // Define rarity hierarchy for proper sorting
+    const rarityOrder = {
+      'common': 1,
+      'uncommon': 2,
+      'rare': 3,
+      'epic': 4,
+      'legendary': 5
+    };
+    
+    // Sort rarities by hierarchy
+    const sortedRarities = rarities.sort((a, b) => {
+      const orderA = rarityOrder[a.toLowerCase()] || 999;
+      const orderB = rarityOrder[b.toLowerCase()] || 999;
+      return orderA - orderB;
+    });
+    
+    return ['all', ...sortedRarities];
   };
 
   // Filter items by search, rarity, stat, and weapon type
@@ -530,6 +547,25 @@ export default function LegacyPlayerLoadout() {
       }
       
       return matchesSearch && matchesRarity && matchesStat && matchesWeaponType && matchesElement;
+    }).sort((a, b) => {
+      // Sort by rarity hierarchy (legendary first, then epic, rare, uncommon, common)
+      const rarityOrder = {
+        'legendary': 5,
+        'epic': 4,
+        'rare': 3,
+        'uncommon': 2,
+        'common': 1
+      };
+      
+      const orderA = rarityOrder[a.rarity?.toLowerCase()] || 0;
+      const orderB = rarityOrder[b.rarity?.toLowerCase()] || 0;
+      
+      // If same rarity, sort alphabetically by name
+      if (orderA === orderB) {
+        return a.base_name.localeCompare(b.base_name);
+      }
+      
+      return orderB - orderA; // Higher rarity first
     });
   };
 
