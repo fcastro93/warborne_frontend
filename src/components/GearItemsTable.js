@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Card,
-  CardContent,
   Typography,
   Table,
   TableBody,
@@ -9,7 +7,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Avatar,
   Chip,
   Box,
@@ -174,122 +171,118 @@ export default function GearItemsTable() {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent>
-          <Typography>Loading gear items...</Typography>
-        </CardContent>
-      </Card>
+      <Box>
+        <Typography>Loading gear items...</Typography>
+      </Box>
     );
   }
 
   return (
-    <Card>
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" component="h2">
-            Gear Items
-          </Typography>
-          <Stack direction="row" spacing={1}>
-            <Tooltip title="Search">
-              <IconButton size="small">
-                <Search />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Filter">
-              <IconButton size="small">
-                <FilterList />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        </Box>
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" component="h2">
+          Gear Items
+        </Typography>
+        <Stack direction="row" spacing={1}>
+          <Tooltip title="Search">
+            <IconButton size="small">
+              <Search />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Filter">
+            <IconButton size="small">
+              <FilterList />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </Box>
 
-        <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-          <Table sx={{ minWidth: 650 }} aria-label="gear items table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Item</TableCell>
-                <TableCell>Skill</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Rarity</TableCell>
-                <TableCell>Stats</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredGear.map((gear) => (
-                <TableRow
-                  key={gear.id}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Avatar sx={{ bgcolor: `${getRarityColor(gear.rarity)}.main` }}>
-                        {getGearTypeIcon(gear.type)}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="body2" fontWeight="medium">
-                          {gear.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {gear.description}
-                        </Typography>
-                      </Box>
+      <TableContainer>
+        <Table sx={{ minWidth: 650 }} aria-label="gear items table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Item</TableCell>
+              <TableCell>Skill</TableCell>
+              <TableCell>Type</TableCell>
+              <TableCell>Rarity</TableCell>
+              <TableCell>Stats</TableCell>
+              <TableCell align="right">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredGear.map((gear) => (
+              <TableRow
+                key={gear.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Avatar sx={{ bgcolor: `${getRarityColor(gear.rarity)}.main` }}>
+                      {getGearTypeIcon(gear.type)}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="body2" fontWeight="medium">
+                        {gear.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {gear.description}
+                      </Typography>
                     </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {gear.skill_name || 'N/A'}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={gear.type}
-                      size="small"
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      icon={getRarityIcon(gear.rarity)}
-                      label={gear.rarity}
-                      color={getRarityColor(gear.rarity)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Stack spacing={0.5}>
-                      {gear.damage > 0 && (
-                        <Typography variant="caption" color="text.secondary">
-                          Damage: +{gear.damage}%
-                        </Typography>
-                      )}
-                      {gear.defense > 0 && (
-                        <Typography variant="caption" color="text.secondary">
-                          Defense: +{gear.defense}
-                        </Typography>
-                      )}
-                      {gear.health_bonus > 0 && (
-                        <Typography variant="caption" color="text.secondary">
-                          HP: +{gear.health_bonus}
-                        </Typography>
-                      )}
-                    </Stack>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Stack direction="row" spacing={0.5} justifyContent="flex-end">
-                      <Tooltip title="Equip">
-                        <IconButton size="small" color="primary">
-                          <Add fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </CardContent>
-    </Card>
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {gear.skill_name || 'N/A'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={gear.type}
+                    size="small"
+                    variant="outlined"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    icon={getRarityIcon(gear.rarity)}
+                    label={gear.rarity}
+                    color={getRarityColor(gear.rarity)}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Stack spacing={0.5}>
+                    {gear.damage > 0 && (
+                      <Typography variant="caption" color="text.secondary">
+                        Damage: +{gear.damage}%
+                      </Typography>
+                    )}
+                    {gear.defense > 0 && (
+                      <Typography variant="caption" color="text.secondary">
+                        Defense: +{gear.defense}
+                      </Typography>
+                    )}
+                    {gear.health_bonus > 0 && (
+                      <Typography variant="caption" color="text.secondary">
+                        HP: +{gear.health_bonus}
+                      </Typography>
+                    )}
+                  </Stack>
+                </TableCell>
+                <TableCell align="right">
+                  <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                    <Tooltip title="Equip">
+                      <IconButton size="small" color="primary">
+                        <Add fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
