@@ -572,6 +572,15 @@ export default function LegacyPlayerLoadout() {
 
   const currentDrifter = activeDrifterTab >= 0 ? drifters[activeDrifterTab] || null : null;
   const hasSelectedDrifter = currentDrifter !== null && currentDrifter.gear_slots && currentDrifter.gear_slots.length > 0;
+  
+  // Debug logging to see what's happening
+  console.log('=== DRIFTER DEBUG ===');
+  console.log('activeDrifterTab:', activeDrifterTab);
+  console.log('currentDrifter:', currentDrifter);
+  console.log('currentDrifter.gear_slots:', currentDrifter?.gear_slots);
+  console.log('gear_slots length:', currentDrifter?.gear_slots?.length);
+  console.log('hasSelectedDrifter:', hasSelectedDrifter);
+  console.log('===================');
 
   if (loading) {
     return (
@@ -785,6 +794,10 @@ export default function LegacyPlayerLoadout() {
             }}>
               {drifters.map((drifter, index) => {
                 const hasGearSlots = drifter.gear_slots && drifter.gear_slots.length > 0;
+                console.log(`Drifter ${index} (${drifter.name}):`, {
+                  gear_slots: drifter.gear_slots,
+                  hasGearSlots: hasGearSlots
+                });
                 return (
                   <Button
                     key={index}
