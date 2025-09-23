@@ -118,7 +118,7 @@ export default function LegacyPlayerLoadout() {
       // Fetch gear items data
       const gearData = await apiService.getGearItems();
       console.log('Gear items data:', gearData);
-      setGearItems(gearData);
+      setGearItems(gearData.gear_items || []);
 
     } catch (error) {
       console.error('Error fetching player data:', error);
@@ -164,13 +164,6 @@ export default function LegacyPlayerLoadout() {
     setSelectedSkill(null);
   };
 
-  // Filter gear items
-  const filteredGear = gearItems.filter(gear => {
-    const matchesSearch = gear.base_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         gear.skill_name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRarity = filterRarity === 'all' || gear.rarity === filterRarity;
-    return matchesSearch && matchesRarity;
-  });
 
   // Group gear by type
   const gearByType = {
@@ -180,6 +173,24 @@ export default function LegacyPlayerLoadout() {
     boots: gearItems.filter(item => item.gear_type.category === 'boots'),
     consumable: gearItems.filter(item => item.gear_type.category === 'consumable'),
     mod: gearItems.filter(item => item.gear_type.category === 'mod')
+  };
+
+  // Get current category items based on active tab
+  const getCurrentCategoryItems = () => {
+    const categories = ['weapon', 'helmet', 'chest', 'boots', 'consumable', 'mod'];
+    const currentCategory = categories[activeItemTab];
+    return gearByType[currentCategory] || [];
+  };
+
+  // Filter items by search and rarity
+  const getFilteredItems = () => {
+    const categoryItems = getCurrentCategoryItems();
+    return categoryItems.filter(item => {
+      const matchesSearch = item.base_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.skill_name?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesRarity = filterRarity === 'all' || item.rarity === filterRarity;
+      return matchesSearch && matchesRarity;
+    });
   };
 
   const currentDrifter = drifters[activeDrifterTab] || null;
@@ -329,7 +340,7 @@ export default function LegacyPlayerLoadout() {
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Level:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{player?.character_level || 'N/A'}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.level || 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Faction:</Typography>
@@ -854,7 +865,7 @@ export default function LegacyPlayerLoadout() {
               p: '10px 0',
               alignContent: 'start'
             }}>
-              {filteredGear.map((item) => (
+              {getFilteredItems().map((item) => (
                 <Box
                   key={item.id}
                   sx={{
@@ -925,7 +936,7 @@ export default function LegacyPlayerLoadout() {
                       fontSize: '0.9rem',
                       mb: 0.25
                     }}>
-                      {item.gear_type.name} • {item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1)}
+                      {item.gear_type.category} • {item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1)}
                     </Typography>
                     
                     <Box sx={{ mb: 0.5 }}>
@@ -939,14 +950,14 @@ export default function LegacyPlayerLoadout() {
                           HP: {item.health_bonus}
                         </Typography>
                       )}
-                      {item.armor > 0 && (
+                      {item.defense > 0 && (
                         <Typography sx={{ color: '#b0bec5', fontSize: '0.8rem', mb: 0.25 }}>
-                          Armor: {item.armor}
+                          Defense: {item.defense}
                         </Typography>
                       )}
-                      {item.magic_resistance > 0 && (
+                      {item.energy_bonus > 0 && (
                         <Typography sx={{ color: '#b0bec5', fontSize: '0.8rem' }}>
-                          Magic resistance: {item.magic_resistance}
+                          Energy: +{item.energy_bonus}
                         </Typography>
                       )}
                     </Box>
