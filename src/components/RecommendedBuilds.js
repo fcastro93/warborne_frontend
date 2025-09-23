@@ -127,7 +127,6 @@ export default function RecommendedBuilds() {
       if (buildId && buildsData.builds) {
         const build = buildsData.builds.find(b => b.id === parseInt(buildId));
         if (build) {
-          console.log('Build data:', build);
           setCurrentBuild(build);
           // Set up the drifter data from the build
           if (build.drifter) {
@@ -1000,9 +999,6 @@ export default function RecommendedBuilds() {
                   >
                     {slotLabels.map((label, i) => {
                       const gear = currentDrifter.gear_slots?.[i] || null;
-                      if (gear && gear.gear_item) {
-                        console.log(`Gear slot ${i}:`, gear.gear_item);
-                      }
                       return (
                         <Box
                           key={i}
@@ -1049,7 +1045,7 @@ export default function RecommendedBuilds() {
                                 {getIconUrl(gear.gear_item) ? (
                                   <img 
                                     src={getIconUrl(gear.gear_item)} 
-                                    alt={gear.gear_item.base_name}
+                                    alt={gear.gear_item.name}
                                     style={{ 
                                       width: '100%', 
                                       height: '100%', 
@@ -1088,7 +1084,7 @@ export default function RecommendedBuilds() {
                                   maxWidth: '100%'
                                 }}
                               >
-                                {gear.gear_item.base_name}
+                                {gear.gear_item.name}
                               </Typography>
 
                               {gear.gear_item.skill_name && (
