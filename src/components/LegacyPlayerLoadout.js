@@ -817,7 +817,7 @@ export default function LegacyPlayerLoadout() {
             }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Discord:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{player?.discord_name || 'N/A'}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.discord_name ? player.discord_name.replace(/#\d+$/, '') : 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Guild:</Typography>
@@ -829,15 +829,15 @@ export default function LegacyPlayerLoadout() {
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Faction:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{player?.faction || 'N/A'}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.faction ? player.faction.charAt(0).toUpperCase() + player.faction.slice(1) : 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Guild Rank:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{player?.role || 'N/A'}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.role ? player.role.charAt(0).toUpperCase() + player.role.slice(1) : 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Role:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{player?.game_role || 'N/A'}</Typography>
+                <Typography sx={{ color: '#ffffff' }}>{player?.game_role ? player.game_role.charAt(0).toUpperCase() + player.game_role.slice(1) : 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Total Gear:</Typography>
