@@ -280,7 +280,7 @@ const EventDetails = () => {
     if (window.confirm('Are you sure you want to cancel this event?')) {
       try {
         const response = await fetch(`/api/events/${eventId}/delete/`, {
-          method: 'POST',
+          method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
