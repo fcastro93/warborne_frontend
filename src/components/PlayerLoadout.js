@@ -383,98 +383,172 @@ export default function PlayerLoadout() {
         </Box>
 
         <Grid container spacing={3}>
-          {/* Player Information Panel - Full Width */}
+          {/* Player Information Panel - Square Cards */}
           <Grid item xs={12}>
-            <Card sx={{ 
-              mb: 3, 
-              bgcolor: 'grey.800',
-              background: 'linear-gradient(135deg, rgba(100, 181, 246, 0.1) 0%, rgba(76, 175, 80, 0.1) 100%)',
-              border: '1px solid rgba(100, 181, 246, 0.2)',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-            }}>
-              <CardContent sx={{ p: 3 }}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6} md={2}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Public sx={{ color: 'primary.main', fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                          Discord
-                        </Typography>
-                        <Typography variant="body2" fontWeight="medium">
-                          {player?.discord_name || 'N/A'}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={2}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Shield sx={{ color: 'success.main', fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                          Guild
-                        </Typography>
-                        <Typography variant="body2" fontWeight="medium" color="success.main">
-                          Violence2
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={2}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <MilitaryTech sx={{ color: 'warning.main', fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                          Level
-                        </Typography>
-                        <Typography variant="body2" fontWeight="bold" color="warning.main" sx={{ fontSize: '1.1rem' }}>
-                          {player?.level || 'N/A'}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={2}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <WorkspacePremium sx={{ color: 'info.main', fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                          Faction
-                        </Typography>
-                        <Typography variant="body2" fontWeight="medium" color="info.main">
-                          {player?.faction || 'N/A'}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={2}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Security sx={{ color: 'secondary.main', fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                          Role
-                        </Typography>
-                        <Typography variant="body2" fontWeight="medium" color="secondary.main">
-                          {player?.role || 'N/A'}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={2}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Inventory sx={{ color: 'primary.main', fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                          Total Gear
-                        </Typography>
-                        <Typography variant="body2" fontWeight="bold" color="primary.main" sx={{ fontSize: '1.1rem' }}>
-                          {gearItems?.length || 0}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={6} sm={4} md={2}>
+                <Card sx={{ 
+                  p: 3,
+                  bgcolor: 'grey.800',
+                  border: '1px solid rgba(100, 181, 246, 0.2)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 0.3s ease',
+                  minHeight: 120,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
+                  }
+                }}>
+                  <Public sx={{ color: 'primary.main', fontSize: 32, mb: 1 }} />
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                    Discord
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold" color="white">
+                    {player?.discord_name || 'N/A'}
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={6} sm={4} md={2}>
+                <Card sx={{ 
+                  p: 3,
+                  bgcolor: 'grey.800',
+                  border: '1px solid rgba(76, 175, 80, 0.2)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 0.3s ease',
+                  minHeight: 120,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)',
+                  }
+                }}>
+                  <Shield sx={{ color: 'success.main', fontSize: 32, mb: 1 }} />
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                    Guild
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold" color="success.main">
+                    Violence2
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={6} sm={4} md={2}>
+                <Card sx={{ 
+                  p: 3,
+                  bgcolor: 'grey.800',
+                  border: '1px solid rgba(255, 152, 0, 0.2)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 0.3s ease',
+                  minHeight: 120,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(255, 152, 0, 0.3)',
+                  }
+                }}>
+                  <MilitaryTech sx={{ color: 'warning.main', fontSize: 32, mb: 1 }} />
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                    Level
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold" color="warning.main">
+                    {player?.level || 'N/A'}
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={6} sm={4} md={2}>
+                <Card sx={{ 
+                  p: 3,
+                  bgcolor: 'grey.800',
+                  border: '1px solid rgba(33, 150, 243, 0.2)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 0.3s ease',
+                  minHeight: 120,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)',
+                  }
+                }}>
+                  <WorkspacePremium sx={{ color: 'info.main', fontSize: 32, mb: 1 }} />
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                    Faction
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold" color="info.main">
+                    {player?.faction || 'N/A'}
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={6} sm={4} md={2}>
+                <Card sx={{ 
+                  p: 3,
+                  bgcolor: 'grey.800',
+                  border: '1px solid rgba(156, 39, 176, 0.2)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 0.3s ease',
+                  minHeight: 120,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(156, 39, 176, 0.3)',
+                  }
+                }}>
+                  <Security sx={{ color: 'secondary.main', fontSize: 32, mb: 1 }} />
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                    Role
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold" color="secondary.main">
+                    {player?.role || 'N/A'}
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={6} sm={4} md={2}>
+                <Card sx={{ 
+                  p: 3,
+                  bgcolor: 'grey.800',
+                  border: '1px solid rgba(100, 181, 246, 0.2)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 0.3s ease',
+                  minHeight: 120,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(100, 181, 246, 0.3)',
+                  }
+                }}>
+                  <Inventory sx={{ color: 'primary.main', fontSize: 32, mb: 1 }} />
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                    Total Gear
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold" color="primary.main">
+                    {gearItems?.length || 0}
+                  </Typography>
+                </Card>
+              </Grid>
+            </Grid>
           </Grid>
           {/* Left Panel - Drifter Loadouts */}
           <Grid item xs={12} md={8}>
