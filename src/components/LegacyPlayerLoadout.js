@@ -572,12 +572,6 @@ export default function LegacyPlayerLoadout() {
 
   const currentDrifter = activeDrifterTab >= 0 ? drifters[activeDrifterTab] || null : null;
   const hasSelectedDrifter = currentDrifter !== null && currentDrifter.gear_slots && currentDrifter.gear_slots.length > 0;
-  
-  // Debug logging
-  console.log('Debug - activeDrifterTab:', activeDrifterTab);
-  console.log('Debug - currentDrifter:', currentDrifter);
-  console.log('Debug - hasSelectedDrifter:', hasSelectedDrifter);
-  console.log('Debug - gear_slots:', currentDrifter?.gear_slots);
 
   if (loading) {
     return (
@@ -845,7 +839,7 @@ export default function LegacyPlayerLoadout() {
             </Box>
 
             {/* Drifter Content */}
-            {currentDrifter ? (
+            {hasSelectedDrifter ? (
               <Box>
                 {/* Drifter Stats */}
                 <Box sx={{
