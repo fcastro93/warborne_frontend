@@ -10,6 +10,7 @@ import RecommendedBuildsList from './components/RecommendedBuildsList';
 import EventManagement from './components/EventManagement';
 import EventDetails from './components/EventDetails';
 import DiscordBotConfig from './components/DiscordBotConfig';
+import Analytics from './components/Analytics';
 import './App.css';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/recbuilds/:buildId" element={<RecommendedBuilds />} />
           <Route path="/events" element={<EventManagement />} />
           <Route path="/events/:eventId" element={<EventDetails />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/discord-bot-config" element={<DiscordBotConfig />} />
         </Routes>
       </Router>

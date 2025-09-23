@@ -16,6 +16,7 @@ import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
 import RecommendRoundedIcon from '@mui/icons-material/RecommendRounded';
 import EventRoundedIcon from '@mui/icons-material/EventRounded';
+import AnalyticsRoundedIcon from '@mui/icons-material/AnalyticsRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import SmartToyRoundedIcon from '@mui/icons-material/SmartToyRounded';
 
@@ -37,6 +38,7 @@ const mainListItems = [
   { text: 'Members', icon: <PeopleRoundedIcon />, path: '/members' },
   { text: 'Rec. Builds', icon: <RecommendRoundedIcon />, path: '/recbuilds' },
   { text: 'Events', icon: <EventRoundedIcon />, path: '/events' },
+  { text: 'Analytics', icon: <AnalyticsRoundedIcon />, path: '/analytics' },
 ];
 
 const secondaryListItems = [
