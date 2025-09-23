@@ -26,7 +26,10 @@ import {
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
   Warning as WarningIcon,
-  Info as InfoIcon
+  Info as InfoIcon,
+  PlayArrow as PlayArrowIcon,
+  Stop as StopIcon,
+  RestartAlt as RestartAltIcon
 } from '@mui/icons-material';
 import Layout from './Layout';
 
@@ -144,6 +147,84 @@ const DiscordBotConfig = () => {
     }
   };
 
+  const handleStartBot = async () => {
+    try {
+      setSaving(true);
+      const response = await fetch('/api/discord-bot-config/start/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        showAlert('success', 'Bot start command sent successfully!');
+        fetchConfig(); // Refresh status
+      } else {
+        showAlert('error', 'Failed to start bot: ' + data.error);
+      }
+    } catch (error) {
+      showAlert('error', 'Error starting bot: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleStopBot = async () => {
+    try {
+      setSaving(true);
+      const response = await fetch('/api/discord-bot-config/stop/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        showAlert('success', 'Bot stop command sent successfully!');
+        fetchConfig(); // Refresh status
+      } else {
+        showAlert('error', 'Failed to stop bot: ' + data.error);
+      }
+    } catch (error) {
+      showAlert('error', 'Error stopping bot: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRestartBot = async () => {
+    try {
+      setSaving(true);
+      const response = await fetch('/api/discord-bot-config/restart/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        showAlert('success', 'Bot restart command sent successfully!');
+        fetchConfig(); // Refresh status
+      } else {
+        showAlert('error', 'Failed to restart bot: ' + data.error);
+      }
+    } catch (error) {
+      showAlert('error', 'Error restarting bot: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const showAlert = (type, message) => {
     setAlert({ type, message });
     setTimeout(() => setAlert(null), 5000);
@@ -229,6 +310,33 @@ const DiscordBotConfig = () => {
               Refresh
             </Button>
             <Button
+              variant="outlined"
+              startIcon={<PlayArrowIcon />}
+              onClick={handleStartBot}
+              disabled={saving || (config && config.is_online)}
+              color="success"
+            >
+              Start Bot
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<StopIcon />}
+              onClick={handleStopBot}
+              disabled={saving || (config && !config.is_online)}
+              color="error"
+            >
+              Stop Bot
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<RestartAltIcon />}
+              onClick={handleRestartBot}
+              disabled={saving}
+              color="warning"
+            >
+              Restart Bot
+            </Button>
+            <Button
               variant="contained"
               startIcon={<PowerIcon />}
               onClick={handleTestConnection}
@@ -269,10 +377,19 @@ const DiscordBotConfig = () => {
                 {config && (
                   <Stack spacing={1}>
                     <Typography variant="body2" color="text.secondary">
+                      <strong>Bot Name:</strong> {config.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>Active:</strong> {config.is_active ? 'Yes' : 'No'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
                       <strong>Last Heartbeat:</strong> {config.last_heartbeat ? new Date(config.last_heartbeat).toLocaleString() : 'Never'}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      <strong>Bot Name:</strong> {config.name}
+                      <strong>Command Prefix:</strong> {config.command_prefix}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>Base URL:</strong> {config.base_url}
                     </Typography>
                     {config.error_message && (
                       <Typography variant="body2" color="error">
@@ -281,6 +398,55 @@ const DiscordBotConfig = () => {
                     )}
                   </Stack>
                 )}
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Bot Control */}
+          <Grid item xs={12} md={8}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 3 }}>
+                  <PowerIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  Bot Control
+                </Typography>
+                
+                <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<PlayArrowIcon />}
+                    onClick={handleStartBot}
+                    disabled={saving || (config && config.is_online)}
+                    color="success"
+                    size="large"
+                  >
+                    Start Bot
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<StopIcon />}
+                    onClick={handleStopBot}
+                    disabled={saving || (config && !config.is_online)}
+                    color="error"
+                    size="large"
+                  >
+                    Stop Bot
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<RestartAltIcon />}
+                    onClick={handleRestartBot}
+                    disabled={saving}
+                    color="warning"
+                    size="large"
+                  >
+                    Restart Bot
+                  </Button>
+                </Stack>
+                
+                <Typography variant="body2" color="text.secondary">
+                  Use these controls to manage the Discord bot. The bot must be stopped before making configuration changes.
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
