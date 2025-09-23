@@ -9,6 +9,7 @@ import RecommendedBuilds from './components/RecommendedBuilds';
 import RecommendedBuildsList from './components/RecommendedBuildsList';
 import EventManagement from './components/EventManagement';
 import EventDetails from './components/EventDetails';
+import DiscordBotConfig from './components/DiscordBotConfig';
 import './App.css';
 
 function App() {
@@ -21,9 +22,10 @@ function App() {
           <Route path="/members" element={<MembersPage />} />
           <Route path="/player/:playerId/loadout" element={<LegacyPlayerLoadout />} />
         <Route path="/recbuilds" element={<RecommendedBuildsList />} />
-        <Route path="/recbuilds/:buildId" element={<RecommendedBuilds />} />
-        <Route path="/events" element={<EventManagement />} />
-        <Route path="/events/:eventId" element={<EventDetails />} />
+          <Route path="/recbuilds/:buildId" element={<RecommendedBuilds />} />
+          <Route path="/events" element={<EventManagement />} />
+          <Route path="/events/:eventId" element={<EventDetails />} />
+          <Route path="/discord-bot-config" element={<DiscordBotConfig />} />
         </Routes>
       </Router>
     </AppTheme>
