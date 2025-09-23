@@ -1224,7 +1224,6 @@ export default function LegacyPlayerLoadout() {
                     setFilterRarity('all');
                     setFilterStat('all');
                     setFilterWeaponType('all');
-                    setFilterElement('all');
                   }}
                   sx={{
                     flex: 1,
