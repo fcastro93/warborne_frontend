@@ -307,7 +307,7 @@ export default function PlayerLoadout() {
         </Card>
 
         <Grid container spacing={3}>
-          {/* Left Panel - Drifter Tabs */}
+          {/* Left Panel - Drifter Loadouts */}
           <Grid item xs={12} md={8}>
             <Card>
               <CardContent>
@@ -320,7 +320,7 @@ export default function PlayerLoadout() {
                     <Tab
                       key={index}
                       label={drifter.name || `Drifter ${index + 1}`}
-                      icon={drifter.name ? <Person /> : <Add />}
+                      sx={{ textTransform: 'none' }}
                     />
                   ))}
                 </Tabs>
@@ -334,104 +334,69 @@ export default function PlayerLoadout() {
                   >
                     {drifter.name ? (
                       <>
-                        {/* Drifter Stats */}
-                        <Paper sx={{ p: 2, mb: 3, bgcolor: 'grey.50' }}>
+                        {/* Basic Stats */}
+                        <Paper sx={{ p: 3, mb: 3, bgcolor: 'grey.50' }}>
                           <Typography variant="h6" sx={{ mb: 2 }}>
-                            {drifter.name} Stats
+                            Basic stats of the drifter
                           </Typography>
-                          <Grid container spacing={2}>
-                            <Grid item xs={6} sm={3}>
-                              <Typography variant="body2" color="text.secondary">
-                                Health
-                              </Typography>
-                              <Typography variant="h6">
-                                {drifter.base_health || 100}
-                              </Typography>
+                          <Grid container spacing={3}>
+                            <Grid item xs={6} sm={4}>
+                              <Box sx={{ textAlign: 'center' }}>
+                                <Typography variant="h4" color="primary" fontWeight="bold">
+                                  {drifter.base_health || 315}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  Health
+                                </Typography>
+                              </Box>
                             </Grid>
-                            <Grid item xs={6} sm={3}>
-                              <Typography variant="body2" color="text.secondary">
-                                Energy
-                              </Typography>
-                              <Typography variant="h6">
-                                {drifter.base_energy || 100}
-                              </Typography>
+                            <Grid item xs={6} sm={4}>
+                              <Box sx={{ textAlign: 'center' }}>
+                                <Typography variant="h4" color="primary" fontWeight="bold">
+                                  {drifter.base_energy || 375}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  Energy
+                                </Typography>
+                              </Box>
                             </Grid>
-                            <Grid item xs={6} sm={3}>
-                              <Typography variant="body2" color="text.secondary">
-                                Damage
-                              </Typography>
-                              <Typography variant="h6">
-                                {drifter.base_damage || 50}
-                              </Typography>
+                            <Grid item xs={6} sm={4}>
+                              <Box sx={{ textAlign: 'center' }}>
+                                <Typography variant="h4" color="primary" fontWeight="bold">
+                                  {drifter.base_damage || 82}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  Damage
+                                </Typography>
+                              </Box>
                             </Grid>
-                            <Grid item xs={6} sm={3}>
-                              <Typography variant="body2" color="text.secondary">
-                                Defense
-                              </Typography>
-                              <Typography variant="h6">
-                                {drifter.base_defense || 25}
-                              </Typography>
+                            <Grid item xs={6} sm={4}>
+                              <Box sx={{ textAlign: 'center' }}>
+                                <Typography variant="h4" color="primary" fontWeight="bold">
+                                  {drifter.base_defense || 52}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  Defense
+                                </Typography>
+                              </Box>
+                            </Grid>
+                            <Grid item xs={6} sm={4}>
+                              <Box sx={{ textAlign: 'center' }}>
+                                <Typography variant="h4" color="primary" fontWeight="bold">
+                                  75
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  Speed
+                                </Typography>
+                              </Box>
                             </Grid>
                           </Grid>
+                          <Box sx={{ mt: 2, textAlign: 'center' }}>
+                            <Button variant="contained" color="primary">
+                              Change Drifter
+                            </Button>
+                          </Box>
                         </Paper>
-
-                        {/* Gear Slots */}
-                        <Typography variant="h6" sx={{ mb: 2 }}>
-                          Equipment Slots
-                        </Typography>
-                        <Grid container spacing={2}>
-                          {/* Main Gear Slots */}
-                          {['Weapon', 'Helmet', 'Chest', 'Boots', 'Consumable'].map((slot, slotIndex) => (
-                            <Grid item xs={6} sm={4} md={2.4} key={slot}>
-                              <Paper
-                                sx={{
-                                  p: 2,
-                                  textAlign: 'center',
-                                  border: '2px dashed',
-                                  borderColor: 'grey.300',
-                                  cursor: 'pointer',
-                                  '&:hover': {
-                                    borderColor: 'primary.main',
-                                    bgcolor: 'primary.50',
-                                  },
-                                }}
-                              >
-                                <Typography variant="body2" color="text.secondary">
-                                  {slot}
-                                </Typography>
-                                <Typography variant="caption">
-                                  Empty Slot
-                                </Typography>
-                              </Paper>
-                            </Grid>
-                          ))}
-                          
-                          {/* Mod Slots */}
-                          {[1, 2, 3, 4].map((modNum) => (
-                            <Grid item xs={6} sm={4} md={2.4} key={`mod-${modNum}`}>
-                              <Paper
-                                sx={{
-                                  p: 2,
-                                  textAlign: 'center',
-                                  border: '2px dashed',
-                                  borderColor: 'grey.300',
-                                  cursor: 'pointer',
-                                  '&:hover': {
-                                    borderColor: 'primary.main',
-                                    bgcolor: 'primary.50',
-                                  },
-                                }}
-                              >
-                                <Typography variant="body2" color="text.secondary">
-                                  Mod {modNum}
-                                </Typography>
-                                <Typography variant="caption">
-                                  Empty Slot
-                                </Typography>
-                              </Paper>
-                            </Grid>
-                          ))}
-                        </Grid>
                       </>
                     ) : (
                       <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -452,8 +417,122 @@ export default function PlayerLoadout() {
             </Card>
           </Grid>
 
-          {/* Right Panel - Game Items */}
+          {/* Right Panel - Equipped Items */}
           <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">
+                    Equipped Items:
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    5/9
+                  </Typography>
+                </Box>
+                
+                {/* Equipped Items Grid */}
+                <Grid container spacing={2}>
+                  {/* Main Equipment Slots */}
+                  {[
+                    { name: 'Luminous Ward', skill: 'Sanctum Arc', type: 'weapon', stats: '' },
+                    { name: 'Healer\'s Hood', skill: 'Swift Aid', type: 'helmet', stats: 'HP: +714' },
+                    { name: 'Cleansing Robe', skill: 'Purify', type: 'chest', stats: '' },
+                    { name: 'Arcaneflow Boots', skill: 'Abundance', type: 'boots', stats: 'HP: +675' },
+                    { name: 'Mass Healing Elixir', skill: 'Mass Healing Elixir', type: 'consumable', stats: '' }
+                  ].map((item, index) => (
+                    <Grid item xs={6} key={index}>
+                      <Paper
+                        sx={{
+                          p: 2,
+                          textAlign: 'center',
+                          border: '2px solid',
+                          borderColor: 'success.main',
+                          bgcolor: 'success.50',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            borderColor: 'success.dark',
+                            bgcolor: 'success.100',
+                          },
+                        }}
+                      >
+                        <Avatar sx={{ 
+                          width: 48, 
+                          height: 48, 
+                          mx: 'auto', 
+                          mb: 1,
+                          bgcolor: 'primary.main'
+                        }}>
+                          {getGearTypeIcon(item.type)}
+                        </Avatar>
+                        <Typography variant="body2" fontWeight="medium" sx={{ mb: 0.5 }}>
+                          {item.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                          {item.skill}
+                        </Typography>
+                        <Chip 
+                          label={item.type} 
+                          size="small" 
+                          color="primary" 
+                          variant="outlined"
+                          sx={{ mb: 0.5 }}
+                        />
+                        {item.stats && (
+                          <Typography variant="caption" color="success.main" sx={{ display: 'block' }}>
+                            {item.stats}
+                          </Typography>
+                        )}
+                      </Paper>
+                    </Grid>
+                  ))}
+                  
+                  {/* Mod Slots */}
+                  {[1, 2, 3, 4].map((modNum) => (
+                    <Grid item xs={6} key={`mod-${modNum}`}>
+                      <Paper
+                        sx={{
+                          p: 2,
+                          textAlign: 'center',
+                          border: '2px dashed',
+                          borderColor: 'grey.300',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            borderColor: 'primary.main',
+                            bgcolor: 'primary.50',
+                          },
+                        }}
+                      >
+                        <Box sx={{ 
+                          width: 48, 
+                          height: 48, 
+                          mx: 'auto', 
+                          mb: 1,
+                          border: '2px solid',
+                          borderColor: 'grey.300',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          <Typography variant="h6" color="text.secondary">
+                            ⚪
+                          </Typography>
+                        </Box>
+                        <Typography variant="body2" color="text.secondary">
+                          Mod {modNum}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Bottom Panel - Game Items */}
+        <Grid container spacing={3} sx={{ mt: 2 }}>
+          <Grid item xs={12}>
             <Card>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>
@@ -461,9 +540,9 @@ export default function PlayerLoadout() {
                 </Typography>
                 
                 {/* Filters */}
-                <Stack spacing={2} sx={{ mb: 2 }}>
+                <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
                   {/* Category Filter */}
-                  <FormControl size="small" fullWidth>
+                  <FormControl size="small" sx={{ minWidth: 120 }}>
                     <InputLabel>Category</InputLabel>
                     <Select
                       value={filterType}
@@ -481,7 +560,7 @@ export default function PlayerLoadout() {
                   </FormControl>
                   
                   {/* Rarity Filter */}
-                  <FormControl size="small" fullWidth>
+                  <FormControl size="small" sx={{ minWidth: 120 }}>
                     <InputLabel>Rarity</InputLabel>
                     <Select
                       value={filterRarity}
@@ -502,6 +581,7 @@ export default function PlayerLoadout() {
                     placeholder="Search items..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={{ minWidth: 200 }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -513,7 +593,7 @@ export default function PlayerLoadout() {
                 </Stack>
                 
                 {/* Items List */}
-                <Box sx={{ maxHeight: 600, overflow: 'auto' }}>
+                <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
                   <List dense>
                     {filteredGear.map((gear) => (
                       <ListItemButton
