@@ -172,9 +172,15 @@ export default function LegacyPlayerLoadout() {
       return item.icon_url;
     }
     
-    // Otherwise, use the game_id to construct path to frontend icons
+    // Try to find icon using different approaches
     if (item?.game_id) {
+      // Use game_id to construct path to frontend icons
       return `/icons/${item.game_id}.png`;
+    }
+    
+    if (item?.id) {
+      // Fallback to using the item ID directly
+      return `/icons/${item.id}.png`;
     }
     
     return null;
