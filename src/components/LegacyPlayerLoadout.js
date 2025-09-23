@@ -529,13 +529,19 @@ export default function LegacyPlayerLoadout() {
       const matchesRarity = filterRarity === 'all' || item.rarity === filterRarity;
       
       let matchesStat = true;
-      if (filterStat !== 'all') {
-        if (filterStat === 'strength') {
-          matchesStat = item.damage > 0;
-        } else if (filterStat === 'agility') {
-          matchesStat = item.energy_bonus > 0;
-        } else if (filterStat === 'intelligence') {
-          matchesStat = item.health_bonus > 0;
+      // Check stat filter (only for non-weapon, non-mod, non-consumable categories)
+      if (filterStat !== 'all' && !['weapon', 'mod', 'consumable'].includes(getCurrentCategory())) {
+        if (item.game_id) {
+          const gameId = item.game_id.toLowerCase();
+          if (filterStat === 'strength') {
+            matchesStat = gameId.includes('_str_');
+          } else if (filterStat === 'agility') {
+            matchesStat = gameId.includes('_dex_');
+          } else if (filterStat === 'intelligence') {
+            matchesStat = gameId.includes('_int_');
+          }
+        } else {
+          matchesStat = false;
         }
       }
       
@@ -1325,42 +1331,44 @@ export default function LegacyPlayerLoadout() {
                 ))}
               </Box>
 
-              {/* Stat Filters */}
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
-                {[
-                  { key: 'all', label: 'All', icon: null },
-                  { key: 'strength', label: 'Strength', icon: '💪' },
-                  { key: 'agility', label: 'Agility', icon: '🏃' },
-                  { key: 'intelligence', label: 'Intelligence', icon: '🧠' }
-                ].map((stat) => (
-                  <Button
-                    key={stat.key}
-                    onClick={() => setFilterStat(stat.key)}
-                    sx={{
-                      p: '8px 16px',
-                      border: '2px solid rgba(100, 181, 246, 0.3)',
-                      borderRadius: 0.75,
-                      background: filterStat === stat.key ? '#64b5f6' : 'rgba(30, 30, 30, 0.8)',
-                      color: filterStat === stat.key ? 'white' : '#64b5f6',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      transition: 'all 0.3s ease',
-                      whiteSpace: 'nowrap',
-                      textTransform: 'capitalize',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 0.5,
-                      '&:hover': {
-                        background: filterStat === stat.key ? '#64b5f6' : 'rgba(100, 181, 246, 0.1)',
-                        borderColor: '#64b5f6'
-                      }
-                    }}
-                  >
-                    {stat.icon && <span>{stat.icon}</span>}
-                    {stat.label}
-                  </Button>
-                ))}
-              </Box>
+              {/* Stat Filters (only show for non-weapon, non-mod, non-consumable categories) */}
+              {!['weapon', 'mod', 'consumable'].includes(getCurrentCategory()) && (
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+                  {[
+                    { key: 'all', label: 'All', icon: null },
+                    { key: 'strength', label: 'Strength', icon: '💪' },
+                    { key: 'agility', label: 'Agility', icon: '🏃' },
+                    { key: 'intelligence', label: 'Intelligence', icon: '🧠' }
+                  ].map((stat) => (
+                    <Button
+                      key={stat.key}
+                      onClick={() => setFilterStat(stat.key)}
+                      sx={{
+                        p: '8px 16px',
+                        border: '2px solid rgba(100, 181, 246, 0.3)',
+                        borderRadius: 0.75,
+                        background: filterStat === stat.key ? '#64b5f6' : 'rgba(30, 30, 30, 0.8)',
+                        color: filterStat === stat.key ? 'white' : '#64b5f6',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        transition: 'all 0.3s ease',
+                        whiteSpace: 'nowrap',
+                        textTransform: 'capitalize',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        '&:hover': {
+                          background: filterStat === stat.key ? '#64b5f6' : 'rgba(100, 181, 246, 0.1)',
+                          borderColor: '#64b5f6'
+                        }
+                      }}
+                    >
+                      {stat.icon && <span>{stat.icon}</span>}
+                      {stat.label}
+                    </Button>
+                  ))}
+                </Box>
+              )}
 
               {/* Weapon Type Filters (only show for weapon category) */}
               {getCurrentCategory() === 'weapon' && (
