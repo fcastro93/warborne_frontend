@@ -531,149 +531,144 @@ export default function PlayerLoadout() {
                   >
                     {drifter.name ? (
                       <>
-                        {/* Basic Stats */}
-                        <Paper sx={{ 
-                          p: 2, 
-                          mb: 2, 
-                          bgcolor: 'grey.50',
-                          borderRadius: 2,
-                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                        }}>
-                          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                            Basic stats of the drifter
-                          </Typography>
-                          <Grid container spacing={2}>
-                            <Grid item xs={6} sm={4}>
-                              <Card sx={{ 
-                                p: 2, 
-                                textAlign: 'center',
-                                bgcolor: 'success.50',
-                                border: '2px solid',
-                                borderColor: 'success.main',
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                  transform: 'translateY(-2px)',
-                                  boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)',
-                                }
-                              }}>
-                                <Healing sx={{ color: 'success.main', fontSize: 24, mb: 1 }} />
-                                <Typography variant="h5" color="success.main" fontWeight="bold">
-                                  {drifter.base_health || 315}
-                                </Typography>
-                                <Typography variant="body2" color="success.dark" fontWeight="medium">
-                                  Health
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid item xs={6} sm={4}>
-                              <Card sx={{ 
-                                p: 2, 
-                                textAlign: 'center',
-                                bgcolor: 'info.50',
-                                border: '2px solid',
-                                borderColor: 'info.main',
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                  transform: 'translateY(-2px)',
-                                  boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)',
-                                }
-                              }}>
-                                <FlashOn sx={{ color: 'info.main', fontSize: 24, mb: 1 }} />
-                                <Typography variant="h5" color="info.main" fontWeight="bold">
-                                  {drifter.base_energy || 375}
-                                </Typography>
-                                <Typography variant="body2" color="info.dark" fontWeight="medium">
-                                  Energy
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid item xs={6} sm={4}>
-                              <Card sx={{ 
-                                p: 2, 
-                                textAlign: 'center',
-                                bgcolor: 'error.50',
-                                border: '2px solid',
-                                borderColor: 'error.main',
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                  transform: 'translateY(-2px)',
-                                  boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)',
-                                }
-                              }}>
-                                <LocalFireDepartment sx={{ color: 'error.main', fontSize: 24, mb: 1 }} />
-                                <Typography variant="h5" color="error.main" fontWeight="bold">
-                                  {drifter.base_damage || 82}
-                                </Typography>
-                                <Typography variant="body2" color="error.dark" fontWeight="medium">
-                                  Damage
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid item xs={6} sm={4}>
-                              <Card sx={{ 
-                                p: 2, 
-                                textAlign: 'center',
-                                bgcolor: 'warning.50',
-                                border: '2px solid',
-                                borderColor: 'warning.main',
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                  transform: 'translateY(-2px)',
-                                  boxShadow: '0 4px 12px rgba(255, 152, 0, 0.3)',
-                                }
-                              }}>
-                                <Shield sx={{ color: 'warning.main', fontSize: 24, mb: 1 }} />
-                                <Typography variant="h5" color="warning.main" fontWeight="bold">
-                                  {drifter.base_defense || 52}
-                                </Typography>
-                                <Typography variant="body2" color="warning.dark" fontWeight="medium">
-                                  Defense
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid item xs={6} sm={4}>
-                              <Card sx={{ 
-                                p: 2, 
-                                textAlign: 'center',
-                                bgcolor: 'secondary.50',
-                                border: '2px solid',
-                                borderColor: 'secondary.main',
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                  transform: 'translateY(-2px)',
-                                  boxShadow: '0 4px 12px rgba(156, 39, 176, 0.3)',
-                                }
-                              }}>
-                                <Speed sx={{ color: 'secondary.main', fontSize: 24, mb: 1 }} />
-                                <Typography variant="h5" color="secondary.main" fontWeight="bold">
-                                  75
-                                </Typography>
-                                <Typography variant="body2" color="secondary.dark" fontWeight="medium">
-                                  Speed
-                                </Typography>
-                              </Card>
-                            </Grid>
+                        {/* Basic Stats - No Background Card */}
+                        <Typography 
+                          {...TYPOGRAPHY.title}
+                          sx={{ mb: 3, textAlign: 'center' }}
+                        >
+                          Basic stats of the drifter
+                        </Typography>
+                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                          <Grid item xs={6} sm={4}>
+                            <Card sx={{ 
+                              p: 2, 
+                              textAlign: 'center',
+                              bgcolor: 'success.50',
+                              border: '2px solid',
+                              borderColor: 'success.main',
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)',
+                              }
+                            }}>
+                              <Healing sx={{ color: 'success.main', fontSize: 24, mb: 1 }} />
+                              <Typography variant="h5" color="success.main" fontWeight="bold">
+                                {drifter.base_health || 315}
+                              </Typography>
+                              <Typography variant="body2" color="success.dark" fontWeight="medium">
+                                Health
+                              </Typography>
+                            </Card>
                           </Grid>
-                          <Box sx={{ mt: 2, textAlign: 'center' }}>
-                            <Button 
-                              variant="contained" 
-                              color="primary" 
-                              size="small"
-                              sx={{
-                                borderRadius: '20px',
-                                px: 3,
-                                py: 1,
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                  transform: 'translateY(-2px)',
-                                  boxShadow: '0 4px 12px rgba(100, 181, 246, 0.4)',
-                                }
-                              }}
-                            >
-                              Change Drifter
-                            </Button>
-                          </Box>
-                        </Paper>
+                          <Grid item xs={6} sm={4}>
+                            <Card sx={{ 
+                              p: 2, 
+                              textAlign: 'center',
+                              bgcolor: 'info.50',
+                              border: '2px solid',
+                              borderColor: 'info.main',
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)',
+                              }
+                            }}>
+                              <FlashOn sx={{ color: 'info.main', fontSize: 24, mb: 1 }} />
+                              <Typography variant="h5" color="info.main" fontWeight="bold">
+                                {drifter.base_energy || 375}
+                              </Typography>
+                              <Typography variant="body2" color="info.dark" fontWeight="medium">
+                                Energy
+                              </Typography>
+                            </Card>
+                          </Grid>
+                          <Grid item xs={6} sm={4}>
+                            <Card sx={{ 
+                              p: 2, 
+                              textAlign: 'center',
+                              bgcolor: 'error.50',
+                              border: '2px solid',
+                              borderColor: 'error.main',
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)',
+                              }
+                            }}>
+                              <LocalFireDepartment sx={{ color: 'error.main', fontSize: 24, mb: 1 }} />
+                              <Typography variant="h5" color="error.main" fontWeight="bold">
+                                {drifter.base_damage || 82}
+                              </Typography>
+                              <Typography variant="body2" color="error.dark" fontWeight="medium">
+                                Damage
+                              </Typography>
+                            </Card>
+                          </Grid>
+                          <Grid item xs={6} sm={4}>
+                            <Card sx={{ 
+                              p: 2, 
+                              textAlign: 'center',
+                              bgcolor: 'warning.50',
+                              border: '2px solid',
+                              borderColor: 'warning.main',
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(255, 152, 0, 0.3)',
+                              }
+                            }}>
+                              <Shield sx={{ color: 'warning.main', fontSize: 24, mb: 1 }} />
+                              <Typography variant="h5" color="warning.main" fontWeight="bold">
+                                {drifter.base_defense || 52}
+                              </Typography>
+                              <Typography variant="body2" color="warning.dark" fontWeight="medium">
+                                Defense
+                              </Typography>
+                            </Card>
+                          </Grid>
+                          <Grid item xs={6} sm={4}>
+                            <Card sx={{ 
+                              p: 2, 
+                              textAlign: 'center',
+                              bgcolor: 'secondary.50',
+                              border: '2px solid',
+                              borderColor: 'secondary.main',
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(156, 39, 176, 0.3)',
+                              }
+                            }}>
+                              <Speed sx={{ color: 'secondary.main', fontSize: 24, mb: 1 }} />
+                              <Typography variant="h5" color="secondary.main" fontWeight="bold">
+                                75
+                              </Typography>
+                              <Typography variant="body2" color="secondary.dark" fontWeight="medium">
+                                Speed
+                              </Typography>
+                            </Card>
+                          </Grid>
+                        </Grid>
+                        <Box sx={{ textAlign: 'center' }}>
+                          <Button 
+                            variant="contained" 
+                            color="primary" 
+                            size="small"
+                            sx={{
+                              borderRadius: '20px',
+                              px: 3,
+                              py: 1,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(100, 181, 246, 0.4)',
+                              }
+                            }}
+                          >
+                            Change Drifter
+                          </Button>
+                        </Box>
                       </>
                     ) : (
                       <Box sx={{ textAlign: 'center', py: 4 }}>
