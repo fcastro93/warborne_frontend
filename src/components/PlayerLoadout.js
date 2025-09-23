@@ -383,10 +383,11 @@ export default function PlayerLoadout() {
         </Box>
 
         <Grid container spacing={3}>
-          {/* Player Information Panel - Square Cards */}
+          {/* Player Information Panel - 3-3-1 Layout */}
           <Grid item xs={12}>
             <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid item xs={6} sm={4} md={2}>
+              {/* Top Row - 3 Cards */}
+              <Grid item xs={12} sm={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -413,7 +414,7 @@ export default function PlayerLoadout() {
                   </Typography>
                 </Card>
               </Grid>
-              <Grid item xs={6} sm={4} md={2}>
+              <Grid item xs={12} sm={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -440,7 +441,7 @@ export default function PlayerLoadout() {
                   </Typography>
                 </Card>
               </Grid>
-              <Grid item xs={6} sm={4} md={2}>
+              <Grid item xs={12} sm={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -467,7 +468,9 @@ export default function PlayerLoadout() {
                   </Typography>
                 </Card>
               </Grid>
-              <Grid item xs={6} sm={4} md={2}>
+              
+              {/* Middle Row - 3 Cards */}
+              <Grid item xs={12} sm={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -494,7 +497,7 @@ export default function PlayerLoadout() {
                   </Typography>
                 </Card>
               </Grid>
-              <Grid item xs={6} sm={4} md={2}>
+              <Grid item xs={12} sm={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -521,7 +524,36 @@ export default function PlayerLoadout() {
                   </Typography>
                 </Card>
               </Grid>
-              <Grid item xs={6} sm={4} md={2}>
+              <Grid item xs={12} sm={4}>
+                <Card sx={{ 
+                  p: 3,
+                  bgcolor: 'grey.800',
+                  border: '1px solid rgba(244, 67, 54, 0.2)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 0.3s ease',
+                  minHeight: 120,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)',
+                  }
+                }}>
+                  <LocalFireDepartment sx={{ color: 'error.main', fontSize: 32, mb: 1 }} />
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                    In-Game Role
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold" color="error.main">
+                    {player?.in_game_role || 'N/A'}
+                  </Typography>
+                </Card>
+              </Grid>
+              
+              {/* Bottom Row - 1 Card */}
+              <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -529,6 +561,7 @@ export default function PlayerLoadout() {
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.3s ease',
                   minHeight: 120,
+                  minWidth: 200,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
