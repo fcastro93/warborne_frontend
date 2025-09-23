@@ -40,6 +40,7 @@ import {
   AutoAwesome,
 } from '@mui/icons-material';
 import Layout from './Layout';
+import GearItemsTable from './GearItemsTable';
 import { apiService } from '../services/api';
 
 // Helper functions for styling
@@ -378,67 +379,7 @@ export default function PlayerLoadout() {
 
           {/* Right Panel - Inventory */}
           <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Inventory
-                </Typography>
-                
-                {/* Search and Filter */}
-                <TextField
-                  fullWidth
-                  placeholder="Search gear..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Search />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{ mb: 2 }}
-                />
-
-                {/* Gear List */}
-                <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
-                  {filteredGear.map((gear) => (
-                    <Paper
-                      key={gear.id}
-                      sx={{
-                        p: 2,
-                        mb: 1,
-                        cursor: 'pointer',
-                        '&:hover': {
-                          bgcolor: 'primary.50',
-                        },
-                      }}
-                      onClick={() => handleGearClick(gear)}
-                    >
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <Avatar sx={{ bgcolor: `${getRarityColor(gear.rarity)}.main` }}>
-                          {getGearTypeIcon(gear.type)}
-                        </Avatar>
-                        <Box sx={{ flexGrow: 1 }}>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                            {gear.name}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {gear.skill_name} • {gear.type}
-                          </Typography>
-                        </Box>
-                        <Chip
-                          icon={getRarityIcon(gear.rarity)}
-                          label={gear.rarity}
-                          color={getRarityColor(gear.rarity)}
-                          size="small"
-                        />
-                      </Stack>
-                    </Paper>
-                  ))}
-                </Box>
-              </CardContent>
-            </Card>
+            <GearItemsTable />
           </Grid>
         </Grid>
 
