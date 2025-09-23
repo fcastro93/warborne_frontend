@@ -11,7 +11,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Avatar,
   Chip,
   Stack,
@@ -176,119 +175,136 @@ export default function MembersPage() {
       </Grid>
 
       {/* Members Table */}
-      <Card>
-        <CardContent sx={{ p: 0 }}>
-          <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: 'grey.50' }}>
-                  <TableCell sx={{ fontWeight: 600 }}>Player</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Game Role</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Level</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Faction</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Drifters</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredMembers.map((member) => (
-                  <TableRow key={member.id} hover>
-                    <TableCell>
-                      <Stack direction="row" alignItems="center" spacing={2}>
-                        <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
-                          {member.avatar}
-                        </Avatar>
-                        <Box>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                            {member.name}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            ID: {member.id}
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={member.role}
-                        color={getRoleColor(member.role)}
-                        size="small"
-                        variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        {getGameRoleIcon(member.game_role)}
-                        <Typography variant="body2">
-                          {member.game_role?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'N/A'}
-                        </Typography>
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {member.level}
+      <TableContainer>
+        <Table 
+          sx={{
+            '& .MuiTableRow-root': {
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              },
+            },
+            '& .MuiTableCell-root': {
+              borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+              padding: '8px 16px',
+            },
+            '& .MuiTableHead-root .MuiTableCell-root': {
+              borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              color: 'rgba(255, 255, 255, 0.87)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            },
+          }}
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell>Player</TableCell>
+              <TableCell>Role</TableCell>
+              <TableCell>Game Role</TableCell>
+              <TableCell>Level</TableCell>
+              <TableCell>Faction</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Drifters</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredMembers.map((member) => (
+              <TableRow key={member.id}>
+                <TableCell>
+                  <Stack direction="row" alignItems="center" spacing={2}>
+                    <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32 }}>
+                      {member.avatar}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        {member.name}
                       </Typography>
-                    </TableCell>
-                    <TableCell>
+                      <Typography variant="caption" color="text.secondary">
+                        ID: {member.id}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={member.role}
+                    color={getRoleColor(member.role)}
+                    size="small"
+                    variant="outlined"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    {getGameRoleIcon(member.game_role)}
+                    <Typography variant="body2">
+                      {member.game_role?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'N/A'}
+                    </Typography>
+                  </Stack>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {member.level}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={member.faction?.replace(/\b\w/g, l => l.toUpperCase()) || 'None'}
+                    color={getFactionColor(member.faction)}
+                    size="small"
+                    variant="outlined"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={member.status}
+                    color={getStatusColor(member.status)}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', gap: 0.5 }}>
+                    {member.drifters?.map((drifter, index) => (
                       <Chip
-                        label={member.faction?.replace(/\b\w/g, l => l.toUpperCase()) || 'None'}
-                        color={getFactionColor(member.faction)}
+                        key={index}
+                        label={drifter}
                         size="small"
                         variant="outlined"
+                        sx={{ fontSize: '0.7rem', height: 20 }}
                       />
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={member.status}
-                        color={getStatusColor(member.status)}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', gap: 0.5 }}>
-                        {member.drifters?.map((drifter, index) => (
-                          <Chip
-                            key={index}
-                            label={drifter}
-                            size="small"
-                            variant="outlined"
-                            sx={{ fontSize: '0.7rem', height: 20 }}
-                          />
-                        )) || <Typography variant="caption" color="text.secondary">None</Typography>}
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Stack direction="row" spacing={1}>
-                        <Tooltip title="View Loadout">
-                          <IconButton 
-                            size="small" 
-                            color="primary"
-                            onClick={() => navigate(`/player/${member.id}/loadout`)}
-                          >
-                            <Visibility fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Edit Member">
-                          <IconButton size="small" color="secondary">
-                            <Edit fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Remove Member">
-                          <IconButton size="small" color="error">
-                            <Delete fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
+                    )) || <Typography variant="caption" color="text.secondary">None</Typography>}
+                  </Stack>
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={1}>
+                    <Tooltip title="View Loadout">
+                      <IconButton 
+                        size="small" 
+                        color="primary"
+                        onClick={() => navigate(`/player/${member.id}/loadout`)}
+                      >
+                        <Visibility fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Edit Member">
+                      <IconButton size="small" color="secondary">
+                        <Edit fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Remove Member">
+                      <IconButton size="small" color="error">
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {filteredMembers.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 4 }}>
