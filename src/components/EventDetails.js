@@ -409,7 +409,7 @@ const EventDetails = () => {
       if (response.ok) {
         const data = await response.json();
         setAlert({ type: 'success', message: data.message });
-        await fetchEventData(); // Refresh data
+        await fetchEventDetails(); // Refresh data
         setShowCreatePartyDialog(false);
       } else {
         const errorData = await response.json();
@@ -439,7 +439,7 @@ const EventDetails = () => {
       if (response.ok) {
         const data = await response.json();
         setAlert({ type: 'success', message: data.message });
-        await fetchEventData(); // Refresh data
+        await fetchEventDetails(); // Refresh data
       } else {
         const errorData = await response.json();
         setAlert({ type: 'error', message: errorData.error || 'Failed to remove member' });
@@ -463,7 +463,7 @@ const EventDetails = () => {
       if (response.ok) {
         const data = await response.json();
         setAlert({ type: 'success', message: data.message });
-        await fetchEventData(); // Refresh data
+        await fetchEventDetails(); // Refresh data
         setAddMemberDialogOpen(false);
       } else {
         const errorData = await response.json();
