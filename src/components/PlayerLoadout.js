@@ -388,7 +388,7 @@ export default function PlayerLoadout() {
           <Grid item xs={12}>
             {/* Top Row - 3 Cards: Discord, Guild, Level */}
             <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4} md={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -396,6 +396,7 @@ export default function PlayerLoadout() {
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.3s ease',
                   height: 140,
+                  minHeight: 140,
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -411,12 +412,12 @@ export default function PlayerLoadout() {
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                     Discord
                   </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="white">
+                  <Typography variant="body2" fontWeight="bold" color="white" sx={{ wordBreak: 'break-word' }}>
                     {player?.discord_name || 'N/A'}
                   </Typography>
                 </Card>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4} md={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -424,6 +425,7 @@ export default function PlayerLoadout() {
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.3s ease',
                   height: 140,
+                  minHeight: 140,
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -439,12 +441,12 @@ export default function PlayerLoadout() {
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                     Guild
                   </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="success.main">
+                  <Typography variant="body2" fontWeight="bold" color="success.main" sx={{ wordBreak: 'break-word' }}>
                     Violence2
                   </Typography>
                 </Card>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4} md={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -452,6 +454,7 @@ export default function PlayerLoadout() {
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.3s ease',
                   height: 140,
+                  minHeight: 140,
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -467,7 +470,7 @@ export default function PlayerLoadout() {
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                     Level
                   </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="warning.main">
+                  <Typography variant="body2" fontWeight="bold" color="warning.main" sx={{ wordBreak: 'break-word' }}>
                     {player?.level || 'N/A'}
                   </Typography>
                 </Card>
@@ -476,7 +479,7 @@ export default function PlayerLoadout() {
             
             {/* Bottom Row - 3 Cards: Role, In-Game Role, Total Gear */}
             <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4} md={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -484,6 +487,7 @@ export default function PlayerLoadout() {
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.3s ease',
                   height: 140,
+                  minHeight: 140,
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -499,12 +503,12 @@ export default function PlayerLoadout() {
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                     Role
                   </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="secondary.main">
+                  <Typography variant="body2" fontWeight="bold" color="secondary.main" sx={{ wordBreak: 'break-word' }}>
                     {player?.role || 'N/A'}
                   </Typography>
                 </Card>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4} md={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -512,6 +516,7 @@ export default function PlayerLoadout() {
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.3s ease',
                   height: 140,
+                  minHeight: 140,
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -527,12 +532,12 @@ export default function PlayerLoadout() {
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                     In-Game Role
                   </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="error.main">
+                  <Typography variant="body2" fontWeight="bold" color="error.main" sx={{ wordBreak: 'break-word' }}>
                     {player?.game_role || player?.in_game_role || 'N/A'}
                   </Typography>
                 </Card>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4} md={4}>
                 <Card sx={{ 
                   p: 3,
                   bgcolor: 'grey.800',
@@ -540,6 +545,7 @@ export default function PlayerLoadout() {
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.3s ease',
                   height: 140,
+                  minHeight: 140,
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -555,7 +561,7 @@ export default function PlayerLoadout() {
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                     Total Gear
                   </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="primary.main">
+                  <Typography variant="body2" fontWeight="bold" color="primary.main" sx={{ wordBreak: 'break-word' }}>
                     {gearItems?.length || 0}
                   </Typography>
                 </Card>
