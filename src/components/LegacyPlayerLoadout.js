@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Typography, Button, Paper, Avatar, Chip, IconButton, Tabs, Tab, Grid, Card, CardContent, TextField, InputAdornment, Stack, Divider, Badge, Alert, FormControl, Select, MenuItem, InputLabel, List, ListItem, ListItemText, ListItemIcon, ListItemButton, ListSubheader, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { ArrowBack, Add, Inventory2, Person, Search, Close, Edit, Check, Cancel, FilterList, LocalFireDepartment, Shield, Healing, Speed, FlashOn, MilitaryTech, Public, WorkspacePremium, Inventory, Security, Star, Diamond, AutoAwesome } from '@mui/icons-material';
+import Layout from './Layout';
+import { apiService } from '../services/api';
 
 // Tier options for gear power calculation
 const TIER_OPTIONS = [
@@ -31,8 +33,6 @@ const getGearPower = (tier, rarity) => {
   
   return tierOption.power + (rarityBonus[rarity] || 0);
 };
-import Layout from './Layout';
-import { apiService } from '../services/api';
 
 // Mock data
 const mockPlayer = {
