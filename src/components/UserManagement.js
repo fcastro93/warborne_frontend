@@ -41,15 +41,24 @@ import {
 } from '@mui/icons-material';
 import Layout from './Layout';
 
-// Custom styles to override Material-UI table header
-const tableHeaderStyles = {
-  '& .MuiTableCell-head': {
-    backgroundColor: '#424242 !important', // grey.800 equivalent
-    color: 'white !important',
-    borderBottom: '1px solid #616161 !important'
-  },
+// Custom styles for dark theme table - stable approach
+const darkTableStyles = {
   '& .MuiTableHead-root': {
-    backgroundColor: '#424242 !important'
+    backgroundColor: 'transparent'
+  },
+  '& .MuiTableCell-head': {
+    backgroundColor: 'transparent',
+    color: 'inherit'
+  },
+  '& .MuiTableRow-head': {
+    backgroundColor: '#424242'
+  },
+  // Prevent layout shifts
+  '& .MuiTableCell-root': {
+    transition: 'none !important'
+  },
+  '& .MuiTableRow-root': {
+    transition: 'none !important'
   }
 };
 
@@ -278,8 +287,8 @@ const UserManagement = () => {
   if (loading) {
     return (
       <Layout>
-        <Box sx={{ p: 3 }}>
-          <Typography>Loading users...</Typography>
+        <Box sx={{ p: 3, minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography variant="h6" sx={{ color: 'white' }}>Loading users...</Typography>
         </Box>
       </Layout>
     );
@@ -287,7 +296,12 @@ const UserManagement = () => {
 
   return (
     <Layout>
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ 
+        p: 3, 
+        minHeight: '100vh',
+        backgroundColor: 'inherit',
+        position: 'relative'
+      }}>
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Box>
@@ -329,48 +343,16 @@ const UserManagement = () => {
         {/* Users Table */}
         <Card sx={{ borderRadius: 2, boxShadow: 2 }}>
           <CardContent sx={{ p: 0 }}>
-            <TableContainer sx={tableHeaderStyles}>
+            <TableContainer sx={darkTableStyles}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ 
-                    bgcolor: 'grey.800',
-                    '& .MuiTableCell-head': {
-                      bgcolor: 'grey.800 !important',
-                      color: 'white !important'
-                    }
-                  }}>
-                    <TableCell sx={{ 
-                      fontWeight: 'bold', 
-                      py: 2, 
-                      color: 'white !important',
-                      bgcolor: 'grey.800 !important'
-                    }}>User</TableCell>
-                    <TableCell sx={{ 
-                      fontWeight: 'bold', 
-                      color: 'white !important',
-                      bgcolor: 'grey.800 !important'
-                    }}>Status</TableCell>
-                    <TableCell sx={{ 
-                      fontWeight: 'bold', 
-                      color: 'white !important',
-                      bgcolor: 'grey.800 !important'
-                    }}>Email</TableCell>
-                    <TableCell sx={{ 
-                      fontWeight: 'bold', 
-                      color: 'white !important',
-                      bgcolor: 'grey.800 !important'
-                    }}>Joined</TableCell>
-                    <TableCell sx={{ 
-                      fontWeight: 'bold', 
-                      color: 'white !important',
-                      bgcolor: 'grey.800 !important'
-                    }}>Last Login</TableCell>
-                    <TableCell sx={{ 
-                      fontWeight: 'bold', 
-                      textAlign: 'center', 
-                      color: 'white !important',
-                      bgcolor: 'grey.800 !important'
-                    }}>Actions</TableCell>
+                  <TableRow sx={{ bgcolor: 'grey.800' }}>
+                    <TableCell sx={{ fontWeight: 'bold', py: 2, color: 'white' }}>User</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Email</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Joined</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Last Login</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', color: 'white' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
