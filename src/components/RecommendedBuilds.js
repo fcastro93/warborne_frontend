@@ -274,8 +274,8 @@ export default function RecommendedBuilds() {
         });
 
         if (response.ok) {
-          // Update local state
-          updateLocalGearState(item, false);
+          // Update local state with the slot index we already calculated
+          updateLocalGearState(item, false, slotIndex);
         } else {
           const error = await response.json();
           alert('Error unequipping item: ' + (error.error || 'Unknown error'));
@@ -312,12 +312,30 @@ export default function RecommendedBuilds() {
     return slotMap[itemType] || -1;
   };
 
-  const updateLocalGearState = (item, isEquipping) => {
+  const updateLocalGearState = (item, isEquipping, slotIndex = null) => {
     if (!currentDrifter) return;
 
     const updatedDrifters = [...drifters];
     const drifterIndex = activeDrifterTab;
-    const slotIndex = getSlotIndexForItemType(item.gear_type.category);
+    
+    // If slotIndex is not provided, try to get it from item.gear_type.category
+    // but handle the case where gear_type might be undefined
+    let targetSlotIndex = slotIndex;
+    if (targetSlotIndex === null) {
+      if (item.gear_type && item.gear_type.category) {
+        targetSlotIndex = getSlotIndexForItemType(item.gear_type.category);
+      } else {
+        // If we can't determine the slot, find it by matching the item ID
+        targetSlotIndex = currentDrifter.gear_slots.findIndex(slot => 
+          slot && slot.gear_item && slot.gear_item.id === item.id
+        );
+      }
+    }
+
+    if (targetSlotIndex === -1) {
+      console.error('Could not determine slot index for item:', item);
+      return;
+    }
 
     if (isEquipping) {
       // Equip the item
@@ -327,13 +345,13 @@ export default function RecommendedBuilds() {
           name: item.name || item.base_name // Use existing 'name' or fallback to 'base_name'
         };
 
-        updatedDrifters[drifterIndex].gear_slots[slotIndex] = {
+        updatedDrifters[drifterIndex].gear_slots[targetSlotIndex] = {
           gear_item: equippedItem,
-          gear_type: { category: item.gear_type.category }
+          gear_type: { category: item.gear_type?.category || 'unknown' }
         };
     } else {
       // Unequip the item
-      updatedDrifters[drifterIndex].gear_slots[slotIndex] = null;
+      updatedDrifters[drifterIndex].gear_slots[targetSlotIndex] = null;
     }
 
     setDrifters(updatedDrifters);
