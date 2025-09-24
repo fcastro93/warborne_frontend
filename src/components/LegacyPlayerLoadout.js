@@ -79,10 +79,10 @@ const mockDrifters = [
     base_speed: 75,
     equipped_count: 5,
     gear_slots: [
-      { id: 1, gear_item: { name: 'Luminous Ward', base_name: 'Luminous Ward', skill_name: 'Sanctum Arc', rarity: 'epic', tier: 'V', health_bonus: 0, icon_url: null, game_id: 'weapon_001' }, gear_type: { category: 'Weapon' } },
-      { id: 2, gear_item: { name: 'Healer\'s Hood', base_name: 'Healer\'s Hood', skill_name: 'Swift Aid', rarity: 'rare', tier: 'III', health_bonus: 714, icon_url: null, game_id: 'helmet_001' }, gear_type: { category: 'Helmet' } },
-      { id: 3, gear_item: { name: 'Cleansing Robe', base_name: 'Cleansing Robe', skill_name: 'Purify', rarity: 'common', tier: 'II', health_bonus: 0, icon_url: null, game_id: 'chest_001' }, gear_type: { category: 'Chest' } },
-      { id: 4, gear_item: { name: 'Arcaneflow Boots', base_name: 'Arcaneflow Boots', skill_name: 'Abundance', rarity: 'rare', tier: 'IV', health_bonus: 675, icon_url: null, game_id: 'boots_001' }, gear_type: { category: 'Boots' } },
+      { id: 1, gear_item: { name: 'Luminous Ward', base_name: 'Luminous Ward', skill_name: 'Sanctum Arc', rarity: 'epic', tier: 'V', item_level: 30, health_bonus: 0, icon_url: null, game_id: 'weapon_001' }, gear_type: { category: 'Weapon' } },
+      { id: 2, gear_item: { name: 'Healer\'s Hood', base_name: 'Healer\'s Hood', skill_name: 'Swift Aid', rarity: 'rare', tier: 'III', item_level: 30, health_bonus: 714, icon_url: null, game_id: 'helmet_001' }, gear_type: { category: 'Helmet' } },
+      { id: 3, gear_item: { name: 'Cleansing Robe', base_name: 'Cleansing Robe', skill_name: 'Purify', rarity: 'common', tier: 'II', item_level: 30, health_bonus: 0, icon_url: null, game_id: 'chest_001' }, gear_type: { category: 'Chest' } },
+      { id: 4, gear_item: { name: 'Arcaneflow Boots', base_name: 'Arcaneflow Boots', skill_name: 'Abundance', rarity: 'rare', tier: 'IV', item_level: 30, health_bonus: 675, icon_url: null, game_id: 'boots_001' }, gear_type: { category: 'Boots' } },
       { id: 5, gear_item: { name: 'Mass Healing Elixir', base_name: 'Mass Healing Elixir', skill_name: 'Mass Healing Elixir', rarity: 'common', tier: null, health_bonus: 0, icon_url: null, game_id: 'consumable_001' }, gear_type: { category: 'Consumable' } },
       null, null, null, null // 4 empty mod slots
     ]
@@ -97,7 +97,7 @@ const mockDrifters = [
     base_speed: 80,
     equipped_count: 3,
     gear_slots: [
-      { id: 6, gear_item: { name: 'Thunder Hammer', base_name: 'Thunder Hammer', skill_name: 'Lightning Strike', rarity: 'epic', tier: 'VII', health_bonus: 0, icon_url: null, game_id: 'weapon_002' }, gear_type: { category: 'Weapon' } },
+      { id: 6, gear_item: { name: 'Thunder Hammer', base_name: 'Thunder Hammer', skill_name: 'Lightning Strike', rarity: 'epic', tier: 'VII', item_level: 30, health_bonus: 0, icon_url: null, game_id: 'weapon_002' }, gear_type: { category: 'Weapon' } },
       null, null, null, null, null, null, null, null, null // 9 empty slots
     ]
   },
@@ -1371,8 +1371,8 @@ export default function LegacyPlayerLoadout() {
                                   fontWeight: 'bold'
                                 }}
                               >
-                                Power: {gear.gear_item.tier && gear.gear_item.item_level ? 
-                                  getGearPower(gear.gear_item.tier, gear.gear_item.rarity, gear.gear_item.item_level) : 
+                                Power: {gear.gear_item.tier ? 
+                                  getGearPower(gear.gear_item.tier, gear.gear_item.rarity, gear.gear_item.item_level || 30) : 
                                   'N/A'}
                               </Typography>
                             </>
