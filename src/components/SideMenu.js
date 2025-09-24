@@ -11,6 +11,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Avatar from '@mui/material/Avatar';
 import { useAuth } from '../contexts/AuthContext';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
