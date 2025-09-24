@@ -131,7 +131,7 @@ export const apiService = {
     return response.json();
   },
 
-  async equipGear(playerId, gearId, drifterNum, slotType, tier = 'II') {
+  async equipGear(playerId, gearId, drifterNum, slotType, tier = 'II', itemLevel = 30) {
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/equip-gear/`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -141,6 +141,7 @@ export const apiService = {
         drifter_num: drifterNum,
         slot_type: slotType,
         tier: tier,
+        item_level: itemLevel,
       }),
     });
     return response.json();

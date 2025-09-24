@@ -20,7 +20,7 @@ const TIER_OPTIONS = [
   { value: 'XI', label: 'Tier XI', power: 230, description: 'Base power: 230' },
 ];
 
-const getGearPower = (tier, rarity, level = 30) => {
+const getGearPower = (tier, rarity, itemLevel = 30) => {
   // Handle Roman numerals for tier mapping
   const tierMapping = {
     'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6,
@@ -28,32 +28,30 @@ const getGearPower = (tier, rarity, level = 30) => {
   };
   const tierNum = tierMapping[tier] || 4;
   
-  // Base power calculation: 90 + 20 × (Tier − 4) + RarityBonus
+  // Base power calculation
   let basePower;
-  if (tierNum >= 4) {
+  if (tierNum === 2) {  // Tier II → 40 (rarity does not change this)
+    basePower = 40;
+  } else if (tierNum === 3) {  // Tier III → 70 (rarity does not change this)
+    basePower = 70;
+  } else if (tierNum >= 4) {  // Tier ≥ IV → 90 + 20 × (Tier − 4) + Rarity Bonus
     basePower = 90 + (20 * (tierNum - 4));
+    // Rarity bonus only applies to Tier ≥ IV
+    const rarityBonus = {
+      'common': 0,
+      'rare': 12,
+      'epic': 22,
+      'legendary': 22,
+    };
+    basePower += rarityBonus[rarity] || 0;
   } else {
-    // Tier II and III are fixed values
-    if (tierNum === 2) {
-      basePower = 40;
-    } else if (tierNum === 3) {
-      basePower = 70;
-    } else {
-      basePower = 40; // Fallback
-    }
+    basePower = 40; // Fallback
   }
   
-  const rarityBonus = {
-    'common': 0,
-    'rare': 12,
-    'epic': 22,
-    'legendary': 22,
-  };
+  // Level bonus: 2 × (Item Level − 1)
+  const levelBonus = 2 * (itemLevel - 1);
   
-  // Level contribution: 2 × (Level − 1)
-  const levelContribution = 2 * (level - 1);
-  
-  return basePower + (rarityBonus[rarity] || 0) + levelContribution;
+  return basePower + levelBonus;
 };
 
 // Mock data
@@ -149,6 +147,7 @@ export default function LegacyPlayerLoadout() {
   const [loading, setLoading] = useState(true);
   const [tierDialogOpen, setTierDialogOpen] = useState(false);
   const [selectedGearForTier, setSelectedGearForTier] = useState(null);
+  const [selectedItemLevel, setSelectedItemLevel] = useState(30);
 
   const slotLabels = [
     'Weapon', 'Helmet', 'Chest', 'Boots', 'Consumable',
@@ -242,7 +241,7 @@ export default function LegacyPlayerLoadout() {
   };
 
   // Equip gear function - now shows tier selection dialog first
-  const handleEquipGear = async (gearItem, slotType, tier = 'II') => {
+  const handleEquipGear = async (gearItem, slotType, tier = 'II', itemLevel = 30) => {
     try {
       const currentDrifter = drifters[activeDrifterTab];
       if (!currentDrifter) {
@@ -255,12 +254,13 @@ export default function LegacyPlayerLoadout() {
         gearItem.id,
         currentDrifter.number,
         slotType,
-        tier
+        tier,
+        itemLevel
       );
 
       if (response.success) {
         // Update the local state without refreshing the page
-        updateLocalGearState({...gearItem, tier}, 'equip');
+        updateLocalGearState({...gearItem, tier, item_level: itemLevel}, 'equip');
       } else {
         alert('Error equipping gear: ' + (response.error || 'Unknown error'));
       }
@@ -284,9 +284,10 @@ export default function LegacyPlayerLoadout() {
   // Handle tier selection
   const handleTierSelection = (tier) => {
     if (selectedGearForTier) {
-      handleEquipGear(selectedGearForTier.gearItem, selectedGearForTier.slotType, tier);
+      handleEquipGear(selectedGearForTier.gearItem, selectedGearForTier.slotType, tier, selectedItemLevel);
       setTierDialogOpen(false);
       setSelectedGearForTier(null);
+      setSelectedItemLevel(30); // Reset to default
     }
   };
 
@@ -2243,7 +2244,7 @@ export default function LegacyPlayerLoadout() {
           <DialogTitle>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Typography variant="h6">
-                Select Tier for {selectedGearForTier?.gearItem?.base_name}
+                Select Tier and Level for {selectedGearForTier?.gearItem?.base_name}
               </Typography>
               <IconButton onClick={() => setTierDialogOpen(false)}>
                 <Close />
@@ -2278,12 +2279,42 @@ export default function LegacyPlayerLoadout() {
 
                 {/* Tier Selection Grid */}
                 <Box>
+                  {/* Item Level Selection */}
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
+                      Item Level:
+                    </Typography>
+                    <TextField
+                      select
+                      value={selectedItemLevel}
+                      onChange={(e) => setSelectedItemLevel(parseInt(e.target.value))}
+                      variant="outlined"
+                      sx={{ 
+                        minWidth: 120,
+                        '& .MuiOutlinedInput-root': {
+                          color: 'white',
+                          '& fieldset': { borderColor: 'grey.600' },
+                          '&:hover fieldset': { borderColor: 'grey.500' },
+                          '&.Mui-focused fieldset': { borderColor: 'primary.main' }
+                        },
+                        '& .MuiSelect-select': { color: 'white' },
+                        '& .MuiSvgIcon-root': { color: 'white' }
+                      }}
+                    >
+                      {Array.from({ length: 30 }, (_, i) => i + 1).map((level) => (
+                        <MenuItem key={level} value={level} sx={{ bgcolor: 'grey.700', color: 'white' }}>
+                          Level {level}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Box>
+
                   <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
                     Choose Tier (affects Gear Power):
                   </Typography>
                   <Grid container spacing={2}>
                     {TIER_OPTIONS.map((tier) => {
-                      const gearPower = getGearPower(tier.value, selectedGearForTier.gearItem.rarity, player?.character_level || 30);
+                      const gearPower = getGearPower(tier.value, selectedGearForTier.gearItem.rarity, selectedItemLevel);
                       return (
                         <Grid item xs={6} sm={4} md={3} lg={2} key={tier.value}>
                           <Card
