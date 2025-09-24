@@ -31,7 +31,10 @@ export default function Login() {
     try {
       const result = await login(username, password);
       
-      if (!result.success) {
+      if (result.success) {
+        // Login successful, redirect to dashboard
+        navigate('/dashboard');
+      } else {
         setError(result.error || 'Login failed');
       }
     } catch (err) {
