@@ -869,8 +869,8 @@ export default function LegacyPlayerLoadout() {
               }}>
                 <Box
                   component="img"
-                  src="/static/icons/guild_logo.png"
-                  alt="Guild Logo"
+                  src="/violence-logo.png"
+                  alt="Violence Guild Logo"
                   sx={{
                     maxWidth: '100%',
                     maxHeight: '100%',
