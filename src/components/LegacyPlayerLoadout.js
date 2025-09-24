@@ -928,8 +928,8 @@ export default function LegacyPlayerLoadout() {
                 <Typography sx={{ color: '#ffffff' }}>{player?.game_role ? player.game_role.charAt(0).toUpperCase() + player.game_role.slice(1) : 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Total Gear:</Typography>
-                <Typography sx={{ color: '#ffffff' }}>{player?.total_gear || 'N/A'}</Typography>
+                <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Total Gear Power:</Typography>
+                <Typography sx={{ color: '#4caf50', fontWeight: 'bold' }}>{player?.total_gear_power || 0}</Typography>
               </Box>
             </Box>
 
@@ -1254,8 +1254,8 @@ export default function LegacyPlayerLoadout() {
                                     src={`/static/icons/tiers/tier${gear.gear_item.tier || 'II'}.png`}
                                     alt={`Tier ${gear.gear_item.tier || 'II'}`}
                                     sx={{
-                                      width: 64,
-                                      height: 64,
+                                      width: 32,
+                                      height: 32,
                                       objectFit: 'contain',
                                       filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))'
                                     }}
@@ -1366,11 +1366,14 @@ export default function LegacyPlayerLoadout() {
                                   left: '50%',
                                   transform: 'translateX(-50%)',
                                   fontSize: '0.7rem',
-                                  color: '#b0bec5',
-                                  whiteSpace: 'nowrap'
+                                  color: '#4caf50',
+                                  whiteSpace: 'nowrap',
+                                  fontWeight: 'bold'
                                 }}
                               >
-                                {gear.gear_type.category}
+                                Power: {gear.gear_item.tier && gear.gear_item.item_level ? 
+                                  getGearPower(gear.gear_item.tier, gear.gear_item.rarity, gear.gear_item.item_level) : 
+                                  'N/A'}
                               </Typography>
                             </>
                           ) : (
