@@ -68,6 +68,48 @@ html:not(.light) body {
   color: #ffffff !important;
 }
 
+/* Force main content area to be dark */
+#root {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+}
+
+/* Force all main containers to be dark */
+.MuiContainer-root,
+.MuiBox-root,
+.MuiStack-root,
+.MuiGrid-root {
+  background-color: #0a0a0a !important;
+}
+
+/* Force specific layout containers */
+.MuiBox-root[role="main"],
+.MuiContainer-root[role="main"],
+div[data-testid="main-content"],
+main {
+  background-color: #0a0a0a !important;
+}
+
+/* Force the main content area that contains widgets */
+.MuiBox-root[role="main"] {
+  background-color: #0a0a0a !important;
+}
+
+/* Target the specific flex container that holds the main content */
+.MuiBox-root[style*="flex-grow"] {
+  background-color: #0a0a0a !important;
+}
+
+/* Force all divs with flex display to be dark */
+div[style*="display: flex"] {
+  background-color: #0a0a0a !important;
+}
+
+/* Target the main content wrapper */
+.MuiBox-root[component="main"] {
+  background-color: #0a0a0a !important;
+}
+
 /* Force Material-UI components to use dark theme - but preserve accent colors */
 .MuiPaper-root {
   background-color: #1a1a1a !important;
@@ -162,4 +204,29 @@ div[style*="background-color: #ffffff"] {
 /* Ensure warning text (orange elements) are visible */
 .MuiTypography-colorWarning {
   color: #ff9800 !important;
+}
+
+/* Nuclear option - force ALL elements to be dark unless specifically colored */
+* {
+  background-color: #0a0a0a !important;
+}
+
+/* But preserve the colored elements */
+.MuiChip-colorSuccess,
+.MuiChip-colorPrimary,
+.MuiChip-colorSecondary,
+.MuiChip-colorWarning,
+.MuiChip-colorError,
+.MuiPaper-root,
+.MuiCard-root,
+.MuiAppBar-root,
+.MuiDrawer-root .MuiPaper-root {
+  background-color: inherit !important;
+}
+
+/* Ensure the main content area is definitely dark */
+body > div,
+body > div > div,
+body > div > div > div {
+  background-color: #0a0a0a !important;
 }
