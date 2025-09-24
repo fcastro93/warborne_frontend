@@ -76,10 +76,7 @@ export default function RecommendedBuildsList() {
       // Create the build via API
       const response = await fetch('/api/builds/create/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify({
           title: createForm.title,
@@ -117,6 +114,21 @@ export default function RecommendedBuildsList() {
       }
     }
     return cookieValue;
+  };
+
+  // Helper function to get authentication headers
+  const getAuthHeaders = () => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    };
+    
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    
+    return headers;
   };
 
   const getRoleColor = (role) => {

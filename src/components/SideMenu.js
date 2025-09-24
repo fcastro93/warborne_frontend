@@ -21,6 +21,7 @@ import EventRoundedIcon from '@mui/icons-material/EventRounded';
 import AnalyticsRoundedIcon from '@mui/icons-material/AnalyticsRounded';
 import SmartToyRoundedIcon from '@mui/icons-material/SmartToyRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
+import SecurityRoundedIcon from '@mui/icons-material/SecurityRounded';
 
 const drawerWidth = 240;
 
@@ -45,6 +46,7 @@ const mainListItems = [
 
 const secondaryListItems = [
   { text: 'Discord Bot', icon: <SmartToyRoundedIcon />, path: '/discord-bot-config' },
+  { text: 'User Management', icon: <SecurityRoundedIcon />, path: '/users' },
   { text: 'Settings', icon: <SettingsRoundedIcon />, path: '/settings' },
 ];
 

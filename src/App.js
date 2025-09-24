@@ -14,6 +14,7 @@ import EventManagement from './components/EventManagement';
 import EventDetails from './components/EventDetails';
 import DiscordBotConfig from './components/DiscordBotConfig';
 import Analytics from './components/Analytics';
+import UserManagement from './components/UserManagement';
 import './App.css';
 
 function App() {
@@ -62,6 +63,11 @@ function App() {
             <Route path="/discord-bot-config" element={
               <ProtectedRoute>
                 <DiscordBotConfig />
+              </ProtectedRoute>
+            } />
+            <Route path="/users" element={
+              <ProtectedRoute>
+                <UserManagement />
               </ProtectedRoute>
             } />
           </Routes>

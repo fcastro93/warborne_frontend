@@ -216,10 +216,7 @@ export default function RecommendedBuilds() {
       if (buildId && currentBuild) {
         const response = await fetch(`/api/builds/${buildId}/equip-item/`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-          },
+          headers: getAuthHeaders(),
           credentials: 'include',
           body: JSON.stringify({
             item_id: item.id,
@@ -263,10 +260,7 @@ export default function RecommendedBuilds() {
         
         const response = await fetch(`/api/builds/${buildId}/unequip-item/`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-          },
+          headers: getAuthHeaders(),
           credentials: 'include',
           body: JSON.stringify({
             slot_type: slotType
@@ -723,6 +717,21 @@ export default function RecommendedBuilds() {
       }
     }
     return cookieValue;
+  };
+
+  // Helper function to get authentication headers
+  const getAuthHeaders = () => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    };
+    
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    
+    return headers;
   };
 
   if (loading) {
@@ -1868,10 +1877,7 @@ export default function RecommendedBuilds() {
                     try {
                       const response = await fetch(`/api/builds/${buildId}/assign-drifter/`, {
                         method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          'X-CSRFToken': getCookie('csrftoken')
-                        },
+                        headers: getAuthHeaders(),
                         credentials: 'include',
                         body: JSON.stringify({
                           drifter_id: null
@@ -1975,10 +1981,7 @@ export default function RecommendedBuilds() {
                       try {
                         const response = await fetch(`/api/builds/${buildId}/assign-drifter/`, {
                           method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken')
-                          },
+                          headers: getAuthHeaders(),
                           credentials: 'include',
                           body: JSON.stringify({
                             drifter_id: drifter.id
