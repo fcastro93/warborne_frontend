@@ -793,7 +793,7 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
         </Typography>
         
         {/* Recharts Stacked AreaChart */}
-        <Box sx={{ height: 500, width: '100%' }}>
+        <Box sx={{ height: 300, width: '100%' }}>
           {isLoading ? (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
               <Typography variant="body2" color="text.secondary">Loading...</Typography>
