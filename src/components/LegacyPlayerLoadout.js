@@ -68,11 +68,13 @@ const calculateTotalGearPower = (drifters) => {
             if (gearItem.gear_type && 
                 gearItem.gear_type.category.toLowerCase() !== 'mod' && 
                 gearItem.gear_type.category.toLowerCase() !== 'consumable') {
-              totalPower += getGearPower(
+              const itemPower = getGearPower(
                 gearItem.tier, 
                 gearItem.rarity, 
                 gearItem.item_level || 30
               );
+              console.log(`Adding ${gearItem.base_name} (${gearItem.tier} ${gearItem.rarity} L${gearItem.item_level || 30}): ${itemPower} power`);
+              totalPower += itemPower;
             }
           }
         });
@@ -80,6 +82,7 @@ const calculateTotalGearPower = (drifters) => {
     });
   }
   
+  console.log(`Total Gear Power: ${totalPower}`);
   return totalPower;
 };
 
@@ -2317,10 +2320,11 @@ export default function LegacyPlayerLoadout() {
                       Item Level:
                     </Typography>
                     <TextField
-                      select
+                      type="number"
                       value={selectedItemLevel}
-                      onChange={(e) => setSelectedItemLevel(parseInt(e.target.value))}
+                      onChange={(e) => setSelectedItemLevel(parseInt(e.target.value) || 30)}
                       variant="outlined"
+                      inputProps={{ min: 1, max: 999 }}
                       sx={{ 
                         minWidth: 120,
                         '& .MuiOutlinedInput-root': {
@@ -2329,16 +2333,9 @@ export default function LegacyPlayerLoadout() {
                           '&:hover fieldset': { borderColor: 'grey.500' },
                           '&.Mui-focused fieldset': { borderColor: 'primary.main' }
                         },
-                        '& .MuiSelect-select': { color: 'white' },
-                        '& .MuiSvgIcon-root': { color: 'white' }
+                        '& .MuiInputBase-input': { color: 'white' }
                       }}
-                    >
-                      {Array.from({ length: 30 }, (_, i) => i + 1).map((level) => (
-                        <MenuItem key={level} value={level} sx={{ bgcolor: 'grey.700', color: 'white' }}>
-                          Level {level}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+                    />
                   </Box>
 
                   <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
