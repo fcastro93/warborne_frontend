@@ -770,14 +770,64 @@ export default function RecommendedBuilds() {
             >
               Back to Builds
             </Button>
-            <Typography variant="h4" sx={{
-              color: '#64b5f6',
-              fontWeight: 'bold',
+            {/* Title with Guild Logos */}
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               mb: 1,
-              textShadow: '0 0 20px rgba(100, 181, 246, 0.5)'
+              gap: 3
             }}>
-              {currentBuild.title}
-            </Typography>
+              {/* Left Guild Logo */}
+              <Box
+                component="img"
+                src="/violence-logo.png"
+                alt="Violence Guild Logo"
+                sx={{
+                  width: '60px',
+                  height: '60px',
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 0 10px rgba(100, 181, 246, 0.3))',
+                  transition: 'transform 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'scale(1.1)'
+                  }
+                }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+              
+              {/* Title */}
+              <Typography variant="h4" sx={{
+                color: '#64b5f6',
+                fontWeight: 'bold',
+                textShadow: '0 0 20px rgba(100, 181, 246, 0.5)',
+                textAlign: 'center'
+              }}>
+                {currentBuild.title}
+              </Typography>
+              
+              {/* Right Guild Logo */}
+              <Box
+                component="img"
+                src="/violence-logo.png"
+                alt="Violence Guild Logo"
+                sx={{
+                  width: '60px',
+                  height: '60px',
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 0 10px rgba(100, 181, 246, 0.3))',
+                  transition: 'transform 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'scale(1.1)'
+                  }
+                }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </Box>
             <Typography variant="h6" sx={{ color: '#b0bec5', mb: 1 }}>
               {currentBuild.role?.charAt(0).toUpperCase() + currentBuild.role?.slice(1)} Build
             </Typography>
