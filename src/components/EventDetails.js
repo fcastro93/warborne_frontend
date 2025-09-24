@@ -54,7 +54,8 @@ import {
   LocalHospital as HealerIcon,
   SportsEsports as DPSIcon,
   Security as TankIcon,
-  Support as SupportIcon
+  Support as SupportIcon,
+  EmojiEvents as CrownIcon
 } from '@mui/icons-material';
 import Layout from './Layout';
 
@@ -426,6 +427,12 @@ const EventDetails = () => {
     return roleNames[role] || role;
   };
 
+  const getPartyLeader = (party) => {
+    if (!party.members || party.members.length === 0) return null;
+    // First member is typically the leader (based on creation order)
+    return party.members.find(member => member.is_leader) || party.members[0];
+  };
+
   const getRoleIcon = (role) => {
     const roleIcons = {
       healer: <HealerIcon />,
@@ -507,6 +514,30 @@ const EventDetails = () => {
       // Revert optimistic update on error
       await fetchEventDetails();
       setAlert({ type: 'error', message: 'Error removing member: ' + error.message });
+    }
+  };
+
+  const handleMakeLeader = async (partyId, memberId) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/parties/${partyId}/make-leader/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ member_id: memberId })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAlert({ type: 'success', message: data.message });
+        await fetchEventDetails(); // Refresh to show updated leader
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', message: errorData.error || 'Failed to make leader' });
+      }
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Error making leader: ' + error.message });
     }
   };
 
@@ -1039,6 +1070,15 @@ const EventDetails = () => {
                               {party.member_count} / {party.max_members} members
                             </Typography>
                             
+                            {/* Party Leader Display */}
+                            {party.members && party.members.length > 0 && (
+                              <Box sx={{ mb: 2, p: 1, bgcolor: 'rgba(76, 175, 80, 0.1)', borderRadius: 1, border: '1px solid rgba(76, 175, 80, 0.3)' }}>
+                                <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'success.main' }}>
+                                  👑 Party Leader: {getPartyLeader(party)?.player?.discord_name || 'Unknown'}
+                                </Typography>
+                              </Box>
+                            )}
+                            
                             {party.members && party.members.length > 0 ? (
                               <List dense>
                                 {party.members.map((member) => (
@@ -1050,9 +1090,14 @@ const EventDetails = () => {
                                     </ListItemAvatar>
                                     <ListItemText
                                       primary={
-                                        <Typography variant="body2">
-                                          {member.player?.discord_name || 'Unknown'}
-                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                          <Typography variant="body2">
+                                            {member.player?.discord_name || 'Unknown'}
+                                          </Typography>
+                                          {getPartyLeader(party)?.id === member.id && (
+                                            <CrownIcon sx={{ fontSize: 16, color: 'gold' }} />
+                                          )}
+                                        </Box>
                                       }
                                       secondary={
                                         <Typography variant="caption" color="text.secondary">
@@ -1060,13 +1105,25 @@ const EventDetails = () => {
                                         </Typography>
                                       }
                                     />
-                                    <IconButton 
-                                      size="small" 
-                                      onClick={() => handleRemoveMemberFromParty(party.id, member.id)}
-                                      title="Remove from Party"
-                                    >
-                                      <RemoveIcon />
-                                    </IconButton>
+                                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                      {getPartyLeader(party)?.id !== member.id && (
+                                        <IconButton 
+                                          size="small" 
+                                          onClick={() => handleMakeLeader(party.id, member.id)}
+                                          title="Make Leader"
+                                          sx={{ color: 'gold' }}
+                                        >
+                                          <CrownIcon />
+                                        </IconButton>
+                                      )}
+                                      <IconButton 
+                                        size="small" 
+                                        onClick={() => handleRemoveMemberFromParty(party.id, member.id)}
+                                        title="Remove from Party"
+                                      >
+                                        <RemoveIcon />
+                                      </IconButton>
+                                    </Box>
                                   </ListItem>
                                 ))}
                               </List>
