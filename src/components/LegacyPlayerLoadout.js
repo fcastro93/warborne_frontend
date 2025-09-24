@@ -238,7 +238,7 @@ export default function LegacyPlayerLoadout() {
 
       if (response.success) {
         // Update the local state without refreshing the page
-        updateLocalGearState(gearItem, 'equip');
+        updateLocalGearState({...gearItem, tier}, 'equip');
       } else {
         alert('Error equipping gear: ' + (response.error || 'Unknown error'));
       }
@@ -398,6 +398,7 @@ export default function LegacyPlayerLoadout() {
             base_name: gearItem.base_name,
             skill_name: gearItem.skill_name,
             rarity: gearItem.rarity,
+            tier: gearItem.tier || 'II', // Include tier information
             damage: gearItem.damage,
             defense: gearItem.defense,
             health_bonus: gearItem.health_bonus,
