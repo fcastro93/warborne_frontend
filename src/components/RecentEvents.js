@@ -130,9 +130,9 @@ export default function RecentEvents() {
     const fetchEvents = async () => {
       try {
         const data = await apiService.getRecentEvents();
-        if (data && data.length > 0) {
+        if (data && data.events && data.events.length > 0) {
           // Show only the latest 5 events, sorted by creation date
-          const sortedEvents = data
+          const sortedEvents = data.events
             .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
             .slice(0, 5);
           setEvents(sortedEvents);
