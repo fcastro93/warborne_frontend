@@ -855,6 +855,40 @@ export default function LegacyPlayerLoadout() {
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Total Gear:</Typography>
                 <Typography sx={{ color: '#ffffff' }}>{player?.total_gear || 'N/A'}</Typography>
               </Box>
+              
+              {/* Guild Logo */}
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                mt: 2,
+                pt: 2,
+                borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                height: '100px', // Fixed height to ensure consistent spacing
+                overflow: 'hidden'
+              }}>
+                <Box
+                  component="img"
+                  src="/static/icons/guild_logo.png"
+                  alt="Guild Logo"
+                  sx={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    width: 'auto',
+                    height: 'auto',
+                    objectFit: 'contain',
+                    filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.1))',
+                    transition: 'transform 0.3s ease-in-out',
+                    '&:hover': {
+                      transform: 'scale(1.05)'
+                    }
+                  }}
+                  onError={(e) => {
+                    // Fallback if image doesn't exist
+                    e.target.style.display = 'none';
+                  }}
+                />
+              </Box>
             </Box>
 
             {/* Notes */}
