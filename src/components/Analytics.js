@@ -360,9 +360,6 @@ const GearPowerAnalyticsWidget = ({ onToggle, data, loading }) => {
                         {item.value}
                       </Typography>
                     </Box>
-                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 30 }}>
-                      {item.value}
-                    </Typography>
                   </Box>
                 </Box>
               ))}
