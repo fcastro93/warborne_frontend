@@ -331,7 +331,6 @@ export default function MembersPage() {
               <TableCell>Game Role</TableCell>
               <TableCell>Level</TableCell>
               <TableCell>Faction</TableCell>
-              <TableCell>Discord Status</TableCell>
               <TableCell>Drifters</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -382,31 +381,6 @@ export default function MembersPage() {
                     size="small"
                     variant="outlined"
                   />
-                </TableCell>
-                <TableCell>
-                  {member.discord_user_id ? (
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      {getDiscordStatusIcon(
-                        discordPresence[member.discord_user_id]?.status || 'offline'
-                      )}
-                      <Chip
-                        label={
-                          discordPresence[member.discord_user_id]?.status?.toUpperCase() || 'OFFLINE'
-                        }
-                        color={getDiscordStatusColor(
-                          discordPresence[member.discord_user_id]?.status || 'offline'
-                        )}
-                        size="small"
-                      />
-                    </Stack>
-                  ) : (
-                    <Chip
-                      label="NO DISCORD"
-                      color="default"
-                      size="small"
-                      variant="outlined"
-                    />
-                  )}
                 </TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', gap: 0.5 }}>
