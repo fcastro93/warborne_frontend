@@ -1231,8 +1231,8 @@ export default function LegacyPlayerLoadout() {
                                     src={`/static/icons/tiers/tier${gear.gear_item.tier || 'II'}.png`}
                                     alt={`Tier ${gear.gear_item.tier || 'II'}`}
                                     sx={{
-                                      width: 16,
-                                      height: 16,
+                                      width: 64,
+                                      height: 64,
                                       objectFit: 'contain',
                                       filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))'
                                     }}
