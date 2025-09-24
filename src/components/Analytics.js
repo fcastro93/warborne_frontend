@@ -29,6 +29,8 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   Settings as SettingsIcon,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
   Assessment as AssessmentIcon,
   Shield as ShieldIcon,
 } from '@mui/icons-material';
