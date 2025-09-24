@@ -694,22 +694,18 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
     // Sort dates
     const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
 
-    // Create chart data format with cumulative stacking
+    // Create chart data format for stacked area chart
     const chartDataFormat = sortedDates.map(date => {
       const dataPoint = { date: formatDateForChart(date) };
       
-      // Calculate cumulative values for stacked area chart
-      let cumulativeValue = 0;
+      // Store individual values for each category
       data.forEach(series => {
         const point = series.data.find(p => p.x === date);
         const categoryKey = series.name.toLowerCase().replace(' ', '_');
         const value = point ? point.y : 0;
         
-        // Store both individual and cumulative values
+        // Store only the individual values - Recharts will handle stacking
         dataPoint[categoryKey] = value;
-        dataPoint[`${categoryKey}_cumulative`] = cumulativeValue + value;
-        
-        cumulativeValue += value;
       });
       
       return dataPoint;
@@ -796,8 +792,8 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
           Event participation over the last 30 days by category
         </Typography>
         
-        {/* Recharts Stacked AreaChart - Doubled horizontal size */}
-        <Box sx={{ height: 300, width: '200%' }}>
+        {/* Recharts Stacked AreaChart */}
+        <Box sx={{ height: 300, width: '100%' }}>
           {isLoading ? (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
               <Typography variant="body2" color="text.secondary">Loading...</Typography>
@@ -843,6 +839,9 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
                 />
                 <Legend 
                   wrapperStyle={{ color: '#fff' }}
+                  layout="horizontal"
+                  verticalAlign="bottom"
+                  height={36}
                 />
                 {getSeriesNames().map((seriesName, index) => (
                   <Area
@@ -899,7 +898,7 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
 const defaultWidgets = [
   { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 4 } },
   { id: 'roleAnalytics', type: 'role', title: 'Players by Role', visible: true, size: { xs: 12, md: 4 } },
-  { id: 'eventParticipation', type: 'eventParticipation', title: 'Event Participation', visible: true, size: { xs: 12, md: 4 } },
+  { id: 'eventParticipation', type: 'eventParticipation', title: 'Event Participation', visible: true, size: { xs: 12, md: 8 } },
 ];
 
 export default function Analytics() {
