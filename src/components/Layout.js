@@ -5,8 +5,18 @@ import { useAuth } from '../contexts/AuthContext';
 import SideMenu from './SideMenu';
 
 export default function Layout({ children }) {
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
 
+  // If user is not authenticated, don't show the menu
+  if (!isAuthenticated) {
+    return (
+      <Box sx={{ width: '100%', minHeight: '100vh' }}>
+        {children}
+      </Box>
+    );
+  }
+
+  // If user is authenticated, show the full layout with menu
   return (
     <Box sx={{ display: 'flex' }}>
       <SideMenu />
