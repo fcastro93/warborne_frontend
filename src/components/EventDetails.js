@@ -133,22 +133,34 @@ const EventDetails = () => {
       setLoading(true);
       
       // Fetch event details
-      const eventResponse = await fetch(`/api/events/${eventId}/`);
+      const eventResponse = await fetch(`/api/events/${eventId}/`, {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       const eventData = await eventResponse.json();
       setEvent(eventData);
       
       // Fetch participants
-      const participantsResponse = await fetch(`/api/events/${eventId}/participants/`);
+      const participantsResponse = await fetch(`/api/events/${eventId}/participants/`, {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       const participantsData = await participantsResponse.json();
       setParticipants(participantsData.participants || []);
       
       // Fetch parties
-      const partiesResponse = await fetch(`/api/events/${eventId}/parties/`);
+      const partiesResponse = await fetch(`/api/events/${eventId}/parties/`, {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       const partiesData = await partiesResponse.json();
       setParties(partiesData.parties || []);
       
       // Fetch party configuration
-      const configResponse = await fetch(`/api/events/${eventId}/party-configuration/`);
+      const configResponse = await fetch(`/api/events/${eventId}/party-configuration/`, {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       const configData = await configResponse.json();
       if (configData.configuration) {
         setPartyConfig(configData.configuration);
@@ -205,10 +217,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/create-parties/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(partyConfig)
       });
 
@@ -229,10 +239,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/fill-parties/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(partyConfig)
       });
 
@@ -259,10 +267,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/publish/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        }
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -282,10 +288,8 @@ const EventDetails = () => {
       try {
         const response = await fetch(`/api/events/${eventId}/delete/`, {
           method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-          }
+          headers: getAuthHeaders(),
+          credentials: 'include'
         });
 
         const data = await response.json();
@@ -321,10 +325,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/remove-participant/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify({ participant_id: selectedParticipant.id })
       });
 
@@ -347,10 +349,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/save-party-configuration/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(partyConfig)
       });
 
@@ -378,10 +378,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/update/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -412,6 +410,21 @@ const EventDetails = () => {
       }
     }
     return cookieValue;
+  };
+
+  // Helper function to get authentication headers
+  const getAuthHeaders = () => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    };
+    
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    
+    return headers;
   };
 
   const getRoleDisplayName = (role) => {
@@ -450,10 +463,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/create-party/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(partyData)
       });
 
@@ -493,10 +504,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/parties/${partyId}/remove-member/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify({ member_id: memberId })
       });
 
@@ -521,10 +530,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/parties/${partyId}/make-leader/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify({ member_id: memberId })
       });
 
@@ -574,10 +581,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/parties/${selectedPartyId}/add-member/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify({ participant_id: participantId })
       });
 
@@ -604,10 +609,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/join/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(participantData)
       });
 
@@ -627,7 +630,10 @@ const EventDetails = () => {
 
   const fetchGuildMembers = async () => {
     try {
-      const response = await fetch('/api/members/');
+      const response = await fetch('/api/members/', {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       if (response.ok) {
         const data = await response.json();
         setGuildMembers(data.members || []);
@@ -673,10 +679,8 @@ const EventDetails = () => {
 
         await fetch(`/api/events/${eventId}/join/`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-          },
+          headers: getAuthHeaders(),
+          credentials: 'include',
           body: JSON.stringify(participantData)
         });
       }
@@ -705,9 +709,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/parties/${partyId}/delete/`, {
         method: 'DELETE',
-        headers: {
-          'X-CSRFToken': getCookie('csrftoken')
-        }
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -757,10 +760,8 @@ const EventDetails = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/parties/${selectedPartyForEdit.id}/update/`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify({
           party_name: formData.party_name,
           max_members: formData.max_members

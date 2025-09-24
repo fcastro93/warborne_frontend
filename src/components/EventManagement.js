@@ -69,6 +69,21 @@ const EventManagement = () => {
     { value: 'other', label: 'Other' }
   ];
 
+  // Helper function to get authentication headers
+  const getAuthHeaders = () => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    };
+    
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    
+    return headers;
+  };
+
 
   useEffect(() => {
     fetchEvents();
@@ -77,7 +92,11 @@ const EventManagement = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/events/');
+      const response = await fetch('/api/events/', {
+        method: 'GET',
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       const data = await response.json();
       setEvents(data.events || []);
     } catch (error) {
@@ -123,10 +142,7 @@ const EventManagement = () => {
       try {
         const response = await fetch(`/api/events/${eventId}/delete/`, {
           method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-          },
+          headers: getAuthHeaders(),
           credentials: 'include'
         });
         
@@ -158,10 +174,7 @@ const EventManagement = () => {
 
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify(submitData)
       });
@@ -242,10 +255,8 @@ const EventManagement = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/publish/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        }
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -268,10 +279,8 @@ const EventManagement = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/create-parties/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        }
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -290,10 +299,8 @@ const EventManagement = () => {
     try {
       const response = await fetch(`/api/events/${eventId}/create-guild-parties/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        }
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -517,6 +524,8 @@ const EventManagement = () => {
                     >
                       Details
                     </Button>
+                    {/* Hidden Parties and Guild buttons per user request */}
+                    {/*
                     <Button
                       size="small"
                       variant="outlined"
@@ -543,6 +552,7 @@ const EventManagement = () => {
                     >
                       Guild
                     </Button>
+                    */}
                   </Box>
                 </Box>
               </Card>
