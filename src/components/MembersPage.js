@@ -115,6 +115,58 @@ const getDiscordStatusIcon = (status) => {
   }
 };
 
+// Gear Power Calculation Function (matching LegacyPlayerLoadout.js)
+const getGearPower = (tier, rarity, itemLevel = 30) => {
+  // Tier base power calculation
+  let basePower = 20; // Default for Tier I
+  const tierNum = parseInt(tier.replace('I', '').replace('V', '5').replace('X', '10') || '1');
+  
+  if (tier === 'I') {
+    basePower = 20;
+  } else if (tier === 'II') {
+    basePower = 40;
+  } else if (tier === 'III') {
+    basePower = 70;
+  } else if (tierNum >= 4) {
+    basePower = 90 + (20 * (tierNum - 4));
+  }
+  
+  // Rarity bonus
+  const rarityBonus = {
+    'common': 0,
+    'rare': 12,
+    'epic': 22,
+    'legendary': 22
+  };
+  
+  // Level contribution
+  const levelContribution = 2 * (itemLevel - 1);
+  
+  return basePower + (rarityBonus[rarity] || 0) + levelContribution;
+};
+
+// Calculate total gear power for a drifter loadout
+const calculateLoadoutPower = (gearSlots) => {
+  if (!gearSlots) return 0;
+  
+  // Only count weapon, helmet, chest, boots, off-hand (first 5 slots)
+  const mainSlots = gearSlots.slice(0, 5);
+  
+  let totalPower = 0;
+  mainSlots.forEach(slot => {
+    if (slot && slot.gear_item) {
+      const power = getGearPower(
+        slot.gear_item.tier || 'II',
+        slot.gear_item.rarity || 'common',
+        slot.gear_item.item_level || 30
+      );
+      totalPower += power;
+    }
+  });
+  
+  return Math.floor(totalPower / 5);
+};
+
 
 export default function MembersPage() {
   const navigate = useNavigate();
@@ -124,6 +176,7 @@ export default function MembersPage() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [discordPresence, setDiscordPresence] = useState({});
+  const [loadoutPowers, setLoadoutPowers] = useState({});
   const [editFormData, setEditFormData] = useState({
     name: '',
     role: '',
@@ -142,6 +195,8 @@ export default function MembersPage() {
           setMembers(data.members);
           // Fetch Discord presence for members with Discord IDs
           fetchDiscordPresence(data.members);
+          // Fetch loadout data for each member
+          fetchLoadoutPowers(data.members);
         }
       } catch (error) {
         console.error('Error fetching guild members:', error);
@@ -176,6 +231,36 @@ export default function MembersPage() {
         }
       });
       setDiscordPresence(defaultPresence);
+    }
+  };
+
+  const fetchLoadoutPowers = async (members) => {
+    try {
+      const powers = {};
+      
+      // Fetch loadout data for each member
+      for (const member of members) {
+        try {
+          const driftersData = await apiService.getPlayerDrifters(member.id);
+          if (driftersData.drifters) {
+            const loadoutPowers = driftersData.drifters.map(drifter => {
+              if (drifter.name) {
+                return calculateLoadoutPower(drifter.gear_slots);
+              }
+              return 0; // No drifter selected
+            });
+            powers[member.id] = loadoutPowers;
+          }
+        } catch (error) {
+          console.error(`Error fetching loadout for member ${member.id}:`, error);
+          // Set default 0 power for all loadouts
+          powers[member.id] = [0, 0, 0];
+        }
+      }
+      
+      setLoadoutPowers(powers);
+    } catch (error) {
+      console.error('Error fetching loadout powers:', error);
     }
   };
 
@@ -320,6 +405,7 @@ export default function MembersPage() {
               <TableCell>Game Role</TableCell>
               <TableCell>Level</TableCell>
               <TableCell>Faction</TableCell>
+              <TableCell>Loadout Power</TableCell>
               <TableCell>Drifters</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -370,6 +456,22 @@ export default function MembersPage() {
                     size="small"
                     variant="outlined"
                   />
+                </TableCell>
+                <TableCell>
+                  <Stack direction="column" spacing={0.5}>
+                    {loadoutPowers[member.id] ? loadoutPowers[member.id].map((power, index) => (
+                      <Chip
+                        key={index}
+                        label={`Loadout ${index + 1}: ${power}`}
+                        size="small"
+                        variant="outlined"
+                        color={power > 0 ? "primary" : "default"}
+                        sx={{ fontSize: '0.7rem', height: 20 }}
+                      />
+                    )) : (
+                      <Typography variant="caption" color="text.secondary">Loading...</Typography>
+                    )}
+                  </Stack>
                 </TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', gap: 0.5 }}>

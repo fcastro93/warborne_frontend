@@ -2421,8 +2421,15 @@ export default function LegacyPlayerLoadout() {
                     • Tier I: 20 (fixed)<br/>
                     • Tier II: 40 (fixed)<br/>
                     • Tier III: 70 (fixed)<br/>
-                    • Tier IV+: 90 + (20 × tier difference)<br/>
-                    • Rarity Bonus: Common (+0), Rare (+12), Epic (+22), Legendary (+22)
+                    • Tier IV+: 90 + (20 × (Tier − 4)) + Rarity Bonus<br/>
+                    • Rarity Bonus: Common (+0), Rare (+12), Epic (+22), Legendary (+22)<br/>
+                    • Level Bonus: 2 × (Item Level − 1)<br/>
+                    • Total: Base + Rarity + Level
+                  </Typography>
+                </Alert>
+                <Alert severity="warning" sx={{ mt: 1 }}>
+                  <Typography variant="body2">
+                    <strong>Note:</strong> This calculates only gear item power. Characters also have base power derived from level and in-game upgrades, which are excluded from this calculation.
                   </Typography>
                 </Alert>
               </Stack>
