@@ -22,6 +22,9 @@ import {
   CardContent,
   Stack,
   Tooltip,
+  FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material';
 import Layout from './Layout';
 import { apiService } from '../services/api';
@@ -205,7 +208,12 @@ const ChartWidget = ({ title, value, change, period, onSettings, onToggle }) => 
 
 const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
   const [analyticsData, setAnalyticsData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedDrifter, setSelectedDrifter] = useState('all');
+  const [sortOrder, setSortOrder] = useState('high-to-low');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [availableDrifters, setAvailableDrifters] = useState([]);
 
   useEffect(() => {
     const fetchAnalyticsData = async () => {
@@ -214,6 +222,8 @@ const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
         if (response.analytics) {
           // Flatten the data to show each loadout as a separate entry
           const flatData = [];
+          const drifters = new Set();
+          
           response.analytics.forEach(player => {
             player.loadouts.forEach(loadout => {
               flatData.push({
@@ -223,12 +233,15 @@ const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
                 drifterName: loadout.drifter_name,
                 equippedCount: loadout.equipped_count
               });
+              drifters.add(loadout.drifter_name);
             });
           });
           
-          // Sort by gear power descending
+          // Sort by gear power descending by default
           flatData.sort((a, b) => b.value - a.value);
           setAnalyticsData(flatData);
+          setFilteredData(flatData);
+          setAvailableDrifters(['all', ...Array.from(drifters).sort()]);
         }
       } catch (error) {
         console.error('Error fetching gear power analytics:', error);
@@ -240,9 +253,33 @@ const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
     fetchAnalyticsData();
   }, []);
 
-  const maxPower = analyticsData.length > 0 ? Math.max(...analyticsData.map(item => item.value)) : 0;
-  const totalLoadouts = analyticsData.length;
-  const avgPower = analyticsData.length > 0 ? Math.round(analyticsData.reduce((sum, item) => sum + item.value, 0) / analyticsData.length) : 0;
+  // Apply filters and sorting
+  useEffect(() => {
+    let filtered = [...analyticsData];
+    
+    // Apply drifter filter
+    if (selectedDrifter !== 'all') {
+      filtered = filtered.filter(item => item.drifterName === selectedDrifter);
+    }
+    
+    // Apply sorting
+    if (sortOrder === 'high-to-low') {
+      filtered.sort((a, b) => b.value - a.value);
+    } else {
+      filtered.sort((a, b) => a.value - b.value);
+    }
+    
+    setFilteredData(filtered);
+  }, [analyticsData, selectedDrifter, sortOrder]);
+
+  const maxPower = filteredData.length > 0 ? Math.max(...filteredData.map(item => item.value)) : 0;
+  const totalLoadouts = filteredData.length;
+  const avgPower = filteredData.length > 0 ? Math.round(filteredData.reduce((sum, item) => sum + item.value, 0) / filteredData.length) : 0;
+
+  const handleSettingsClick = (event) => {
+    setSettingsOpen(true);
+    onSettings(event);
+  };
 
   return (
     <Card sx={{ height: '100%', position: 'relative' }}>
@@ -253,7 +290,7 @@ const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Tooltip title="Settings">
-              <IconButton size="small" onClick={onSettings}>
+              <IconButton size="small" onClick={handleSettingsClick}>
                 <SettingsIcon fontSize="small" />
               </IconButton>
             </Tooltip>
@@ -294,13 +331,15 @@ const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
               <Typography variant="body2" color="text.secondary">Loading...</Typography>
             </Box>
-          ) : analyticsData.length === 0 ? (
+          ) : filteredData.length === 0 ? (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-              <Typography variant="body2" color="text.secondary">No loadout data available</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {selectedDrifter !== 'all' ? `No loadouts found for ${selectedDrifter}` : 'No loadout data available'}
+              </Typography>
             </Box>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {analyticsData.slice(0, 20).map((item, index) => (
+              {filteredData.slice(0, 20).map((item, index) => (
                 <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Typography variant="body2" sx={{ minWidth: 120, fontSize: '0.75rem' }}>
                     {item.label}
@@ -328,15 +367,63 @@ const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
                   </Box>
                 </Box>
               ))}
-              {analyticsData.length > 20 && (
+              {filteredData.length > 20 && (
                 <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center', mt: 1 }}>
-                  Showing top 20 loadouts (of {analyticsData.length} total)
+                  Showing top 20 loadouts (of {filteredData.length} total)
                 </Typography>
               )}
             </Box>
           )}
         </Box>
       </CardContent>
+
+      {/* Settings Dialog */}
+      <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Analytics Settings</DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ pt: 2 }}>
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Filter by Drifter
+              </Typography>
+              <FormControl fullWidth>
+                <InputLabel>Drifter</InputLabel>
+                <Select
+                  value={selectedDrifter}
+                  onChange={(e) => setSelectedDrifter(e.target.value)}
+                  label="Drifter"
+                >
+                  {availableDrifters.map((drifter) => (
+                    <MenuItem key={drifter} value={drifter}>
+                      {drifter === 'all' ? 'All Drifters' : drifter}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Sort by Power
+              </Typography>
+              <FormControl fullWidth>
+                <InputLabel>Sort Order</InputLabel>
+                <Select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  label="Sort Order"
+                >
+                  <MenuItem value="high-to-low">High to Low Power</MenuItem>
+                  <MenuItem value="low-to-high">Low to High Power</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSettingsOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };
