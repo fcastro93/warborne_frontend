@@ -70,9 +70,10 @@ const calculateTotalGearPower = (drifters) => {
             const gearItem = slot.gear_item;
             console.log(`Found equipped gear:`, gearItem);
             // Only count weapons and armor (exclude mods and consumables)
-            if (gearItem.gear_type && 
-                gearItem.gear_type.category.toLowerCase() !== 'mod' && 
-                gearItem.gear_type.category.toLowerCase() !== 'consumable') {
+            const category = slot.gear_type?.category || gearItem.gear_type?.category;
+            if (category && 
+                category.toLowerCase() !== 'mod' && 
+                category.toLowerCase() !== 'consumable') {
               const itemPower = getGearPower(
                 gearItem.tier, 
                 gearItem.rarity, 
@@ -81,7 +82,7 @@ const calculateTotalGearPower = (drifters) => {
               console.log(`Adding ${gearItem.base_name} (${gearItem.tier} ${gearItem.rarity} L${gearItem.item_level || 30}): ${itemPower} power`);
               totalPower += itemPower;
             } else {
-              console.log(`Skipping ${gearItem.base_name} - category: ${gearItem.gear_type?.category}`);
+              console.log(`Skipping ${gearItem.base_name} - category: ${category}`);
             }
           } else if (slot && slot.gear_item) {
             console.log(`Slot has gear_item but no tier:`, slot.gear_item);
