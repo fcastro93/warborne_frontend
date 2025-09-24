@@ -1,12 +1,10 @@
 import React from 'react';
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { LightMode, DarkMode, SettingsBrightness } from '@mui/icons-material';
-import { useTheme } from './AppTheme';
 
 export default function ColorModeIconDropdown() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const { colorMode, setColorMode } = useTheme();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -17,7 +15,7 @@ export default function ColorModeIconDropdown() {
   };
 
   const handleModeChange = (mode) => {
-    setColorMode(mode);
+    // Toggle color mode logic here
     handleClose();
   };
 
@@ -67,19 +65,19 @@ export default function ColorModeIconDropdown() {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <MenuItem onClick={() => handleModeChange('light')} selected={colorMode === 'light'}>
+        <MenuItem onClick={() => handleModeChange('light')}>
           <ListItemIcon>
             <LightMode fontSize="small" />
           </ListItemIcon>
           <ListItemText>Light</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleModeChange('dark')} selected={colorMode === 'dark'}>
+        <MenuItem onClick={() => handleModeChange('dark')}>
           <ListItemIcon>
             <DarkMode fontSize="small" />
           </ListItemIcon>
           <ListItemText>Dark</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleModeChange('system')} selected={colorMode === 'system'}>
+        <MenuItem onClick={() => handleModeChange('system')}>
           <ListItemIcon>
             <SettingsBrightness fontSize="small" />
           </ListItemIcon>
