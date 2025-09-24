@@ -20,9 +20,28 @@ const TIER_OPTIONS = [
   { value: 'XI', label: 'Tier XI', power: 230, description: 'Base power: 230' },
 ];
 
-const getGearPower = (tier, rarity) => {
-  const tierOption = TIER_OPTIONS.find(t => t.value === tier);
-  if (!tierOption) return 0;
+const getGearPower = (tier, rarity, level = 30) => {
+  // Handle Roman numerals for tier mapping
+  const tierMapping = {
+    'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6,
+    'VII': 7, 'VIII': 8, 'IX': 9, 'X': 10, 'XI': 11
+  };
+  const tierNum = tierMapping[tier] || 4;
+  
+  // Base power calculation: 90 + 20 × (Tier − 4) + RarityBonus
+  let basePower;
+  if (tierNum >= 4) {
+    basePower = 90 + (20 * (tierNum - 4));
+  } else {
+    // Tier II and III are fixed values
+    if (tierNum === 2) {
+      basePower = 40;
+    } else if (tierNum === 3) {
+      basePower = 70;
+    } else {
+      basePower = 40; // Fallback
+    }
+  }
   
   const rarityBonus = {
     'common': 0,
@@ -31,7 +50,10 @@ const getGearPower = (tier, rarity) => {
     'legendary': 22,
   };
   
-  return tierOption.power + (rarityBonus[rarity] || 0);
+  // Level contribution: 2 × (Level − 1)
+  const levelContribution = 2 * (level - 1);
+  
+  return basePower + (rarityBonus[rarity] || 0) + levelContribution;
 };
 
 // Mock data
@@ -2261,7 +2283,7 @@ export default function LegacyPlayerLoadout() {
                   </Typography>
                   <Grid container spacing={2}>
                     {TIER_OPTIONS.map((tier) => {
-                      const gearPower = getGearPower(tier.value, selectedGearForTier.gearItem.rarity);
+                      const gearPower = getGearPower(tier.value, selectedGearForTier.gearItem.rarity, player?.character_level || 30);
                       return (
                         <Grid item xs={6} sm={4} md={3} lg={2} key={tier.value}>
                           <Card
