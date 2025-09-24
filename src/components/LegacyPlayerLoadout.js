@@ -1230,6 +1230,14 @@ export default function LegacyPlayerLoadout() {
                                       objectFit: 'contain',
                                       filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))'
                                     }}
+                                    onError={(e) => {
+                                      console.error('Tier icon failed to load:', e.target.src);
+                                      console.log('Gear item tier:', gear.gear_item.tier);
+                                      console.log('Label:', label);
+                                    }}
+                                    onLoad={() => {
+                                      console.log('Tier icon loaded successfully:', `/static/icons/tiers/tier${gear.gear_item.tier}.png`);
+                                    }}
                                   />
                                 </Box>
                               )}
