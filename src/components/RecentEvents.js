@@ -129,7 +129,7 @@ export default function RecentEvents() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const data = await apiService.getEvents();
+        const data = await apiService.getRecentEvents();
         if (data && data.length > 0) {
           // Show only the latest 5 events, sorted by creation date
           const sortedEvents = data
