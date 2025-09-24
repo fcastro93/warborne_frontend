@@ -24,6 +24,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import Layout from './Layout';
+import { apiService } from '../services/api';
 import {
   MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
@@ -39,6 +40,7 @@ import {
   PieChart as PieChartIcon,
   BarChart as BarChartIcon,
   ShowChart as ShowChartIcon,
+  Shield as ShieldIcon,
 } from '@mui/icons-material';
 
 // Sample data for widgets (will be replaced with real data later)
@@ -238,13 +240,152 @@ const ChartWidget = ({ title, value, change, period, onSettings, onToggle }) => 
   );
 };
 
+const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
+  const [analyticsData, setAnalyticsData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      try {
+        const response = await apiService.getGearPowerAnalytics();
+        if (response.analytics) {
+          // Flatten the data to show each loadout as a separate entry
+          const flatData = [];
+          response.analytics.forEach(player => {
+            player.loadouts.forEach(loadout => {
+              flatData.push({
+                label: `${player.player_name} - ${loadout.drifter_name}`,
+                value: loadout.gear_power,
+                playerName: player.player_name,
+                drifterName: loadout.drifter_name,
+                equippedCount: loadout.equipped_count
+              });
+            });
+          });
+          
+          // Sort by gear power descending
+          flatData.sort((a, b) => b.value - a.value);
+          setAnalyticsData(flatData);
+        }
+      } catch (error) {
+        console.error('Error fetching gear power analytics:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnalyticsData();
+  }, []);
+
+  const maxPower = analyticsData.length > 0 ? Math.max(...analyticsData.map(item => item.value)) : 0;
+  const totalLoadouts = analyticsData.length;
+  const avgPower = analyticsData.length > 0 ? Math.round(analyticsData.reduce((sum, item) => sum + item.value, 0) / analyticsData.length) : 0;
+
+  return (
+    <Card sx={{ height: '100%', position: 'relative' }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Player Gear Power
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Tooltip title="Settings">
+              <IconButton size="small" onClick={onSettings}>
+                <SettingsIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={onToggle ? "Hide widget" : "Show widget"}>
+              <IconButton size="small" onClick={onToggle}>
+                {onToggle ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
+        
+        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <Box>
+            <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+              {totalLoadouts}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Total Loadouts
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: 'success.main' }}>
+              {avgPower}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Avg Power
+            </Typography>
+          </Box>
+        </Box>
+        
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Gear power by player loadout (weapon, helmet, chest, boots, off-hand)
+        </Typography>
+        
+        {/* Bar Chart */}
+        <Box sx={{ height: 300, overflow: 'auto' }}>
+          {isLoading ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <Typography variant="body2" color="text.secondary">Loading...</Typography>
+            </Box>
+          ) : analyticsData.length === 0 ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <Typography variant="body2" color="text.secondary">No loadout data available</Typography>
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {analyticsData.slice(0, 20).map((item, index) => (
+                <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" sx={{ minWidth: 120, fontSize: '0.75rem' }}>
+                    {item.label}
+                  </Typography>
+                  <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box
+                      sx={{
+                        width: `${maxPower > 0 ? (item.value / maxPower) * 100 : 0}%`,
+                        height: 20,
+                        backgroundColor: index < 5 ? '#4caf50' : index < 10 ? '#ff9800' : '#2196f3',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        paddingRight: 1
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ color: 'white', fontWeight: 'bold' }}>
+                        {item.value}
+                      </Typography>
+                    </Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ minWidth: 30 }}>
+                      {item.value}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+              {analyticsData.length > 20 && (
+                <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center', mt: 1 }}>
+                  Showing top 20 loadouts (of {analyticsData.length} total)
+                </Typography>
+              )}
+            </Box>
+          )}
+        </Box>
+      </CardContent>
+    </Card>
+  );
+};
+
 // Default widget configuration
 const defaultWidgets = [
   { id: 'users', type: 'metric', title: 'Users', visible: true, size: { xs: 12, sm: 6, md: 3 } },
   { id: 'conversions', type: 'metric', title: 'Conversions', visible: true, size: { xs: 12, sm: 6, md: 3 } },
   { id: 'eventCount', type: 'metric', title: 'Event count', visible: true, size: { xs: 12, sm: 6, md: 3 } },
   { id: 'exploreData', type: 'action', title: 'Explore your data', visible: true, size: { xs: 12, sm: 6, md: 3 } },
-  { id: 'sessions', type: 'chart', title: 'Sessions', visible: true, size: { xs: 12, md: 6 } },
+  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 8 } },
+  { id: 'sessions', type: 'chart', title: 'Sessions', visible: true, size: { xs: 12, md: 4 } },
   { id: 'pageViews', type: 'chart', title: 'Page views and downloads', visible: true, size: { xs: 12, md: 6 } },
 ];
 
@@ -326,6 +467,13 @@ export default function Analytics() {
             onToggle={() => toggleWidgetVisibility(widget.id)}
           />
         );
+      case 'gearPower':
+        return (
+          <GearPowerAnalyticsWidget
+            onSettings={(e) => handleSettingsClick(e, widget.id)}
+            onToggle={() => toggleWidgetVisibility(widget.id)}
+          />
+        );
       case 'action':
         return (
           <Card sx={{ height: '100%', position: 'relative' }}>
@@ -368,6 +516,7 @@ export default function Analytics() {
       conversions: <AssessmentIcon />,
       eventCount: <EventIcon />,
       exploreData: <BuildIcon />,
+      gearPowerAnalytics: <ShieldIcon />,
       sessions: <TimelineIcon />,
       pageViews: <BarChartIcon />,
     };

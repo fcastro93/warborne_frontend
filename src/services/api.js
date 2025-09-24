@@ -110,6 +110,14 @@ export const apiService = {
     return response.json();
   },
 
+  async getGearPowerAnalytics() {
+    const response = await fetch(`${API_BASE_URL}/analytics/gear-power/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    return response.json();
+  },
+
   async updatePlayerDrifter(playerId, drifterId, drifterSlot) {
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/update-drifter/`, {
       method: 'POST',
