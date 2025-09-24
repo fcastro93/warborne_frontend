@@ -2,6 +2,35 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Typography, Button, Paper, Avatar, Chip, IconButton, Tabs, Tab, Grid, Card, CardContent, TextField, InputAdornment, Stack, Divider, Badge, Alert, FormControl, Select, MenuItem, InputLabel, List, ListItem, ListItemText, ListItemIcon, ListItemButton, ListSubheader, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { ArrowBack, Add, Inventory2, Person, Search, Close, Edit, Check, Cancel, FilterList, LocalFireDepartment, Shield, Healing, Speed, FlashOn, MilitaryTech, Public, WorkspacePremium, Inventory, Security, Star, Diamond, AutoAwesome } from '@mui/icons-material';
+
+// Tier options for gear power calculation
+const TIER_OPTIONS = [
+  { value: 'I', label: 'Tier I', power: 20, description: 'Base power: 20' },
+  { value: 'II', label: 'Tier II', power: 40, description: 'Base power: 40' },
+  { value: 'III', label: 'Tier III', power: 70, description: 'Base power: 70' },
+  { value: 'IV', label: 'Tier IV', power: 90, description: 'Base power: 90' },
+  { value: 'V', label: 'Tier V', power: 110, description: 'Base power: 110' },
+  { value: 'VI', label: 'Tier VI', power: 130, description: 'Base power: 130' },
+  { value: 'VII', label: 'Tier VII', power: 150, description: 'Base power: 150' },
+  { value: 'VIII', label: 'Tier VIII', power: 170, description: 'Base power: 170' },
+  { value: 'IX', label: 'Tier IX', power: 190, description: 'Base power: 190' },
+  { value: 'X', label: 'Tier X', power: 210, description: 'Base power: 210' },
+  { value: 'XI', label: 'Tier XI', power: 230, description: 'Base power: 230' },
+];
+
+const getGearPower = (tier, rarity) => {
+  const tierOption = TIER_OPTIONS.find(t => t.value === tier);
+  if (!tierOption) return 0;
+  
+  const rarityBonus = {
+    'common': 0,
+    'rare': 12,
+    'epic': 22,
+    'legendary': 22,
+  };
+  
+  return tierOption.power + (rarityBonus[rarity] || 0);
+};
 import Layout from './Layout';
 import { apiService } from '../services/api';
 
@@ -30,11 +59,11 @@ const mockDrifters = [
     base_speed: 75,
     equipped_count: 5,
     gear_slots: [
-      { id: 1, gear_item: { name: 'Luminous Ward', base_name: 'Luminous Ward', skill_name: 'Sanctum Arc', rarity: 'epic', health_bonus: 0, icon_url: null, game_id: 'weapon_001' }, gear_type: { category: 'Weapon' } },
-      { id: 2, gear_item: { name: 'Healer\'s Hood', base_name: 'Healer\'s Hood', skill_name: 'Swift Aid', rarity: 'rare', health_bonus: 714, icon_url: null, game_id: 'helmet_001' }, gear_type: { category: 'Helmet' } },
-      { id: 3, gear_item: { name: 'Cleansing Robe', base_name: 'Cleansing Robe', skill_name: 'Purify', rarity: 'common', health_bonus: 0, icon_url: null, game_id: 'chest_001' }, gear_type: { category: 'Chest' } },
-      { id: 4, gear_item: { name: 'Arcaneflow Boots', base_name: 'Arcaneflow Boots', skill_name: 'Abundance', rarity: 'rare', health_bonus: 675, icon_url: null, game_id: 'boots_001' }, gear_type: { category: 'Boots' } },
-      { id: 5, gear_item: { name: 'Mass Healing Elixir', base_name: 'Mass Healing Elixir', skill_name: 'Mass Healing Elixir', rarity: 'common', health_bonus: 0, icon_url: null, game_id: 'consumable_001' }, gear_type: { category: 'Consumable' } },
+      { id: 1, gear_item: { name: 'Luminous Ward', base_name: 'Luminous Ward', skill_name: 'Sanctum Arc', rarity: 'epic', tier: 'V', health_bonus: 0, icon_url: null, game_id: 'weapon_001' }, gear_type: { category: 'Weapon' } },
+      { id: 2, gear_item: { name: 'Healer\'s Hood', base_name: 'Healer\'s Hood', skill_name: 'Swift Aid', rarity: 'rare', tier: 'III', health_bonus: 714, icon_url: null, game_id: 'helmet_001' }, gear_type: { category: 'Helmet' } },
+      { id: 3, gear_item: { name: 'Cleansing Robe', base_name: 'Cleansing Robe', skill_name: 'Purify', rarity: 'common', tier: 'II', health_bonus: 0, icon_url: null, game_id: 'chest_001' }, gear_type: { category: 'Chest' } },
+      { id: 4, gear_item: { name: 'Arcaneflow Boots', base_name: 'Arcaneflow Boots', skill_name: 'Abundance', rarity: 'rare', tier: 'IV', health_bonus: 675, icon_url: null, game_id: 'boots_001' }, gear_type: { category: 'Boots' } },
+      { id: 5, gear_item: { name: 'Mass Healing Elixir', base_name: 'Mass Healing Elixir', skill_name: 'Mass Healing Elixir', rarity: 'common', tier: null, health_bonus: 0, icon_url: null, game_id: 'consumable_001' }, gear_type: { category: 'Consumable' } },
       null, null, null, null // 4 empty mod slots
     ]
   },
@@ -48,7 +77,7 @@ const mockDrifters = [
     base_speed: 80,
     equipped_count: 3,
     gear_slots: [
-      { id: 6, gear_item: { name: 'Thunder Hammer', base_name: 'Thunder Hammer', skill_name: 'Lightning Strike', rarity: 'epic', health_bonus: 0, icon_url: null, game_id: 'weapon_002' }, gear_type: { category: 'Weapon' } },
+      { id: 6, gear_item: { name: 'Thunder Hammer', base_name: 'Thunder Hammer', skill_name: 'Lightning Strike', rarity: 'epic', tier: 'VII', health_bonus: 0, icon_url: null, game_id: 'weapon_002' }, gear_type: { category: 'Weapon' } },
       null, null, null, null, null, null, null, null, null // 9 empty slots
     ]
   },
@@ -96,6 +125,8 @@ export default function LegacyPlayerLoadout() {
   const [showDrifterModal, setShowDrifterModal] = useState(false);
   const [drifterSearchTerm, setDrifterSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [tierDialogOpen, setTierDialogOpen] = useState(false);
+  const [selectedGearForTier, setSelectedGearForTier] = useState(null);
 
   const slotLabels = [
     'Weapon', 'Helmet', 'Chest', 'Boots', 'Consumable',
@@ -188,8 +219,8 @@ export default function LegacyPlayerLoadout() {
     setSelectedSkill(null);
   };
 
-  // Equip gear function
-  const handleEquipGear = async (gearItem, slotType) => {
+  // Equip gear function - now shows tier selection dialog first
+  const handleEquipGear = async (gearItem, slotType, tier = 'II') => {
     try {
       const currentDrifter = drifters[activeDrifterTab];
       if (!currentDrifter) {
@@ -201,7 +232,8 @@ export default function LegacyPlayerLoadout() {
         playerId,
         gearItem.id,
         currentDrifter.number,
-        slotType
+        slotType,
+        tier
       );
 
       if (response.success) {
@@ -213,6 +245,26 @@ export default function LegacyPlayerLoadout() {
     } catch (error) {
       console.error('Error equipping gear:', error);
       alert('Error equipping gear: ' + error.message);
+    }
+  };
+
+  // Show tier selection dialog
+  const handleEquipButtonClick = (gearItem, slotType) => {
+    // Only show tier selection for weapons and armor, not mods or consumables
+    if (slotType.toLowerCase().includes('mod') || slotType.toLowerCase() === 'consumable') {
+      handleEquipGear(gearItem, slotType);
+    } else {
+      setSelectedGearForTier({ gearItem, slotType });
+      setTierDialogOpen(true);
+    }
+  };
+
+  // Handle tier selection
+  const handleTierSelection = (tier) => {
+    if (selectedGearForTier) {
+      handleEquipGear(selectedGearForTier.gearItem, selectedGearForTier.slotType, tier);
+      setTierDialogOpen(false);
+      setSelectedGearForTier(null);
     }
   };
 
@@ -1159,6 +1211,28 @@ export default function LegacyPlayerLoadout() {
                         >
                           {gear ? (
                             <>
+                              {/* Tier Icon - Top Left Corner */}
+                              {gear.gear_item.tier && !label.toLowerCase().includes('mod') && !label.toLowerCase().includes('consumable') && (
+                                <Box sx={{
+                                  position: 'absolute',
+                                  top: 4,
+                                  left: 4,
+                                  zIndex: 2,
+                                }}>
+                                  <Box
+                                    component="img"
+                                    src={`/static/icons/tiers/tier${gear.gear_item.tier}.png`}
+                                    alt={`Tier ${gear.gear_item.tier}`}
+                                    sx={{
+                                      width: 16,
+                                      height: 16,
+                                      objectFit: 'contain',
+                                      filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))'
+                                    }}
+                                  />
+                                </Box>
+                              )}
+                              
                               <Box
                                 sx={{
                                   width: { xs: 56, sm: 64, md: 80 },
@@ -1708,7 +1782,7 @@ export default function LegacyPlayerLoadout() {
                         if (isItemEquipped(item)) {
                           handleUnequipGear(item);
                         } else {
-                          handleEquipGear(item, item.gear_type.category);
+                          handleEquipButtonClick(item, item.gear_type.category);
                         }
                       }}
                       sx={{
@@ -2116,6 +2190,125 @@ export default function LegacyPlayerLoadout() {
                 }
               }}
             >
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Tier Selection Dialog */}
+        <Dialog
+          open={tierDialogOpen}
+          onClose={() => setTierDialogOpen(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">
+                Select Tier for {selectedGearForTier?.gearItem?.base_name}
+              </Typography>
+              <IconButton onClick={() => setTierDialogOpen(false)}>
+                <Close />
+              </IconButton>
+            </Stack>
+          </DialogTitle>
+          <DialogContent>
+            {selectedGearForTier && (
+              <Stack spacing={3}>
+                {/* Item Info */}
+                <Box sx={{ 
+                  p: 2, 
+                  bgcolor: 'grey.100', 
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: `${getRarityBorderColor(selectedGearForTier.gearItem.rarity)}`
+                }}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Avatar sx={{ bgcolor: `${getRarityBorderColor(selectedGearForTier.gearItem.rarity)}` }}>
+                      <Inventory2 />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h6" fontWeight="bold">
+                        {selectedGearForTier.gearItem.base_name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {selectedGearForTier.gearItem.skill_name} • {selectedGearForTier.gearItem.gear_type.category} • {selectedGearForTier.gearItem.rarity}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Box>
+
+                {/* Tier Selection Grid */}
+                <Box>
+                  <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
+                    Choose Tier (affects Gear Power):
+                  </Typography>
+                  <Grid container spacing={2}>
+                    {TIER_OPTIONS.map((tier) => {
+                      const gearPower = getGearPower(tier.value, selectedGearForTier.gearItem.rarity);
+                      return (
+                        <Grid item xs={6} sm={4} md={3} lg={2} key={tier.value}>
+                          <Card
+                            onClick={() => handleTierSelection(tier.value)}
+                            sx={{
+                              cursor: 'pointer',
+                              border: '2px solid',
+                              borderColor: 'primary.main',
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: 3,
+                                borderColor: 'primary.dark',
+                              },
+                            }}
+                          >
+                            <CardContent sx={{ textAlign: 'center', p: 1.5 }}>
+                              {/* Tier Icon */}
+                              <Box sx={{ mb: 1 }}>
+                                <Box
+                                  component="img"
+                                  src={`/static/icons/tiers/tier${tier.value}.png`}
+                                  alt={`Tier ${tier.value}`}
+                                  sx={{
+                                    width: 32,
+                                    height: 32,
+                                    objectFit: 'contain'
+                                  }}
+                                />
+                              </Box>
+                              <Typography variant="caption" fontWeight="bold" color="primary.main" sx={{ display: 'block' }}>
+                                {tier.label}
+                              </Typography>
+                              <Typography variant="h6" fontWeight="bold" color="success.main" sx={{ my: 0.5 }}>
+                                {gearPower}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+                                +{gearPower - tier.power} from {selectedGearForTier.gearItem.rarity}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+                </Box>
+
+                {/* Gear Power Formula */}
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  <Typography variant="body2">
+                    <strong>Gear Power Formula:</strong><br/>
+                    • Tier I: 20 (fixed)<br/>
+                    • Tier II: 40 (fixed)<br/>
+                    • Tier III: 70 (fixed)<br/>
+                    • Tier IV+: 90 + (20 × tier difference)<br/>
+                    • Rarity Bonus: Common (+0), Rare (+12), Epic (+22), Legendary (+22)
+                  </Typography>
+                </Alert>
+              </Stack>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setTierDialogOpen(false)}>
               Cancel
             </Button>
           </DialogActions>
