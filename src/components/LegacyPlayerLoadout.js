@@ -1183,6 +1183,12 @@ export default function LegacyPlayerLoadout() {
                   >
                     {slotLabels.map((label, i) => {
                       const gear = currentDrifter.gear_slots?.[i] || null;
+                      // Debug logging for gear data
+                      if (gear && gear.gear_item) {
+                        console.log(`Gear slot ${i} (${label}):`, gear.gear_item);
+                        console.log('Has tier?', !!gear.gear_item.tier);
+                        console.log('Tier value:', gear.gear_item.tier);
+                      }
                       return (
                         <Box
                           key={i}
