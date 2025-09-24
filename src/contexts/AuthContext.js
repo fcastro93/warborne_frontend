@@ -18,23 +18,21 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check if user is logged in on app start
     const verifyAuth = async () => {
-      const userData = localStorage.getItem('userData');
+      const accessToken = localStorage.getItem('accessToken');
       
-      if (userData) {
+      if (accessToken) {
         try {
-          // Verify the session is still valid
+          // Verify the JWT token is still valid
           const result = await authService.verifyToken();
           if (result.success) {
             setUser(result.user);
           } else {
-            // Session is invalid, clear it
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userData');
+            // Token is invalid, clear it
+            authService.clearTokens();
           }
         } catch (error) {
-          console.error('Session verification error:', error);
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('userData');
+          console.error('Token verification error:', error);
+          authService.clearTokens();
         }
       }
       
@@ -46,12 +44,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      // Use Django's built-in authentication
+      // Use JWT authentication
       const result = await authService.login(username, password);
       if (result.success) {
-        // Store user data in localStorage for persistence
-        localStorage.setItem('authToken', 'django-session');
-        localStorage.setItem('userData', JSON.stringify(result.user));
         setUser(result.user);
       }
       return result;
@@ -62,13 +57,12 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Call logout API if available
+      // Call logout API to blacklist refresh token
       await authService.logout();
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
+      authService.clearTokens();
       setUser(null);
     }
   };
