@@ -206,7 +206,7 @@ const ChartWidget = ({ title, value, change, period, onSettings, onToggle }) => 
   );
 };
 
-const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
+const GearPowerAnalyticsWidget = ({ onToggle, data, loading }) => {
   const [analyticsData, setAnalyticsData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -278,7 +278,6 @@ const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
 
   const handleSettingsClick = (event) => {
     setSettingsOpen(true);
-    onSettings(event);
   };
 
   return (
@@ -435,7 +434,6 @@ const defaultWidgets = [
 
 export default function Analytics() {
   const [widgets, setWidgets] = useState(defaultWidgets);
-  const [settingsMenu, setSettingsMenu] = useState({ anchorEl: null, widgetId: null });
   const [settingsDialog, setSettingsDialog] = useState({ open: false, widgetId: null });
   const [customizeDialog, setCustomizeDialog] = useState(false);
 
@@ -462,19 +460,8 @@ export default function Analytics() {
   };
 
   // Open settings menu
-  const handleSettingsClick = (event, widgetId) => {
-    setSettingsMenu({ anchorEl: event.currentTarget, widgetId });
-  };
-
-  // Close settings menu
-  const handleSettingsClose = () => {
-    setSettingsMenu({ anchorEl: null, widgetId: null });
-  };
-
-  // Open settings dialog
-  const handleSettingsDialogOpen = () => {
-    setSettingsDialog({ open: true, widgetId: settingsMenu.widgetId });
-    handleSettingsClose();
+  const handleSettingsDialogOpen = (widgetId) => {
+    setSettingsDialog({ open: true, widgetId });
   };
 
   // Close settings dialog
@@ -488,7 +475,6 @@ export default function Analytics() {
       case 'gearPower':
         return (
           <GearPowerAnalyticsWidget
-            onSettings={(e) => handleSettingsClick(e, widget.id)}
             onToggle={() => toggleWidgetVisibility(widget.id)}
           />
         );
@@ -550,27 +536,6 @@ export default function Analytics() {
             ))}
         </Grid>
 
-      {/* Settings Menu */}
-      <Menu
-        anchorEl={settingsMenu.anchorEl}
-        open={Boolean(settingsMenu.anchorEl)}
-        onClose={handleSettingsClose}
-      >
-        <MenuItem onClick={handleSettingsDialogOpen}>
-          <SettingsIcon sx={{ mr: 1 }} />
-          Widget Settings
-        </MenuItem>
-        <MenuItem onClick={() => {
-          toggleWidgetVisibility(settingsMenu.widgetId);
-          handleSettingsClose();
-        }}>
-          {widgets.find(w => w.id === settingsMenu.widgetId)?.visible ? 
-            <VisibilityOffIcon sx={{ mr: 1 }} /> : 
-            <VisibilityIcon sx={{ mr: 1 }} />
-          }
-          {widgets.find(w => w.id === settingsMenu.widgetId)?.visible ? 'Hide' : 'Show'} Widget
-        </MenuItem>
-      </Menu>
 
       {/* Widget Settings Dialog */}
       <Dialog open={settingsDialog.open} onClose={handleSettingsDialogClose} maxWidth="sm" fullWidth>
