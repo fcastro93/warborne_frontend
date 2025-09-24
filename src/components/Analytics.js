@@ -43,37 +43,8 @@ import {
   Shield as ShieldIcon,
 } from '@mui/icons-material';
 
-// Sample data for widgets (will be replaced with real data later)
-const sampleData = {
-  users: {
-    total: 14250,
-    change: 25,
-    trend: 'up',
-    period: 'Last 30 days',
-    chartData: [12000, 12500, 13000, 13500, 14000, 14250]
-  },
-  conversions: {
-    total: 325,
-    change: -25,
-    trend: 'down',
-    period: 'Last 30 days',
-    chartData: [400, 380, 360, 340, 330, 325]
-  },
-  eventCount: {
-    total: 200000,
-    change: 5,
-    trend: 'up',
-    period: 'Last 30 days',
-    chartData: [190000, 192000, 195000, 198000, 199000, 200000]
-  },
-  sessions: {
-    total: 13277,
-    change: 35,
-    trend: 'up',
-    period: 'Sessions per day for the last 30 days',
-    chartData: [8000, 9000, 10000, 11000, 12000, 13277]
-  }
-};
+// Sample data for widgets (removed - using real data now)
+const sampleData = {};
 
 // Widget components
 const MetricWidget = ({ title, value, change, trend, period, chartData, onSettings, onToggle }) => {
@@ -380,13 +351,7 @@ const GearPowerAnalyticsWidget = ({ onSettings, onToggle, data, loading }) => {
 
 // Default widget configuration
 const defaultWidgets = [
-  { id: 'users', type: 'metric', title: 'Users', visible: true, size: { xs: 12, sm: 6, md: 3 } },
-  { id: 'conversions', type: 'metric', title: 'Conversions', visible: true, size: { xs: 12, sm: 6, md: 3 } },
-  { id: 'eventCount', type: 'metric', title: 'Event count', visible: true, size: { xs: 12, sm: 6, md: 3 } },
-  { id: 'exploreData', type: 'action', title: 'Explore your data', visible: true, size: { xs: 12, sm: 6, md: 3 } },
-  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 8 } },
-  { id: 'sessions', type: 'chart', title: 'Sessions', visible: true, size: { xs: 12, md: 4 } },
-  { id: 'pageViews', type: 'chart', title: 'Page views and downloads', visible: true, size: { xs: 12, md: 6 } },
+  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 12 } },
 ];
 
 export default function Analytics() {
@@ -395,11 +360,22 @@ export default function Analytics() {
   const [settingsDialog, setSettingsDialog] = useState({ open: false, widgetId: null });
   const [customizeDialog, setCustomizeDialog] = useState(false);
 
-  // Load saved widget configuration from localStorage
+  // Load saved widget configuration from localStorage, but ensure new widgets are included
   useEffect(() => {
     const savedWidgets = localStorage.getItem('analytics-widgets');
     if (savedWidgets) {
-      setWidgets(JSON.parse(savedWidgets));
+      const parsedWidgets = JSON.parse(savedWidgets);
+      // Check if gearPowerAnalytics widget exists in saved config
+      const hasGearPowerWidget = parsedWidgets.some(widget => widget.id === 'gearPowerAnalytics');
+      if (!hasGearPowerWidget) {
+        // Add the new widget to saved configuration
+        parsedWidgets.push({ id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 8 } });
+        localStorage.setItem('analytics-widgets', JSON.stringify(parsedWidgets));
+      }
+      setWidgets(parsedWidgets);
+    } else {
+      // No saved config, use default widgets
+      setWidgets(defaultWidgets);
     }
   }, []);
 
@@ -531,12 +507,23 @@ export default function Analytics() {
           <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
             Analytics
           </Typography>
-          <Button
-            variant="outlined"
-            onClick={() => setCustomizeDialog(true)}
-          >
-            Customize Dashboard
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                localStorage.removeItem('analytics-widgets');
+                setWidgets(defaultWidgets);
+              }}
+            >
+              Reset Dashboard
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => setCustomizeDialog(true)}
+            >
+              Customize Dashboard
+            </Button>
+          </Box>
         </Box>
 
         {/* Breadcrumbs */}
