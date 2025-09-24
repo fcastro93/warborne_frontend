@@ -39,6 +39,16 @@ import {
   People as PeopleIcon,
   Event as EventIcon,
 } from '@mui/icons-material';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 // Sample data for widgets (removed - using real data now)
 const sampleData = {};
@@ -623,7 +633,7 @@ const RoleAnalyticsWidget = ({ onToggle, data, loading }) => {
 
 const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
   const [analyticsData, setAnalyticsData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+  const [chartData, setChartData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -631,11 +641,11 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
   const [totalEvents, setTotalEvents] = useState(0);
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
-  // Color palette for different event categories
+  // Color palette for different event categories - matching your temp.txt example
   const categoryColors = {
-    'pvp': '#4caf50',
-    'pve': '#2196f3', 
-    'resource_farming': '#ff9800',
+    'pvp': 'hsl(210, 100%, 35%)',        // Dark blue
+    'pve': 'hsl(210, 98%, 48%)',         // Medium blue  
+    'resource_farming': 'hsl(210, 100%, 80%)', // Light blue
     'guild_event': '#9c27b0',
     'other': '#607d8b',
     'raid': '#f44336',
@@ -649,10 +659,12 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
         const response = await apiService.getEventParticipationAnalytics();
         if (response.analytics) {
           setAnalyticsData(response.analytics);
-          setFilteredData(response.analytics);
           setAvailableCategories(['all', ...response.categories]);
           setTotalEvents(response.total_events);
           setDateRange(response.date_range);
+          
+          // Transform data for Recharts LineChart format
+          transformDataForChart(response.analytics);
         }
       } catch (error) {
         console.error('Error fetching event participation analytics:', error);
@@ -664,39 +676,71 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
     fetchAnalyticsData();
   }, []);
 
+  // Transform API data to Recharts format
+  const transformDataForChart = (data) => {
+    if (!data || data.length === 0) {
+      setChartData([]);
+      return;
+    }
+
+    // Get all unique dates from all series
+    const allDates = new Set();
+    data.forEach(series => {
+      series.data.forEach(point => allDates.add(point.x));
+    });
+
+    // Sort dates
+    const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
+
+    // Create chart data format
+    const chartDataFormat = sortedDates.map(date => {
+      const dataPoint = { date: formatDateForChart(date) };
+      
+      data.forEach(series => {
+        const point = series.data.find(p => p.x === date);
+        const categoryKey = series.name.toLowerCase().replace(' ', '_');
+        dataPoint[categoryKey] = point ? point.y : 0;
+      });
+      
+      return dataPoint;
+    });
+
+    setChartData(chartDataFormat);
+  };
+
   // Apply filters
   useEffect(() => {
-    let filtered = [...analyticsData];
-    
-    // Apply category filter
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(item => 
+    if (selectedCategory === 'all') {
+      transformDataForChart(analyticsData);
+    } else {
+      const filtered = analyticsData.filter(item => 
         item.name.toLowerCase().replace(' ', '_') === selectedCategory
       );
+      transformDataForChart(filtered);
     }
-    
-    setFilteredData(filtered);
   }, [analyticsData, selectedCategory]);
 
-  const totalParticipants = filteredData.reduce((sum, series) => 
-    sum + series.data.reduce((seriesSum, point) => seriesSum + point.y, 0), 0
-  );
+  const totalParticipants = chartData.reduce((sum, point) => {
+    return sum + Object.keys(point).filter(key => key !== 'date').reduce((pointSum, key) => {
+      return pointSum + (point[key] || 0);
+    }, 0);
+  }, 0);
 
   const handleSettingsClick = (event) => {
     setSettingsOpen(true);
   };
 
   // Format date for display
-  const formatDate = (dateStr) => {
+  const formatDateForChart = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  // Get max value for scaling
-  const maxValue = filteredData.reduce((max, series) => {
-    const seriesMax = Math.max(...series.data.map(point => point.y));
-    return Math.max(max, seriesMax);
-  }, 0);
+  // Get all series names for legend
+  const getSeriesNames = () => {
+    if (chartData.length === 0) return [];
+    return Object.keys(chartData[0]).filter(key => key !== 'date');
+  };
 
   return (
     <Card sx={{ height: '100%', position: 'relative' }}>
@@ -742,86 +786,59 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
           Event participation over the last 30 days by category
         </Typography>
         
-        {/* Event Participation Chart */}
-        <Box sx={{ height: 300, overflow: 'auto' }}>
+        {/* Recharts LineChart */}
+        <Box sx={{ height: 300, width: '100%' }}>
           {isLoading ? (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
               <Typography variant="body2" color="text.secondary">Loading...</Typography>
             </Box>
-          ) : filteredData.length === 0 ? (
+          ) : chartData.length === 0 ? (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
               <Typography variant="body2" color="text.secondary">
                 {selectedCategory !== 'all' ? `No events found for ${selectedCategory}` : 'No event data available'}
               </Typography>
             </Box>
           ) : (
-            <Box>
-              {/* Legend */}
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                {filteredData.map((series, index) => (
-                  <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Box
-                      sx={{
-                        width: 12,
-                        height: 12,
-                        backgroundColor: categoryColors[series.name.toLowerCase().replace(' ', '_')] || '#607d8b',
-                        borderRadius: '2px'
-                      }}
-                    />
-                    <Typography variant="caption" color="text.secondary">
-                      {series.name}
-                    </Typography>
-                  </Box>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fill: '#fff', fontSize: 12 }}
+                  axisLine={{ stroke: '#4a5568' }}
+                />
+                <YAxis 
+                  tick={{ fill: '#fff', fontSize: 12 }}
+                  axisLine={{ stroke: '#4a5568' }}
+                />
+                <RechartsTooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#2d3748', 
+                    border: '1px solid #4a5568',
+                    color: '#fff',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Legend 
+                  wrapperStyle={{ color: '#fff' }}
+                />
+                {getSeriesNames().map((seriesName, index) => (
+                  <Line
+                    key={seriesName}
+                    type="monotone"
+                    dataKey={seriesName}
+                    stroke={categoryColors[seriesName] || '#607d8b'}
+                    strokeWidth={2}
+                    dot={{ fill: categoryColors[seriesName] || '#607d8b', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: categoryColors[seriesName] || '#607d8b', strokeWidth: 2 }}
+                    name={seriesName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  />
                 ))}
-              </Box>
-              
-              {/* Simple Bar Chart */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, height: 200 }}>
-                {filteredData.map((series, seriesIndex) => (
-                  <Box key={seriesIndex}>
-                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5 }}>
-                      {series.name}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'end', gap: 0.5, height: 40 }}>
-                      {series.data.map((point, pointIndex) => (
-                        <Box
-                          key={pointIndex}
-                          sx={{
-                            width: `${100 / series.data.length}%`,
-                            height: `${maxValue > 0 ? (point.y / maxValue) * 100 : 0}%`,
-                            backgroundColor: categoryColors[series.name.toLowerCase().replace(' ', '_')] || '#607d8b',
-                            borderRadius: '2px 2px 0 0',
-                            minHeight: point.y > 0 ? '4px' : '0px',
-                            position: 'relative',
-                            '&:hover': {
-                              backgroundColor: categoryColors[series.name.toLowerCase().replace(' ', '_')] || '#607d8b',
-                              filter: 'brightness(1.2)'
-                            }
-                          }}
-                          title={`${formatDate(point.x)}: ${point.y} participants`}
-                        />
-                      ))}
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
-              
-              {/* X-axis labels */}
-              {filteredData.length > 0 && filteredData[0].data.length > 0 && (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1, px: 1 }}>
-                  {filteredData[0].data.map((point, index) => {
-                    if (index % Math.ceil(filteredData[0].data.length / 5) === 0) {
-                      return (
-                        <Typography key={index} variant="caption" color="text.secondary">
-                          {formatDate(point.x)}
-                        </Typography>
-                      );
-                    }
-                    return null;
-                  })}
-                </Box>
-              )}
-            </Box>
+              </LineChart>
+            </ResponsiveContainer>
           )}
         </Box>
       </CardContent>
