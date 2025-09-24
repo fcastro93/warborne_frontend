@@ -320,18 +320,18 @@ const UserManagement = () => {
             <TableContainer>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ bgcolor: 'grey.50' }}>
-                    <TableCell sx={{ fontWeight: 'bold', py: 2 }}>User</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Email</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Joined</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Last Login</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Actions</TableCell>
+                  <TableRow sx={{ bgcolor: 'grey.800' }}>
+                    <TableCell sx={{ fontWeight: 'bold', py: 2, color: 'white' }}>User</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Email</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Joined</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Last Login</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', color: 'white' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {users.map((user) => (
-                    <TableRow key={user.id} hover>
+                    <TableRow key={user.id} hover sx={{ bgcolor: 'grey.900', '&:hover': { bgcolor: 'grey.700' } }}>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <Avatar 
@@ -347,13 +347,13 @@ const UserManagement = () => {
                             {getUserInitials(user)}
                           </Avatar>
                           <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: 'white' }}>
                               {user.first_name && user.last_name 
                                 ? `${user.first_name} ${user.last_name}`
                                 : user.username
                               }
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" sx={{ color: 'grey.400' }}>
                               @{user.username}
                             </Typography>
                           </Box>
@@ -369,17 +369,17 @@ const UserManagement = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2">
+                        <Typography variant="body2" sx={{ color: 'white' }}>
                           {user.email || 'No email'}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2">
+                        <Typography variant="body2" sx={{ color: 'white' }}>
                           {formatDate(user.date_joined)}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2">
+                        <Typography variant="body2" sx={{ color: 'white' }}>
                           {formatDate(user.last_login)}
                         </Typography>
                       </TableCell>
