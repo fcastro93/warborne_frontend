@@ -54,6 +54,35 @@ const getGearPower = (tier, rarity, itemLevel = 30) => {
   return basePower + levelBonus;
 };
 
+// Calculate total gear power from all equipped items
+const calculateTotalGearPower = (drifters) => {
+  let totalPower = 0;
+  
+  if (drifters && drifters.length > 0) {
+    drifters.forEach(drifter => {
+      if (drifter.gear_slots) {
+        drifter.gear_slots.forEach(slot => {
+          if (slot && slot.gear_item && slot.gear_item.tier) {
+            const gearItem = slot.gear_item;
+            // Only count weapons and armor (exclude mods and consumables)
+            if (gearItem.gear_type && 
+                gearItem.gear_type.category.toLowerCase() !== 'mod' && 
+                gearItem.gear_type.category.toLowerCase() !== 'consumable') {
+              totalPower += getGearPower(
+                gearItem.tier, 
+                gearItem.rarity, 
+                gearItem.item_level || 30
+              );
+            }
+          }
+        });
+      }
+    });
+  }
+  
+  return totalPower;
+};
+
 // Mock data
 const mockPlayer = {
   id: 7,
@@ -929,7 +958,7 @@ export default function LegacyPlayerLoadout() {
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Total Gear Power:</Typography>
-                <Typography sx={{ color: '#4caf50', fontWeight: 'bold' }}>{player?.total_gear_power || 0}</Typography>
+                <Typography sx={{ color: '#4caf50', fontWeight: 'bold' }}>{calculateTotalGearPower(drifters)}</Typography>
               </Box>
             </Box>
 
