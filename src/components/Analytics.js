@@ -26,20 +26,10 @@ import {
 import Layout from './Layout';
 import { apiService } from '../services/api';
 import {
-  MoreVert as MoreVertIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   Settings as SettingsIcon,
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  People as PeopleIcon,
-  Event as EventIcon,
-  Build as BuildIcon,
-  Timeline as TimelineIcon,
   Assessment as AssessmentIcon,
-  PieChart as PieChartIcon,
-  BarChart as BarChartIcon,
-  ShowChart as ShowChartIcon,
   Shield as ShieldIcon,
 } from '@mui/icons-material';
 
@@ -360,23 +350,12 @@ export default function Analytics() {
   const [settingsDialog, setSettingsDialog] = useState({ open: false, widgetId: null });
   const [customizeDialog, setCustomizeDialog] = useState(false);
 
-  // Load saved widget configuration from localStorage, but ensure new widgets are included
+  // Load saved widget configuration from localStorage, but only show Player Gear Power
   useEffect(() => {
-    const savedWidgets = localStorage.getItem('analytics-widgets');
-    if (savedWidgets) {
-      const parsedWidgets = JSON.parse(savedWidgets);
-      // Check if gearPowerAnalytics widget exists in saved config
-      const hasGearPowerWidget = parsedWidgets.some(widget => widget.id === 'gearPowerAnalytics');
-      if (!hasGearPowerWidget) {
-        // Add the new widget to saved configuration
-        parsedWidgets.push({ id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 8 } });
-        localStorage.setItem('analytics-widgets', JSON.stringify(parsedWidgets));
-      }
-      setWidgets(parsedWidgets);
-    } else {
-      // No saved config, use default widgets
-      setWidgets(defaultWidgets);
-    }
+    // Always use only the Player Gear Power widget, ignore saved config
+    setWidgets(defaultWidgets);
+    // Clear any saved configurations to prevent old widgets from appearing
+    localStorage.setItem('analytics-widgets', JSON.stringify(defaultWidgets));
   }, []);
 
   // Save widget configuration to localStorage
@@ -414,35 +393,9 @@ export default function Analytics() {
     setSettingsDialog({ open: false, widgetId: null });
   };
 
-  // Render widget based on type
+  // Render widget based on type (simplified - only gearPower widget)
   const renderWidget = (widget) => {
-    const data = sampleData[widget.id];
-    
     switch (widget.type) {
-      case 'metric':
-        return (
-          <MetricWidget
-            title={widget.title}
-            value={data?.total || 0}
-            change={data?.change || 0}
-            trend={data?.trend || 'neutral'}
-            period={data?.period || ''}
-            chartData={data?.chartData || []}
-            onSettings={(e) => handleSettingsClick(e, widget.id)}
-            onToggle={() => toggleWidgetVisibility(widget.id)}
-          />
-        );
-      case 'chart':
-        return (
-          <ChartWidget
-            title={widget.title}
-            value={data?.total || 0}
-            change={data?.change || 0}
-            period={data?.period || ''}
-            onSettings={(e) => handleSettingsClick(e, widget.id)}
-            onToggle={() => toggleWidgetVisibility(widget.id)}
-          />
-        );
       case 'gearPower':
         return (
           <GearPowerAnalyticsWidget
@@ -450,53 +403,17 @@ export default function Analytics() {
             onToggle={() => toggleWidgetVisibility(widget.id)}
           />
         );
-      case 'action':
-        return (
-          <Card sx={{ height: '100%', position: 'relative' }}>
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                <Typography variant="h6" color="text.secondary" gutterBottom>
-                  {widget.title}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Tooltip title="Settings">
-                    <IconButton size="small" onClick={(e) => handleSettingsClick(e, widget.id)}>
-                      <SettingsIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title={widget.visible ? "Hide widget" : "Show widget"}>
-                    <IconButton size="small" onClick={() => toggleWidgetVisibility(widget.id)}>
-                      {widget.visible ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </Box>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Uncover performance and visitor insights with our data wizardry.
-              </Typography>
-              <Button variant="contained" size="large">
-                Get insights
-              </Button>
-            </CardContent>
-          </Card>
-        );
       default:
         return null;
     }
   };
 
-  // Get widget icon
+  // Get widget icon (simplified - only gearPower widget)
   const getWidgetIcon = (widgetId) => {
-    const iconMap = {
-      users: <PeopleIcon />,
-      conversions: <AssessmentIcon />,
-      eventCount: <EventIcon />,
-      exploreData: <BuildIcon />,
-      gearPowerAnalytics: <ShieldIcon />,
-      sessions: <TimelineIcon />,
-      pageViews: <BarChartIcon />,
-    };
-    return iconMap[widgetId] || <AssessmentIcon />;
+    if (widgetId === 'gearPowerAnalytics') {
+      return <ShieldIcon />;
+    }
+    return <AssessmentIcon />;
   };
 
   return (
