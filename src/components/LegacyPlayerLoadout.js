@@ -868,43 +868,40 @@ export default function LegacyPlayerLoadout() {
                 <Typography sx={{ color: '#ffffff', mt: 1 }}>{player?.notes}</Typography>
               </Box>
             )}
-          </Box>
 
-          {/* Guild Logo Section - Large Empty Space */}
-          <Box sx={{
-            minWidth: 0,
-            overflow: 'hidden',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: 2,
-            p: 2.5,
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '300px' // Large space for the logo
-          }}>
-            <Box
-              component="img"
-              src="/violence-logo.png"
-              alt="Violence Guild Logo"
-              sx={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                width: 'auto',
-                height: 'auto',
-                objectFit: 'contain',
-                filter: 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.2))',
-                transition: 'transform 0.3s ease-in-out',
-                '&:hover': {
-                  transform: 'scale(1.05)'
-                }
-              }}
-              onError={(e) => {
-                // Fallback if image doesn't exist
-                e.target.style.display = 'none';
-              }}
-            />
+            {/* Guild Logo - Large Empty Space */}
+            <Box sx={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: 1.25,
+              p: 1.875,
+              mt: 2,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '250px'
+            }}>
+              <Box
+                component="img"
+                src="/violence-logo.png"
+                alt="Violence Guild Logo"
+                sx={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  width: 'auto',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.2))',
+                  transition: 'transform 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'scale(1.05)'
+                  }
+                }}
+                onError={(e) => {
+                  // Fallback if image doesn't exist
+                  e.target.style.display = 'none';
+                }}
+              />
+            </Box>
           </Box>
 
           {/* MIDDLE PANEL - Drifter Loadouts */}
