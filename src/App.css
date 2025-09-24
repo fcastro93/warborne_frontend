@@ -68,53 +68,98 @@ html:not(.light) body {
   color: #ffffff !important;
 }
 
-/* Force Material-UI components to use dark theme */
+/* Force Material-UI components to use dark theme - but preserve accent colors */
 .MuiPaper-root {
   background-color: #1a1a1a !important;
-  color: #ffffff !important;
 }
 
 .MuiCard-root {
   background-color: #1a1a1a !important;
-  color: #ffffff !important;
 }
 
 .MuiAppBar-root {
   background-color: #1a1a1a !important;
-  color: #ffffff !important;
 }
 
 .MuiDrawer-root .MuiPaper-root {
   background-color: #1a1a1a !important;
-  color: #ffffff !important;
 }
 
 .MuiList-root {
   background-color: #1a1a1a !important;
-  color: #ffffff !important;
 }
 
 .MuiListItem-root {
   color: #ffffff !important;
 }
 
-.MuiTypography-root {
+/* Only override text color for elements that don't have specific colors */
+.MuiTypography-root:not(.MuiTypography-colorSuccess):not(.MuiTypography-colorPrimary):not(.MuiTypography-colorSecondary):not(.MuiTypography-colorWarning):not(.MuiTypography-colorError) {
   color: #ffffff !important;
 }
 
+/* Preserve chip colors - don't override them */
 .MuiChip-root {
-  background-color: #424242 !important;
-  color: #ffffff !important;
+  /* Don't override chip colors - let them keep their original colors */
 }
 
-/* Override any white backgrounds */
-* {
-  background-color: inherit !important;
-}
-
-/* Specific overrides for common white elements */
+/* Specific overrides for common white elements - but preserve colored elements */
 div[style*="background-color: white"],
 div[style*="background-color: #fff"],
 div[style*="background-color: #ffffff"] {
   background-color: #1a1a1a !important;
+}
+
+/* Preserve specific colored elements */
+.MuiChip-colorSuccess,
+.MuiChip-colorPrimary,
+.MuiChip-colorSecondary,
+.MuiChip-colorWarning,
+.MuiChip-colorError {
+  /* Don't override these - preserve their colors */
+}
+
+/* Preserve green percentage indicators */
+.MuiTypography-colorSuccess,
+.MuiTypography-colorPrimary,
+.MuiTypography-colorSecondary,
+.MuiTypography-colorWarning,
+.MuiTypography-colorError {
+  /* Don't override these - preserve their colors */
+}
+
+/* Ensure colored chips work properly in dark theme */
+.MuiChip-colorSuccess {
+  background-color: #4caf50 !important;
+  color: #ffffff !important;
+}
+
+.MuiChip-colorPrimary {
+  background-color: #1976d2 !important;
+  color: #ffffff !important;
+}
+
+.MuiChip-colorSecondary {
+  background-color: #dc004e !important;
+  color: #ffffff !important;
+}
+
+.MuiChip-colorWarning {
+  background-color: #ff9800 !important;
+  color: #ffffff !important;
+}
+
+/* Ensure success text (green percentages) are visible */
+.MuiTypography-colorSuccess {
+  color: #4caf50 !important;
+}
+
+/* Ensure primary text (blue elements) are visible */
+.MuiTypography-colorPrimary {
+  color: #1976d2 !important;
+}
+
+/* Ensure warning text (orange elements) are visible */
+.MuiTypography-colorWarning {
+  color: #ff9800 !important;
 }
