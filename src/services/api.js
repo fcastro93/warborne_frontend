@@ -47,36 +47,6 @@ export const apiService = {
     return response.json();
   },
 
-  // Build management API methods
-  async equipItemToBuild(buildId, itemId, slotType) {
-    const response = await fetch(`${API_BASE_URL}/builds/${buildId}/equip-item/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCSRFToken(),
-      },
-      body: JSON.stringify({
-        item_id: itemId,
-        slot_type: slotType
-      }),
-    });
-    return response.json();
-  },
-
-  async unequipItemFromBuild(buildId, slotType) {
-    const response = await fetch(`${API_BASE_URL}/builds/${buildId}/unequip-item/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCSRFToken(),
-      },
-      body: JSON.stringify({
-        slot_type: slotType
-      }),
-    });
-    return response.json();
-  },
-
   // Player Loadout API methods
   async getPlayer(playerId) {
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/`);
