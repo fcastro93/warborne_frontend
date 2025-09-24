@@ -40,7 +40,6 @@ import {
   Edit,
   Delete,
   Visibility,
-  Message,
   Circle,
 } from '@mui/icons-material';
 import Layout from './Layout';
@@ -116,16 +115,6 @@ const getDiscordStatusIcon = (status) => {
   }
 };
 
-const handleDiscordMessage = (discordUserId) => {
-  if (!discordUserId) {
-    console.warn('No Discord User ID provided');
-    return;
-  }
-  
-  // Open Discord DM in new tab
-  const discordUrl = `https://discord.com/users/${discordUserId}`;
-  window.open(discordUrl, '_blank');
-};
 
 export default function MembersPage() {
   const navigate = useNavigate();
@@ -406,17 +395,6 @@ export default function MembersPage() {
                         <Visibility fontSize="small" />
                       </IconButton>
                     </Tooltip>
-                    {member.discord_user_id && (
-                      <Tooltip title="Message on Discord">
-                        <IconButton 
-                          size="small" 
-                          color="info"
-                          onClick={() => handleDiscordMessage(member.discord_user_id)}
-                        >
-                          <Message fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    )}
                     <Tooltip title="Edit Member">
                       <IconButton 
                         size="small" 
