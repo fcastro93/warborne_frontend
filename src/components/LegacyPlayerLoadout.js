@@ -2218,7 +2218,7 @@ export default function LegacyPlayerLoadout() {
                 {/* Item Info */}
                 <Box sx={{ 
                   p: 2, 
-                  bgcolor: 'grey.100', 
+                  bgcolor: 'grey.800', 
                   borderRadius: 2,
                   border: '1px solid',
                   borderColor: `${getRarityBorderColor(selectedGearForTier.gearItem.rarity)}`
@@ -2228,10 +2228,10 @@ export default function LegacyPlayerLoadout() {
                       <Inventory2 />
                     </Avatar>
                     <Box>
-                      <Typography variant="h6" fontWeight="bold">
+                      <Typography variant="h6" fontWeight="bold" color="white">
                         {selectedGearForTier.gearItem.base_name}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="grey.300">
                         {selectedGearForTier.gearItem.skill_name} • {selectedGearForTier.gearItem.gear_type.category} • {selectedGearForTier.gearItem.rarity}
                       </Typography>
                     </Box>
