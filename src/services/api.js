@@ -10,73 +10,110 @@ const getCSRFToken = () => {
   return getCookie('csrftoken');
 };
 
+// Helper function to get authentication headers
+const getAuthHeaders = () => {
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-CSRFToken': getCSRFToken()
+  };
+  
+  const accessToken = localStorage.getItem('accessToken');
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+  
+  return headers;
+};
+
 export const apiService = {
   async getGuildStats() {
-    const response = await fetch(`${API_BASE_URL}/stats/`);
+    const response = await fetch(`${API_BASE_URL}/stats/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
     return response.json();
   },
 
   async getGuildMembers() {
-    const response = await fetch(`${API_BASE_URL}/members/`);
+    const response = await fetch(`${API_BASE_URL}/members/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
     return response.json();
   },
 
   async getDiscordPresence(discordUserIds) {
     const response = await fetch(`${API_BASE_URL}/discord/presence/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
+      credentials: 'include',
       body: JSON.stringify({ user_ids: discordUserIds }),
     });
     return response.json();
   },
 
   async getRecentEvents() {
-    const response = await fetch(`${API_BASE_URL}/events/`);
+    const response = await fetch(`${API_BASE_URL}/events/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
     return response.json();
   },
 
   async getGearOverview() {
-    const response = await fetch(`${API_BASE_URL}/gear/`);
+    const response = await fetch(`${API_BASE_URL}/gear/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
     return response.json();
   },
 
   async getRecommendedBuilds() {
-    const response = await fetch(`${API_BASE_URL}/builds/`);
+    const response = await fetch(`${API_BASE_URL}/builds/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
     return response.json();
   },
 
   // Player Loadout API methods
   async getPlayer(playerId) {
-    const response = await fetch(`${API_BASE_URL}/player/${playerId}/`);
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
     return response.json();
   },
 
   async getPlayerDrifters(playerId) {
-    const response = await fetch(`${API_BASE_URL}/player/${playerId}/drifters/`);
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/drifters/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
     return response.json();
   },
 
   async getGearItems() {
-    const response = await fetch(`${API_BASE_URL}/gear-items/`);
+    const response = await fetch(`${API_BASE_URL}/gear-items/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
     const data = await response.json();
     return data.gear_items || [];
   },
 
   async getAllDrifters() {
-    const response = await fetch(`${API_BASE_URL}/drifters/`);
+    const response = await fetch(`${API_BASE_URL}/drifters/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
     return response.json();
   },
 
   async updatePlayerDrifter(playerId, drifterId, drifterSlot) {
-    const csrfToken = getCSRFToken();
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/update-drifter/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-      },
+      headers: getAuthHeaders(),
       credentials: 'include',
       body: JSON.stringify({
         drifter_id: drifterId,
@@ -87,20 +124,18 @@ export const apiService = {
   },
 
   async getPlayerEquippedGear(playerId) {
-    const response = await fetch(`${API_BASE_URL}/player/${playerId}/equipped-gear/`);
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/equipped-gear/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
     return response.json();
   },
 
   async equipGear(playerId, gearId, drifterNum, slotType) {
-    const csrfToken = getCSRFToken();
-    
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/equip-gear/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-      },
-      credentials: 'include', // Include cookies
+      headers: getAuthHeaders(),
+      credentials: 'include',
       body: JSON.stringify({
         gear_id: gearId,
         drifter_num: drifterNum,
@@ -111,15 +146,10 @@ export const apiService = {
   },
 
   async unequipGear(playerId, gearId) {
-    const csrfToken = getCSRFToken();
-    
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/unequip-gear/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-      },
-      credentials: 'include', // Include cookies
+      headers: getAuthHeaders(),
+      credentials: 'include',
       body: JSON.stringify({
         gear_id: gearId,
       }),

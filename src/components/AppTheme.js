@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { navigationCustomizations } from '../theme/navigationCustomizations';
+
+// Theme Context
+const ThemeContext = createContext();
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
 
 const theme = createTheme({
   colorSchemes: {
@@ -163,10 +174,69 @@ const theme = createTheme({
 });
 
 export default function AppTheme({ children, disableCustomTheme = false }) {
+  // Force dark theme as default
+  const [colorMode, setColorMode] = useState('dark');
+
+  useEffect(() => {
+    // Force dark theme on component mount
+    setColorMode('dark');
+    document.documentElement.classList.add('dark');
+    document.documentElement.classList.remove('light');
+  }, []);
+
+  const toggleColorMode = () => {
+    const newMode = colorMode === 'light' ? 'dark' : 'light';
+    setColorMode(newMode);
+    
+    // Update CSS classes
+    if (newMode === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // Store preference in localStorage
+    localStorage.setItem('colorMode', newMode);
+  };
+
+  const setColorModeValue = (mode) => {
+    setColorMode(mode);
+    
+    if (mode === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else if (mode === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      // System mode - check system preference
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (systemPrefersDark) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    
+    localStorage.setItem('colorMode', mode);
+  };
+
+  const themeContextValue = {
+    colorMode,
+    toggleColorMode,
+    setColorMode: setColorModeValue,
+  };
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline enableColorScheme />
-      {children}
-    </ThemeProvider>
+    <ThemeContext.Provider value={themeContextValue}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline enableColorScheme />
+        {children}
+      </ThemeProvider>
+    </ThemeContext.Provider>
   );
 }

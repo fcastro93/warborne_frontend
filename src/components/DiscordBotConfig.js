@@ -60,7 +60,10 @@ const DiscordBotConfig = () => {
   const fetchConfig = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/discord-bot-config/');
+      const response = await fetch('/api/discord-bot-config/', {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       const data = await response.json();
       
       if (response.ok) {
@@ -101,10 +104,8 @@ const DiscordBotConfig = () => {
       setSaving(true);
       const response = await fetch('/api/discord-bot-config/update/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -127,10 +128,8 @@ const DiscordBotConfig = () => {
     try {
       const response = await fetch('/api/discord-bot-config/test/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        }
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -151,10 +150,8 @@ const DiscordBotConfig = () => {
       setSaving(true);
       const response = await fetch('/api/discord-bot-config/start/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        }
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -177,10 +174,8 @@ const DiscordBotConfig = () => {
       setSaving(true);
       const response = await fetch('/api/discord-bot-config/stop/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        }
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -217,6 +212,21 @@ const DiscordBotConfig = () => {
       }
     }
     return cookieValue;
+  };
+
+  // Helper function to get authentication headers
+  const getAuthHeaders = () => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    };
+    
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    
+    return headers;
   };
 
   const getStatusIcon = () => {
