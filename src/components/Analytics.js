@@ -40,6 +40,8 @@ import {
   Event as EventIcon,
 } from '@mui/icons-material';
 import {
+  AreaChart,
+  Area,
   LineChart,
   Line,
   XAxis,
@@ -692,14 +694,22 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
     // Sort dates
     const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
 
-    // Create chart data format
+    // Create chart data format with cumulative stacking
     const chartDataFormat = sortedDates.map(date => {
       const dataPoint = { date: formatDateForChart(date) };
       
+      // Calculate cumulative values for stacked area chart
+      let cumulativeValue = 0;
       data.forEach(series => {
         const point = series.data.find(p => p.x === date);
         const categoryKey = series.name.toLowerCase().replace(' ', '_');
-        dataPoint[categoryKey] = point ? point.y : 0;
+        const value = point ? point.y : 0;
+        
+        // Store both individual and cumulative values
+        dataPoint[categoryKey] = value;
+        dataPoint[`${categoryKey}_cumulative`] = cumulativeValue + value;
+        
+        cumulativeValue += value;
       });
       
       return dataPoint;
@@ -786,8 +796,8 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
           Event participation over the last 30 days by category
         </Typography>
         
-        {/* Recharts LineChart */}
-        <Box sx={{ height: 300, width: '100%' }}>
+        {/* Recharts Stacked AreaChart - Doubled horizontal size */}
+        <Box sx={{ height: 300, width: '200%' }}>
           {isLoading ? (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
               <Typography variant="body2" color="text.secondary">Loading...</Typography>
@@ -800,10 +810,18 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
             </Box>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart
+              <AreaChart
                 data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
               >
+                <defs>
+                  {getSeriesNames().map((seriesName) => (
+                    <linearGradient key={seriesName} id={seriesName} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={categoryColors[seriesName] || '#607d8b'} stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor={categoryColors[seriesName] || '#607d8b'} stopOpacity={0}/>
+                    </linearGradient>
+                  ))}
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
                 <XAxis 
                   dataKey="date" 
@@ -821,23 +839,23 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
                     color: '#fff',
                     borderRadius: '8px'
                   }}
+                  formatter={(value, name) => [value, name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())]}
                 />
                 <Legend 
                   wrapperStyle={{ color: '#fff' }}
                 />
                 {getSeriesNames().map((seriesName, index) => (
-                  <Line
+                  <Area
                     key={seriesName}
                     type="monotone"
                     dataKey={seriesName}
+                    stackId="1"
                     stroke={categoryColors[seriesName] || '#607d8b'}
-                    strokeWidth={2}
-                    dot={{ fill: categoryColors[seriesName] || '#607d8b', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: categoryColors[seriesName] || '#607d8b', strokeWidth: 2 }}
+                    fill={`url(#${seriesName})`}
                     name={seriesName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   />
                 ))}
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </Box>
