@@ -58,12 +58,17 @@ const getGearPower = (tier, rarity, itemLevel = 30) => {
 const calculateTotalGearPower = (drifters) => {
   let totalPower = 0;
   
+  console.log('calculateTotalGearPower called with drifters:', drifters);
+  
   if (drifters && drifters.length > 0) {
-    drifters.forEach(drifter => {
+    drifters.forEach((drifter, drifterIndex) => {
+      console.log(`Processing drifter ${drifterIndex}:`, drifter);
       if (drifter.gear_slots) {
-        drifter.gear_slots.forEach(slot => {
+        drifter.gear_slots.forEach((slot, slotIndex) => {
+          console.log(`Processing slot ${slotIndex}:`, slot);
           if (slot && slot.gear_item && slot.gear_item.tier) {
             const gearItem = slot.gear_item;
+            console.log(`Found equipped gear:`, gearItem);
             // Only count weapons and armor (exclude mods and consumables)
             if (gearItem.gear_type && 
                 gearItem.gear_type.category.toLowerCase() !== 'mod' && 
@@ -75,11 +80,21 @@ const calculateTotalGearPower = (drifters) => {
               );
               console.log(`Adding ${gearItem.base_name} (${gearItem.tier} ${gearItem.rarity} L${gearItem.item_level || 30}): ${itemPower} power`);
               totalPower += itemPower;
+            } else {
+              console.log(`Skipping ${gearItem.base_name} - category: ${gearItem.gear_type?.category}`);
             }
+          } else if (slot && slot.gear_item) {
+            console.log(`Slot has gear_item but no tier:`, slot.gear_item);
+          } else {
+            console.log(`Empty slot ${slotIndex}`);
           }
         });
+      } else {
+        console.log(`Drifter ${drifterIndex} has no gear_slots`);
       }
     });
+  } else {
+    console.log('No drifters found or drifters is empty');
   }
   
   console.log(`Total Gear Power: ${totalPower}`);
@@ -454,6 +469,7 @@ export default function LegacyPlayerLoadout() {
             skill_name: gearItem.skill_name,
             rarity: gearItem.rarity,
             tier: gearItem.tier || 'II', // Include tier information
+            item_level: gearItem.item_level || 30, // Include item level
             damage: gearItem.damage,
             defense: gearItem.defense,
             health_bonus: gearItem.health_bonus,
