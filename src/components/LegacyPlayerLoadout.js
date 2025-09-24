@@ -1219,7 +1219,7 @@ export default function LegacyPlayerLoadout() {
                           {gear ? (
                             <>
                               {/* Tier Icon - Top Left Corner */}
-                              {gear.gear_item.tier && !label.toLowerCase().includes('mod') && !label.toLowerCase().includes('consumable') && (
+                              {!label.toLowerCase().includes('mod') && !label.toLowerCase().includes('consumable') && (
                                 <Box sx={{
                                   position: 'absolute',
                                   top: 4,
@@ -1228,8 +1228,8 @@ export default function LegacyPlayerLoadout() {
                                 }}>
                                   <Box
                                     component="img"
-                                    src={`/static/icons/tiers/tier${gear.gear_item.tier}.png`}
-                                    alt={`Tier ${gear.gear_item.tier}`}
+                                    src={`/static/icons/tiers/tier${gear.gear_item.tier || 'II'}.png`}
+                                    alt={`Tier ${gear.gear_item.tier || 'II'}`}
                                     sx={{
                                       width: 16,
                                       height: 16,
@@ -1239,10 +1239,11 @@ export default function LegacyPlayerLoadout() {
                                     onError={(e) => {
                                       console.error('Tier icon failed to load:', e.target.src);
                                       console.log('Gear item tier:', gear.gear_item.tier);
+                                      console.log('Using default tier:', gear.gear_item.tier || 'II');
                                       console.log('Label:', label);
                                     }}
                                     onLoad={() => {
-                                      console.log('Tier icon loaded successfully:', `/static/icons/tiers/tier${gear.gear_item.tier}.png`);
+                                      console.log('Tier icon loaded successfully:', `/static/icons/tiers/tier${gear.gear_item.tier || 'II'}.png`);
                                     }}
                                   />
                                 </Box>
