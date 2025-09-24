@@ -306,7 +306,7 @@ export default function RecentEvents() {
                       </Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                         <Chip
-                          label={event.get_event_type_display || event.event_type || 'Other'}
+                          label={event.event_type_display || event.event_type || 'Other'}
                           color={getEventTypeColor(event.event_type)}
                           size="small"
                           variant="outlined"
