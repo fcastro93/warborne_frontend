@@ -844,7 +844,7 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
                 >
                   {availableCategories.map((category) => (
                     <MenuItem key={category} value={category}>
-                      {category === 'all' ? 'All Categories' : category.replace('_', ' ').title()}
+                      {category === 'all' ? 'All Categories' : category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </MenuItem>
                   ))}
                 </Select>
