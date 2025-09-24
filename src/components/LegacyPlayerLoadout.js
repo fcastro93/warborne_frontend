@@ -28,8 +28,6 @@ const getGearPower = (tier, rarity, itemLevel = 30) => {
   };
   const tierNum = tierMapping[tier] || 4;
   
-  console.log(`getGearPower: tier=${tier} -> tierNum=${tierNum}, rarity=${rarity}, level=${itemLevel}`);
-  
   // Base power calculation
   let basePower;
   if (tierNum === 2) {  // Tier II → 40 (rarity does not change this)
@@ -45,26 +43,21 @@ const getGearPower = (tier, rarity, itemLevel = 30) => {
       'epic': 22,
       'legendary': 22,
     };
-    const bonus = rarityBonus[rarity] || 0;
-    basePower += bonus;
-    console.log(`  Tier ${tierNum}: base=90+20×(${tierNum}-4)+${bonus} = ${90 + (20 * (tierNum - 4))}+${bonus} = ${basePower}`);
+    basePower += rarityBonus[rarity] || 0;
   } else {
     basePower = 40; // Fallback
   }
   
   // Level bonus: 2 × (Item Level − 1)
   const levelBonus = 2 * (itemLevel - 1);
-  const total = basePower + levelBonus;
   
-  console.log(`  Level bonus: 2×(${itemLevel}-1) = ${levelBonus}`);
-  console.log(`  Total: ${basePower} + ${levelBonus} = ${total}`);
-  
-  return total;
+  return basePower + levelBonus;
 };
 
 // Calculate total gear power from all equipped items
 const calculateTotalGearPower = (drifters) => {
-  let totalPower = 0;
+  let sumPower = 0;
+  let itemCount = 0;
   
   console.log('calculateTotalGearPower called with drifters:', drifters);
   
@@ -72,7 +65,9 @@ const calculateTotalGearPower = (drifters) => {
     drifters.forEach((drifter, drifterIndex) => {
       console.log(`Processing drifter ${drifterIndex}:`, drifter);
       if (drifter.gear_slots) {
-        drifter.gear_slots.forEach((slot, slotIndex) => {
+        // Only check the first 5 slots: Weapon, Helmet, Chest, Boots, Off-hand
+        const relevantSlots = drifter.gear_slots.slice(0, 5);
+        relevantSlots.forEach((slot, slotIndex) => {
           console.log(`Processing slot ${slotIndex}:`, slot);
           if (slot && slot.gear_item && slot.gear_item.tier) {
             const gearItem = slot.gear_item;
@@ -88,8 +83,8 @@ const calculateTotalGearPower = (drifters) => {
                 gearItem.item_level || 30
               );
               console.log(`Adding ${gearItem.base_name} (${gearItem.tier} ${gearItem.rarity} L${gearItem.item_level || 30}): ${itemPower} power`);
-              console.log(`  Base calculation: tier=${gearItem.tier}, rarity=${gearItem.rarity}, level=${gearItem.item_level || 30}`);
-              totalPower += itemPower;
+              sumPower += itemPower;
+              itemCount++;
             } else {
               console.log(`Skipping ${gearItem.base_name} - category: ${category}`);
             }
@@ -107,7 +102,9 @@ const calculateTotalGearPower = (drifters) => {
     console.log('No drifters found or drifters is empty');
   }
   
-  console.log(`Total Gear Power: ${totalPower}`);
+  // Calculate average: floor(sum / 5)
+  const totalPower = Math.floor(sumPower / 5);
+  console.log(`Sum of equipped items: ${sumPower}, Item count: ${itemCount}, Total Gear Power (floor sum/5): ${totalPower}`);
   return totalPower;
 };
 
