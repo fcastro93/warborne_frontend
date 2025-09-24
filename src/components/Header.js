@@ -64,6 +64,11 @@ export default function Header() {
           </IconButton>
         </Badge>
         <ColorModeIconDropdown />
+        <Tooltip title="Logout">
+          <IconButton size="small" aria-label="Logout" onClick={handleLogout}>
+            <LogoutRounded />
+          </IconButton>
+        </Tooltip>
       </Stack>
     </Stack>
   );

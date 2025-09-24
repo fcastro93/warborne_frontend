@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
-import Avatar from '@mui/material/Avatar';
 import MuiDrawer, { drawerClasses } from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -12,13 +11,15 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import { useAuth } from '../contexts/AuthContext';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
 import RecommendRoundedIcon from '@mui/icons-material/RecommendRounded';
 import EventRoundedIcon from '@mui/icons-material/EventRounded';
 import AnalyticsRoundedIcon from '@mui/icons-material/AnalyticsRounded';
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import SmartToyRoundedIcon from '@mui/icons-material/SmartToyRounded';
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 
 const drawerWidth = 240;
 
@@ -48,6 +49,11 @@ const secondaryListItems = [
 
 export default function SideMenu() {
   const location = useLocation();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <Drawer
@@ -119,32 +125,19 @@ export default function SideMenu() {
           </List>
         </Stack>
       </Box>
-      <Stack
-        direction="row"
-        sx={{
-          p: 2,
-          gap: 1,
-          alignItems: 'center',
-          borderTop: '1px solid',
-          borderColor: 'divider',
-        }}
-      >
-        <Avatar
-          sizes="small"
-          alt="Guild Master"
-          sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}
-        >
-          GM
-        </Avatar>
-        <Box sx={{ mr: 'auto' }}>
-          <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
-            Guild Master
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            violenceguild.duckdns.org
-          </Typography>
-        </Box>
-      </Stack>
+      
+      {/* Logout button at bottom */}
+      <Box sx={{ mt: 'auto', p: 2 }}>
+        <Divider sx={{ mb: 2 }} />
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleLogout} sx={{ borderRadius: 1 }}>
+            <ListItemIcon>
+              <LogoutRoundedIcon />
+            </ListItemIcon>
+            <ListItemText primary="Logout" />
+          </ListItemButton>
+        </ListItem>
+      </Box>
     </Drawer>
   );
 }
