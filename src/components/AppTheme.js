@@ -15,6 +15,55 @@ export const useTheme = () => {
 };
 
 const theme = createTheme({
+  // Force dark mode by default
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#1976d2',
+      light: '#42a5f5',
+      dark: '#1565c0',
+    },
+    secondary: {
+      main: '#dc004e',
+      light: '#ff5983',
+      dark: '#9a0036',
+    },
+    background: {
+      default: '#0a0a0a',
+      paper: '#1a1a1a',
+    },
+    text: {
+      primary: '#ffffff',
+      secondary: '#b3b3b3',
+    },
+    success: {
+      main: '#4caf50',
+      light: '#81c784',
+      dark: '#388e3c',
+    },
+    warning: {
+      main: '#ff9800',
+      light: '#ffb74d',
+      dark: '#f57c00',
+    },
+    error: {
+      main: '#f44336',
+      light: '#e57373',
+      dark: '#d32f2f',
+    },
+    grey: {
+      50: '#fafafa',
+      100: '#f5f5f5',
+      200: '#eeeeee',
+      300: '#e0e0e0',
+      400: '#bdbdbd',
+      500: '#9e9e9e',
+      600: '#757575',
+      700: '#616161',
+      800: '#424242',
+      900: '#212121',
+    },
+  },
   colorSchemes: {
     light: {
       palette: {
@@ -178,10 +227,26 @@ export default function AppTheme({ children, disableCustomTheme = false }) {
   const [colorMode, setColorMode] = useState('dark');
 
   useEffect(() => {
-    // Force dark theme on component mount
+    // Force dark theme on component mount - more aggressive approach
     setColorMode('dark');
+    
+    // Remove any existing theme classes
+    document.documentElement.classList.remove('light', 'system');
+    
+    // Force dark theme classes
     document.documentElement.classList.add('dark');
-    document.documentElement.classList.remove('light');
+    
+    // Set CSS custom properties for dark theme
+    document.documentElement.style.setProperty('--color-scheme', 'dark');
+    document.documentElement.style.setProperty('color-scheme', 'dark');
+    
+    // Force body styles
+    document.body.style.backgroundColor = '#0a0a0a';
+    document.body.style.color = '#ffffff';
+    
+    // Set theme preference in localStorage
+    localStorage.setItem('colorMode', 'dark');
+    localStorage.setItem('prefers-color-scheme', 'dark');
   }, []);
 
   const toggleColorMode = () => {
