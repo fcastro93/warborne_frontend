@@ -898,7 +898,7 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
 const defaultWidgets = [
   { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 4 } },
   { id: 'roleAnalytics', type: 'role', title: 'Players by Role', visible: true, size: { xs: 12, md: 4 } },
-  { id: 'eventParticipation', type: 'eventParticipation', title: 'Event Participation', visible: true, size: { xs: 12, md: 8 } },
+  { id: 'eventParticipation', type: 'eventParticipation', title: 'Event Participation', visible: true, size: { xs: 12, md: 12 } },
 ];
 
 export default function Analytics() {
