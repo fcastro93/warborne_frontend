@@ -36,6 +36,7 @@ import {
   TrendingDown as TrendingDownIcon,
   Assessment as AssessmentIcon,
   Shield as ShieldIcon,
+  People as PeopleIcon,
 } from '@mui/icons-material';
 
 // Sample data for widgets (removed - using real data now)
@@ -424,9 +425,205 @@ const GearPowerAnalyticsWidget = ({ onToggle, data, loading }) => {
   );
 };
 
+const RoleAnalyticsWidget = ({ onToggle, data, loading }) => {
+  const [analyticsData, setAnalyticsData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedRole, setSelectedRole] = useState('all');
+  const [sortOrder, setSortOrder] = useState('high-to-low');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [availableRoles, setAvailableRoles] = useState([]);
+
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      try {
+        const response = await apiService.getRoleAnalytics();
+        if (response.analytics) {
+          const roles = response.analytics.map(role => role.role_name);
+          setAvailableRoles(['all', ...roles]);
+          setAnalyticsData(response.analytics);
+          setFilteredData(response.analytics);
+        }
+      } catch (error) {
+        console.error('Error fetching role analytics:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnalyticsData();
+  }, []);
+
+  // Apply filters and sorting
+  useEffect(() => {
+    let filtered = [...analyticsData];
+    
+    // Apply role filter
+    if (selectedRole !== 'all') {
+      filtered = filtered.filter(item => item.role_name === selectedRole);
+    }
+    
+    // Apply sorting
+    if (sortOrder === 'high-to-low') {
+      filtered.sort((a, b) => b.player_count - a.player_count);
+    } else {
+      filtered.sort((a, b) => a.player_count - b.player_count);
+    }
+    
+    setFilteredData(filtered);
+  }, [analyticsData, selectedRole, sortOrder]);
+
+  const maxCount = filteredData.length > 0 ? Math.max(...filteredData.map(item => item.player_count)) : 0;
+  const totalRoles = filteredData.length;
+  const totalPlayers = filteredData.reduce((sum, item) => sum + item.player_count, 0);
+
+  const handleSettingsClick = (event) => {
+    setSettingsOpen(true);
+  };
+
+  return (
+    <Card sx={{ height: '100%', position: 'relative' }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Players by Role
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Tooltip title="Settings">
+              <IconButton size="small" onClick={handleSettingsClick}>
+                <SettingsIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={onToggle ? "Hide widget" : "Show widget"}>
+              <IconButton size="small" onClick={onToggle}>
+                {onToggle ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
+        
+        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <Box>
+            <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+              {totalRoles}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Total Roles
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: 'success.main' }}>
+              {totalPlayers}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Total Players
+            </Typography>
+          </Box>
+        </Box>
+        
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Role distribution of players with equipped loadouts
+        </Typography>
+        
+        {/* Role Chart */}
+        <Box sx={{ height: 300, overflow: 'auto' }}>
+          {isLoading ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <Typography variant="body2" color="text.secondary">Loading...</Typography>
+            </Box>
+          ) : filteredData.length === 0 ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <Typography variant="body2" color="text.secondary">
+                {selectedRole !== 'all' ? `No players found for ${selectedRole}` : 'No role data available'}
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {filteredData.map((item, index) => (
+                <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" sx={{ minWidth: 120, fontSize: '0.75rem' }}>
+                    {item.role_name}
+                  </Typography>
+                  <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box
+                      sx={{
+                        width: `${maxCount > 0 ? (item.player_count / maxCount) * 100 : 0}%`,
+                        height: 20,
+                        backgroundColor: index < 3 ? '#4caf50' : index < 6 ? '#ff9800' : '#2196f3',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        paddingRight: 1
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ color: 'white', fontWeight: 'bold' }}>
+                        {item.player_count}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      </CardContent>
+
+      {/* Settings Dialog */}
+      <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Role Analytics Settings</DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ pt: 2 }}>
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Filter by Role
+              </Typography>
+              <FormControl fullWidth>
+                <InputLabel>Role</InputLabel>
+                <Select
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  label="Role"
+                >
+                  {availableRoles.map((role) => (
+                    <MenuItem key={role} value={role}>
+                      {role === 'all' ? 'All Roles' : role}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Sort by Player Count
+              </Typography>
+              <FormControl fullWidth>
+                <InputLabel>Sort Order</InputLabel>
+                <Select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  label="Sort Order"
+                >
+                  <MenuItem value="high-to-low">High to Low Count</MenuItem>
+                  <MenuItem value="low-to-high">Low to High Count</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSettingsOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </Card>
+  );
+};
+
 // Default widget configuration
 const defaultWidgets = [
-  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 12 } },
+  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 6 } },
+  { id: 'roleAnalytics', type: 'role', title: 'Players by Role', visible: true, size: { xs: 12, md: 6 } },
 ];
 
 export default function Analytics() {
@@ -466,7 +663,7 @@ export default function Analytics() {
     setSettingsDialog({ open: false, widgetId: null });
   };
 
-  // Render widget based on type (simplified - only gearPower widget)
+  // Render widget based on type
   const renderWidget = (widget) => {
     switch (widget.type) {
       case 'gearPower':
@@ -475,15 +672,24 @@ export default function Analytics() {
             onToggle={() => toggleWidgetVisibility(widget.id)}
           />
         );
+      case 'role':
+        return (
+          <RoleAnalyticsWidget
+            onToggle={() => toggleWidgetVisibility(widget.id)}
+          />
+        );
       default:
         return null;
     }
   };
 
-  // Get widget icon (simplified - only gearPower widget)
+  // Get widget icon
   const getWidgetIcon = (widgetId) => {
     if (widgetId === 'gearPowerAnalytics') {
       return <ShieldIcon />;
+    }
+    if (widgetId === 'roleAnalytics') {
+      return <PeopleIcon />;
     }
     return <AssessmentIcon />;
   };
