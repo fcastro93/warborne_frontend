@@ -37,6 +37,7 @@ import {
   Assessment as AssessmentIcon,
   Shield as ShieldIcon,
   People as PeopleIcon,
+  Event as EventIcon,
 } from '@mui/icons-material';
 
 // Sample data for widgets (removed - using real data now)
@@ -620,10 +621,250 @@ const RoleAnalyticsWidget = ({ onToggle, data, loading }) => {
   );
 };
 
+const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
+  const [analyticsData, setAnalyticsData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState([]);
+  const [totalEvents, setTotalEvents] = useState(0);
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+
+  // Color palette for different event categories
+  const categoryColors = {
+    'pvp': '#4caf50',
+    'pve': '#2196f3', 
+    'resource_farming': '#ff9800',
+    'guild_event': '#9c27b0',
+    'other': '#607d8b',
+    'raid': '#f44336',
+    'dungeon': '#00bcd4',
+    'world_event': '#795548'
+  };
+
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      try {
+        const response = await apiService.getEventParticipationAnalytics();
+        if (response.analytics) {
+          setAnalyticsData(response.analytics);
+          setFilteredData(response.analytics);
+          setAvailableCategories(['all', ...response.categories]);
+          setTotalEvents(response.total_events);
+          setDateRange(response.date_range);
+        }
+      } catch (error) {
+        console.error('Error fetching event participation analytics:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnalyticsData();
+  }, []);
+
+  // Apply filters
+  useEffect(() => {
+    let filtered = [...analyticsData];
+    
+    // Apply category filter
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(item => 
+        item.name.toLowerCase().replace(' ', '_') === selectedCategory
+      );
+    }
+    
+    setFilteredData(filtered);
+  }, [analyticsData, selectedCategory]);
+
+  const totalParticipants = filteredData.reduce((sum, series) => 
+    sum + series.data.reduce((seriesSum, point) => seriesSum + point.y, 0), 0
+  );
+
+  const handleSettingsClick = (event) => {
+    setSettingsOpen(true);
+  };
+
+  // Format date for display
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  // Get max value for scaling
+  const maxValue = filteredData.reduce((max, series) => {
+    const seriesMax = Math.max(...series.data.map(point => point.y));
+    return Math.max(max, seriesMax);
+  }, 0);
+
+  return (
+    <Card sx={{ height: '100%', position: 'relative' }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Event Participation
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Tooltip title="Settings">
+              <IconButton size="small" onClick={handleSettingsClick}>
+                <SettingsIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={onToggle ? "Hide widget" : "Show widget"}>
+              <IconButton size="small" onClick={onToggle}>
+                {onToggle ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
+        
+        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <Box>
+            <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+              {totalEvents}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Total Events
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: 'success.main' }}>
+              {totalParticipants}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Total Participants
+            </Typography>
+          </Box>
+        </Box>
+        
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Event participation over the last 30 days by category
+        </Typography>
+        
+        {/* Event Participation Chart */}
+        <Box sx={{ height: 300, overflow: 'auto' }}>
+          {isLoading ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <Typography variant="body2" color="text.secondary">Loading...</Typography>
+            </Box>
+          ) : filteredData.length === 0 ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <Typography variant="body2" color="text.secondary">
+                {selectedCategory !== 'all' ? `No events found for ${selectedCategory}` : 'No event data available'}
+              </Typography>
+            </Box>
+          ) : (
+            <Box>
+              {/* Legend */}
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                {filteredData.map((series, index) => (
+                  <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box
+                      sx={{
+                        width: 12,
+                        height: 12,
+                        backgroundColor: categoryColors[series.name.toLowerCase().replace(' ', '_')] || '#607d8b',
+                        borderRadius: '2px'
+                      }}
+                    />
+                    <Typography variant="caption" color="text.secondary">
+                      {series.name}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+              
+              {/* Simple Bar Chart */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, height: 200 }}>
+                {filteredData.map((series, seriesIndex) => (
+                  <Box key={seriesIndex}>
+                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5 }}>
+                      {series.name}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'end', gap: 0.5, height: 40 }}>
+                      {series.data.map((point, pointIndex) => (
+                        <Box
+                          key={pointIndex}
+                          sx={{
+                            width: `${100 / series.data.length}%`,
+                            height: `${maxValue > 0 ? (point.y / maxValue) * 100 : 0}%`,
+                            backgroundColor: categoryColors[series.name.toLowerCase().replace(' ', '_')] || '#607d8b',
+                            borderRadius: '2px 2px 0 0',
+                            minHeight: point.y > 0 ? '4px' : '0px',
+                            position: 'relative',
+                            '&:hover': {
+                              backgroundColor: categoryColors[series.name.toLowerCase().replace(' ', '_')] || '#607d8b',
+                              filter: 'brightness(1.2)'
+                            }
+                          }}
+                          title={`${formatDate(point.x)}: ${point.y} participants`}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+              
+              {/* X-axis labels */}
+              {filteredData.length > 0 && filteredData[0].data.length > 0 && (
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1, px: 1 }}>
+                  {filteredData[0].data.map((point, index) => {
+                    if (index % Math.ceil(filteredData[0].data.length / 5) === 0) {
+                      return (
+                        <Typography key={index} variant="caption" color="text.secondary">
+                          {formatDate(point.x)}
+                        </Typography>
+                      );
+                    }
+                    return null;
+                  })}
+                </Box>
+              )}
+            </Box>
+          )}
+        </Box>
+      </CardContent>
+
+      {/* Settings Dialog */}
+      <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Event Participation Settings</DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ pt: 2 }}>
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Filter by Event Category
+              </Typography>
+              <FormControl fullWidth>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  label="Category"
+                >
+                  {availableCategories.map((category) => (
+                    <MenuItem key={category} value={category}>
+                      {category === 'all' ? 'All Categories' : category.replace('_', ' ').title()}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSettingsOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </Card>
+  );
+};
+
 // Default widget configuration
 const defaultWidgets = [
-  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 6 } },
-  { id: 'roleAnalytics', type: 'role', title: 'Players by Role', visible: true, size: { xs: 12, md: 6 } },
+  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 4 } },
+  { id: 'roleAnalytics', type: 'role', title: 'Players by Role', visible: true, size: { xs: 12, md: 4 } },
+  { id: 'eventParticipation', type: 'eventParticipation', title: 'Event Participation', visible: true, size: { xs: 12, md: 4 } },
 ];
 
 export default function Analytics() {
@@ -678,6 +919,12 @@ export default function Analytics() {
             onToggle={() => toggleWidgetVisibility(widget.id)}
           />
         );
+      case 'eventParticipation':
+        return (
+          <EventParticipationAnalyticsWidget
+            onToggle={() => toggleWidgetVisibility(widget.id)}
+          />
+        );
       default:
         return null;
     }
@@ -690,6 +937,9 @@ export default function Analytics() {
     }
     if (widgetId === 'roleAnalytics') {
       return <PeopleIcon />;
+    }
+    if (widgetId === 'eventParticipation') {
+      return <EventIcon />;
     }
     return <AssessmentIcon />;
   };

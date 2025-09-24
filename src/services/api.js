@@ -126,6 +126,14 @@ export const apiService = {
     return response.json();
   },
 
+  async getEventParticipationAnalytics() {
+    const response = await fetch(`${API_BASE_URL}/analytics/event-participation/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    return response.json();
+  },
+
   async updatePlayerDrifter(playerId, drifterId, drifterSlot) {
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/update-drifter/`, {
       method: 'POST',
