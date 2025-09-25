@@ -44,9 +44,11 @@ import { apiService } from '../services/api';
 
 const BlueprintsInventory = () => {
   const [blueprints, setBlueprints] = useState([]);
+  const [crafters, setCrafters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
   const [addBlueprintDialog, setAddBlueprintDialog] = useState(false);
+  const [addCrafterDialog, setAddCrafterDialog] = useState(false);
   const [selectedTab, setSelectedTab] = useState('inventory');
   const [showEmptyItems, setShowEmptyItems] = useState(false);
   const [showEmptyInventoryItems, setShowEmptyInventoryItems] = useState(false);
@@ -57,6 +59,11 @@ const BlueprintsInventory = () => {
     item_name: '',
     player_id: '',
     quantity: 1
+  });
+
+  const [crafterForm, setCrafterForm] = useState({
+    item_name: '',
+    player_id: ''
   });
 
   // Legendary items list
@@ -113,6 +120,29 @@ const BlueprintsInventory = () => {
       } catch (blueprintError) {
         console.error('Error fetching blueprints:', blueprintError);
         setBlueprints([]);
+      }
+
+      // Fetch crafters data
+      try {
+        const response = await fetch('/api/crafters/', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Crafters data:', data);
+          setCrafters(data.crafters || []);
+        } else {
+          console.error('Failed to fetch crafters:', response.status);
+          setCrafters([]);
+        }
+      } catch (crafterError) {
+        console.error('Error fetching crafters:', crafterError);
+        setCrafters([]);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -196,6 +226,77 @@ const BlueprintsInventory = () => {
       } catch (error) {
         console.error('Error deleting blueprint:', error);
         showAlert('Error deleting blueprint', 'error');
+      }
+    }
+  };
+
+  const handleAddCrafter = async () => {
+    try {
+      if (!crafterForm.item_name || !crafterForm.player_id) {
+        showAlert('Please fill in all fields', 'error');
+        return;
+      }
+
+      const selectedPlayer = guildMembers.find(m => m.id === parseInt(crafterForm.player_id));
+      if (!selectedPlayer) {
+        showAlert('Selected player not found', 'error');
+        return;
+      }
+
+      const response = await fetch('/api/crafters/create/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          item_name: crafterForm.item_name,
+          player_name: selectedPlayer.discord_name
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        showAlert(data.message || 'Crafter added successfully', 'success');
+        setAddCrafterDialog(false);
+        setCrafterForm({ item_name: '', player_id: '' });
+        fetchData();
+      } else {
+        const errorData = await response.json();
+        showAlert(errorData.error || 'Failed to add crafter', 'error');
+      }
+    } catch (error) {
+      console.error('Error adding crafter:', error);
+      showAlert('Error adding crafter', 'error');
+    }
+  };
+
+  const handleDeleteCrafter = async (id) => {
+    if (window.confirm('Are you sure you want to remove this crafter?')) {
+      try {
+        const response = await fetch(`/api/crafters/${id}/delete/`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+          },
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          showAlert(data.message || 'Crafter removed successfully', 'success');
+          fetchData();
+        } else {
+          const errorData = await response.json();
+          showAlert(errorData.error || 'Failed to remove crafter', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting crafter:', error);
+        showAlert('Error deleting crafter', 'error');
       }
     }
   };
@@ -392,115 +493,81 @@ const BlueprintsInventory = () => {
                 </Box>
               </Box>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Players who can craft legendary items. Green = Free crafting (5+ blueprints), Orange = Consumes blueprint (1-4 blueprints).
+                Legendary items and their designated crafters. Crafters can craft these items for the guild.
                 {!showEmptyItems && (() => {
                   const emptyItemsCount = legendaryItems.filter(item => {
-                    const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
-                    return itemBlueprints.length === 0;
+                    const itemCrafters = crafters.filter(c => c.item_name === item);
+                    return itemCrafters.length === 0;
                   }).length;
-                  return emptyItemsCount > 0 ? ` (${emptyItemsCount} items with no blueprints are hidden)` : '';
+                  return emptyItemsCount > 0 ? ` (${emptyItemsCount} items with no crafters are hidden)` : '';
                 })()}
               </Typography>
               
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Item</TableCell>
-                      <TableCell>Players Who Can Craft</TableCell>
-                      <TableCell>Total Crafters</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {legendaryItems
-                      .map((item) => {
-                        const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
-                        const freeCrafters = itemBlueprints.filter(bp => bp.quantity >= 5);
-                        const consumeCrafters = itemBlueprints.filter(bp => bp.quantity > 0 && bp.quantity < 5);
-                        
-                        return { item, itemBlueprints, freeCrafters, consumeCrafters };
-                      })
-                      .filter(({ itemBlueprints }) => showEmptyItems || itemBlueprints.length > 0)
-                      .map(({ item, itemBlueprints, freeCrafters, consumeCrafters }) => (
-                        <TableRow key={item}>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {legendaryItems
+                  .filter((item) => {
+                    const itemCrafters = crafters.filter(c => c.item_name === item);
+                    return showEmptyItems || itemCrafters.length > 0;
+                  })
+                  .map((item) => {
+                    const itemCrafters = crafters.filter(c => c.item_name === item);
+                    
+                    return (
+                      <Card key={item} variant="outlined">
+                        <CardContent>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                               <Avatar
                                 src={getItemIcon(item)}
-                                sx={{ width: 32, height: 32 }}
+                                sx={{ width: 40, height: 40 }}
                               />
-                              <Typography variant="body2" fontWeight="medium">
-                                {item}
-                              </Typography>
+                              <Typography variant="h6">{item}</Typography>
+                              <Chip 
+                                label={itemCrafters.length > 0 ? 
+                                  `${itemCrafters.length} crafter${itemCrafters.length > 1 ? 's' : ''}` : 
+                                  'No crafters'
+                                }
+                                size="small"
+                                color={itemCrafters.length > 0 ? 'success' : 'default'}
+                              />
                             </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Stack spacing={1}>
-                              {freeCrafters.length > 0 && (
-                                <Box>
-                                  <Typography variant="caption" color="success.main" fontWeight="bold">
-                                    Free Crafting ({freeCrafters.length}):
-                                  </Typography>
-                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-                                    {freeCrafters.map((bp) => (
-                                      <Chip
-                                        key={bp.id}
-                                        label={Array.isArray(guildMembers) ? 
-                                          (guildMembers.find(m => m.id === bp.player_id)?.discord_name || 
-                                           guildMembers.find(m => m.id === bp.player_id)?.name || 
-                                           'Unknown Player')?.replace('#0', '') :
-                                          'Loading...'
-                                        }
-                                        color="success"
-                                        size="small"
-                                        variant="outlined"
-                                      />
-                                    ))}
-                                  </Box>
-                                </Box>
-                              )}
-                              {consumeCrafters.length > 0 && (
-                                <Box>
-                                  <Typography variant="caption" color="warning.main" fontWeight="bold">
-                                    Consumes Blueprint ({consumeCrafters.length}):
-                                  </Typography>
-                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-                                    {consumeCrafters.map((bp) => (
-                                      <Chip
-                                        key={bp.id}
-                                        label={`${Array.isArray(guildMembers) ? 
-                                          (guildMembers.find(m => m.id === bp.player_id)?.discord_name || 
-                                           guildMembers.find(m => m.id === bp.player_id)?.name || 
-                                           'Unknown Player')?.replace('#0', '') :
-                                          'Loading...'
-                                        } (${bp.quantity})`}
-                                        color="warning"
-                                        size="small"
-                                        variant="outlined"
-                                      />
-                                    ))}
-                                  </Box>
-                                </Box>
-                              )}
-                              {itemBlueprints.length === 0 && (
-                                <Typography variant="body2" color="text.secondary">
-                                  No one can craft this item yet
-                                </Typography>
-                              )}
-                            </Stack>
-                          </TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={itemBlueprints.length} 
-                              color={itemBlueprints.length > 0 ? 'primary' : 'default'}
+                            <Button
+                              variant="outlined"
                               size="small"
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                              startIcon={<BuildIcon />}
+                              onClick={() => {
+                                setCrafterForm({ ...crafterForm, item_name: item });
+                                setAddCrafterDialog(true);
+                              }}
+                              sx={{ minWidth: 'auto' }}
+                            >
+                              Add Crafter
+                            </Button>
+                          </Box>
+                          
+                          {itemCrafters.length > 0 ? (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                              {itemCrafters.map((crafter) => (
+                                <Chip
+                                  key={crafter.id}
+                                  label={getPlayerDisplayName(crafter.player_id)}
+                                  color="success"
+                                  variant="outlined"
+                                  onDelete={() => handleDeleteCrafter(crafter.id)}
+                                  deleteIcon={<DeleteIcon />}
+                                />
+                              ))}
+                            </Box>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                              No crafters assigned for this item yet. Click "Add Crafter" to assign someone.
+                            </Typography>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+              </Box>
             </CardContent>
           </Card>
         )}
@@ -569,6 +636,72 @@ const BlueprintsInventory = () => {
               sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
             >
               Add Blueprint
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Add Crafter Dialog */}
+        <Dialog open={addCrafterDialog} onClose={() => setAddCrafterDialog(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <BuildIcon />
+              Add Crafter
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ mt: 2 }}>
+              <FormControl fullWidth required>
+                <InputLabel>Item</InputLabel>
+                <Select
+                  value={crafterForm.item_name}
+                  onChange={(e) => setCrafterForm({ ...crafterForm, item_name: e.target.value })}
+                  label="Item"
+                >
+                  {legendaryItems.map((item) => (
+                    <MenuItem key={item} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              
+              <FormControl fullWidth required>
+                <InputLabel>Player</InputLabel>
+                <Select
+                  value={crafterForm.player_id}
+                  onChange={(e) => setCrafterForm({ ...crafterForm, player_id: e.target.value })}
+                  label="Player"
+                >
+                  {Array.isArray(guildMembers) && guildMembers.length > 0 ? (
+                    guildMembers.map((member) => (
+                      <MenuItem key={member.id} value={member.id}>
+                        {(member.discord_name || member.name)?.replace('#0', '')}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>
+                      {loading ? 'Loading members...' : 'No members found'}
+                    </MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setAddCrafterDialog(false)}
+              startIcon={<CancelIcon />}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddCrafter}
+              variant="contained"
+              startIcon={<BuildIcon />}
+              disabled={!crafterForm.item_name || !crafterForm.player_id}
+              sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
+            >
+              Add Crafter
             </Button>
           </DialogActions>
         </Dialog>
