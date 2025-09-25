@@ -793,7 +793,7 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
         </Typography>
         
         {/* Recharts Stacked AreaChart */}
-        <Box sx={{ height: 300, width: '100%' }}>
+        <Box sx={{ height: 400, width: '100%' }}>
           {isLoading ? (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
               <Typography variant="body2" color="text.secondary">Loading...</Typography>
@@ -808,7 +808,7 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={chartData}
-                margin={{ top: 30, right: 50, left: 50, bottom: 60 }}
+                margin={{ top: 20, right: 30, left: 30, bottom: 50 }}
               >
                 <defs>
                   {getSeriesNames().map((seriesName) => (
@@ -838,10 +838,10 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
                   formatter={(value, name) => [value, name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())]}
                 />
                 <Legend 
-                  wrapperStyle={{ color: '#fff', fontSize: '14px' }}
+                  wrapperStyle={{ color: '#fff', fontSize: '12px' }}
                   layout="horizontal"
                   verticalAlign="bottom"
-                  height={50}
+                  height={40}
                 />
                 {getSeriesNames().map((seriesName, index) => (
                   <Area
