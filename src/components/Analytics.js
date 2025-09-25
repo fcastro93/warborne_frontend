@@ -895,10 +895,11 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
 };
 
 // Default widget configuration
+// Standard: 1 metric block = md: 4 (size of Player Gear Power)
 const defaultWidgets = [
-  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 4 } },
-  { id: 'roleAnalytics', type: 'role', title: 'Players by Role', visible: true, size: { xs: 12, md: 4 } },
-  { id: 'eventParticipation', type: 'eventParticipation', title: 'Event Participation', visible: true, size: { xs: 12, md: 12 } },
+  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 4 } }, // 1 metric block
+  { id: 'roleAnalytics', type: 'role', title: 'Players by Role', visible: true, size: { xs: 12, md: 4 } }, // 1 metric block
+  { id: 'eventParticipation', type: 'eventParticipation', title: 'Event Participation', visible: true, size: { xs: 12, md: 8 } }, // width: 2 metric blocks
 ];
 
 export default function Analytics() {
