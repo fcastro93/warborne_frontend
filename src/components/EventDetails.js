@@ -979,7 +979,7 @@ const EventDetails = () => {
                           </Avatar>
                         </ListItemAvatar>
                         <ListItemText
-                          primary={participant.player?.discord_name || 'Unknown Player'}
+                          primary={participant.player?.in_game_name || 'Unknown Player'}
                           secondary={
                             <Box>
                               <Typography variant="body2" color="text.secondary">
@@ -1075,7 +1075,7 @@ const EventDetails = () => {
                             {party.members && party.members.length > 0 && (
                               <Box sx={{ mb: 2, p: 1, bgcolor: 'rgba(76, 175, 80, 0.1)', borderRadius: 1, border: '1px solid rgba(76, 175, 80, 0.3)' }}>
                                 <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'success.main' }}>
-                                  👑 Party Leader: {getPartyLeader(party)?.player?.discord_name || 'Unknown'}
+                                  👑 Party Leader: {getPartyLeader(party)?.player?.in_game_name || 'Unknown'}
                                 </Typography>
                               </Box>
                             )}
@@ -1093,7 +1093,7 @@ const EventDetails = () => {
                                       primary={
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                           <Typography variant="body2">
-                                            {member.player?.discord_name || 'Unknown'}
+                                            {member.player?.in_game_name || 'Unknown'}
                                           </Typography>
                                           {getPartyLeader(party)?.id === member.id && (
                                             <CrownIcon sx={{ fontSize: 16, color: 'gold' }} />
@@ -1276,7 +1276,7 @@ const EventDetails = () => {
           <DialogTitle>Remove Participant</DialogTitle>
           <DialogContent>
             <Typography>
-              Are you sure you want to remove {selectedParticipant?.player?.discord_name} from this event?
+              Are you sure you want to remove {selectedParticipant?.player?.in_game_name} from this event?
             </Typography>
           </DialogContent>
           <DialogActions>
@@ -1347,7 +1347,7 @@ const EventDetails = () => {
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
-                        primary={participant.discord_name || participant.player?.discord_name || 'Unknown Player'}
+                        primary={participant.player?.in_game_name || 'Unknown Player'}
                         secondary={
                           <Box>
                             <Typography variant="caption" display="block">
