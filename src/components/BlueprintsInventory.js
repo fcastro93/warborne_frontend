@@ -84,7 +84,11 @@ const BlueprintsInventory = () => {
       // Fetch guild members for the dropdown
       try {
         const membersData = await apiService.getGuildMembers();
-        setGuildMembers(Array.isArray(membersData) ? membersData : []);
+        console.log('Raw members data:', membersData);
+        // Handle nested structure: { members: [...] }
+        const members = membersData?.members || membersData;
+        console.log('Processed members:', members);
+        setGuildMembers(Array.isArray(members) ? members : []);
       } catch (membersError) {
         console.error('Error fetching guild members:', membersError);
         setGuildMembers([]);
