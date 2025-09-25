@@ -49,6 +49,7 @@ const BlueprintsInventory = () => {
   const [addBlueprintDialog, setAddBlueprintDialog] = useState(false);
   const [selectedTab, setSelectedTab] = useState('inventory');
   const [showEmptyItems, setShowEmptyItems] = useState(false);
+  const [showEmptyInventoryItems, setShowEmptyInventoryItems] = useState(false);
   const [guildMembers, setGuildMembers] = useState([]);
 
   // Form states
@@ -265,26 +266,44 @@ const BlueprintsInventory = () => {
         {selectedTab === 'inventory' && (
           <Card>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <InventoryIcon />
-                Blueprint Inventory
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <InventoryIcon />
+                  Blueprint Inventory
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Show empty items:
+                  </Typography>
+                  <Button
+                    variant={showEmptyInventoryItems ? 'contained' : 'outlined'}
+                    size="small"
+                    onClick={() => setShowEmptyInventoryItems(!showEmptyInventoryItems)}
+                    sx={{ minWidth: 'auto', px: 1 }}
+                  >
+                    {showEmptyInventoryItems ? 'Hide' : 'Show'}
+                  </Button>
+                </Box>
+              </Box>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 Track legendary blueprints by item. Each item shows all players who have blueprints for it. Players with 5+ blueprints can craft for free.
+                {!showEmptyInventoryItems && (() => {
+                  const emptyItemsCount = legendaryItems.filter(item => {
+                    const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
+                    return itemBlueprints.length === 0;
+                  }).length;
+                  return emptyItemsCount > 0 ? ` (${emptyItemsCount} items with no blueprints are hidden)` : '';
+                })()}
               </Typography>
               
-              {blueprints.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    No blueprints found. Add some blueprints to get started.
-                  </Typography>
-                </Box>
-              ) : (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {legendaryItems.map((item) => {
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {legendaryItems
+                  .filter((item) => {
                     const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
-                    
-                    if (itemBlueprints.length === 0) return null;
+                    return showEmptyInventoryItems || itemBlueprints.length > 0;
+                  })
+                  .map((item) => {
+                    const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
                     
                     return (
                       <Card key={item} variant="outlined">
@@ -296,30 +315,49 @@ const BlueprintsInventory = () => {
                             />
                             <Typography variant="h6">{item}</Typography>
                             <Chip 
-                              label={`${itemBlueprints.length} player${itemBlueprints.length > 1 ? 's' : ''}`}
+                              label={itemBlueprints.length > 0 ? 
+                                `${itemBlueprints.length} player${itemBlueprints.length > 1 ? 's' : ''}` : 
+                                'No blueprints'
+                              }
                               size="small"
-                              color="primary"
+                              color={itemBlueprints.length > 0 ? 'primary' : 'default'}
                             />
                           </Box>
                           
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                            {itemBlueprints.map((blueprint) => (
-                              <Chip
-                                key={blueprint.id}
-                                label={`${getPlayerDisplayName(blueprint.player_id)}: ${blueprint.quantity}`}
-                                color={blueprint.quantity >= 5 ? 'success' : 'warning'}
-                                variant="outlined"
-                                onDelete={() => handleDeleteBlueprint(blueprint.id)}
-                                deleteIcon={<DeleteIcon />}
-                              />
-                            ))}
-                          </Box>
+                          {itemBlueprints.length > 0 ? (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                              {itemBlueprints.map((blueprint) => (
+                                <Chip
+                                  key={blueprint.id}
+                                  label={`${getPlayerDisplayName(blueprint.player_id)}: ${blueprint.quantity}`}
+                                  color={blueprint.quantity >= 5 ? 'success' : 'warning'}
+                                  variant="outlined"
+                                  onDelete={() => handleDeleteBlueprint(blueprint.id)}
+                                  deleteIcon={<DeleteIcon />}
+                                />
+                              ))}
+                            </Box>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                              No players have blueprints for this item yet.
+                            </Typography>
+                          )}
                         </CardContent>
                       </Card>
                     );
                   })}
-                </Box>
-              )}
+                
+                {legendaryItems.filter(item => {
+                  const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
+                  return showEmptyInventoryItems || itemBlueprints.length > 0;
+                }).length === 0 && (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      No blueprints found. Add some blueprints to get started.
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             </CardContent>
           </Card>
         )}
