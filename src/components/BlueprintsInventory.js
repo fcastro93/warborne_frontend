@@ -82,8 +82,13 @@ const BlueprintsInventory = () => {
       // setBlueprints(blueprintsData);
       
       // Fetch guild members for the dropdown
-      const membersData = await apiService.getGuildMembers();
-      setGuildMembers(membersData);
+      try {
+        const membersData = await apiService.getGuildMembers();
+        setGuildMembers(Array.isArray(membersData) ? membersData : []);
+      } catch (membersError) {
+        console.error('Error fetching guild members:', membersError);
+        setGuildMembers([]);
+      }
       
       // For now, using mock data
       setBlueprints([]);
@@ -242,7 +247,10 @@ const BlueprintsInventory = () => {
                           </TableCell>
                           <TableCell>
                             <Typography variant="body2">
-                              {guildMembers.find(m => m.id === blueprint.player_id)?.discord_name || 'Unknown Player'}
+                              {Array.isArray(guildMembers) ? 
+                                guildMembers.find(m => m.id === blueprint.player_id)?.discord_name || 'Unknown Player' :
+                                'Loading...'
+                              }
                             </Typography>
                           </TableCell>
                           <TableCell>
@@ -365,7 +373,10 @@ const BlueprintsInventory = () => {
                                     {freeCrafters.map((bp) => (
                                       <Chip
                                         key={bp.id}
-                                        label={guildMembers.find(m => m.id === bp.player_id)?.discord_name || 'Unknown Player'}
+                                        label={Array.isArray(guildMembers) ? 
+                                          guildMembers.find(m => m.id === bp.player_id)?.discord_name || 'Unknown Player' :
+                                          'Loading...'
+                                        }
                                         color="success"
                                         size="small"
                                         variant="outlined"
@@ -383,7 +394,10 @@ const BlueprintsInventory = () => {
                                     {consumeCrafters.map((bp) => (
                                       <Chip
                                         key={bp.id}
-                                        label={`${guildMembers.find(m => m.id === bp.player_id)?.discord_name || 'Unknown Player'} (${bp.quantity})`}
+                                        label={`${Array.isArray(guildMembers) ? 
+                                          guildMembers.find(m => m.id === bp.player_id)?.discord_name || 'Unknown Player' :
+                                          'Loading...'
+                                        } (${bp.quantity})`}
                                         color="warning"
                                         size="small"
                                         variant="outlined"
@@ -442,11 +456,17 @@ const BlueprintsInventory = () => {
                   onChange={(e) => setBlueprintForm({ ...blueprintForm, player_id: e.target.value })}
                   label="Player"
                 >
-                  {guildMembers.map((member) => (
-                    <MenuItem key={member.id} value={member.id}>
-                      {member.discord_name || member.username}
+                  {Array.isArray(guildMembers) && guildMembers.length > 0 ? (
+                    guildMembers.map((member) => (
+                      <MenuItem key={member.id} value={member.id}>
+                        {member.discord_name || member.username}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>
+                      {loading ? 'Loading members...' : 'No members found'}
                     </MenuItem>
-                  ))}
+                  )}
                 </Select>
               </FormControl>
               
