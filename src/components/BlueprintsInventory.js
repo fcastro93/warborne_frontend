@@ -40,6 +40,7 @@ import {
   Visibility as ViewIcon
 } from '@mui/icons-material';
 import Layout from './Layout';
+import { apiService } from '../services/api';
 
 const BlueprintsInventory = () => {
   const [blueprints, setBlueprints] = useState([]);
@@ -48,11 +49,12 @@ const BlueprintsInventory = () => {
   const [addBlueprintDialog, setAddBlueprintDialog] = useState(false);
   const [selectedTab, setSelectedTab] = useState('inventory');
   const [showEmptyItems, setShowEmptyItems] = useState(false);
+  const [guildMembers, setGuildMembers] = useState([]);
 
   // Form states
   const [blueprintForm, setBlueprintForm] = useState({
     item_name: '',
-    player_name: '',
+    player_id: '',
     quantity: 1
   });
 
@@ -76,6 +78,13 @@ const BlueprintsInventory = () => {
     try {
       setLoading(true);
       // TODO: Replace with actual API calls
+      // const blueprintsData = await apiService.getBlueprints();
+      // setBlueprints(blueprintsData);
+      
+      // Fetch guild members for the dropdown
+      const membersData = await apiService.getGuildMembers();
+      setGuildMembers(membersData);
+      
       // For now, using mock data
       setBlueprints([]);
     } catch (error) {
@@ -93,11 +102,16 @@ const BlueprintsInventory = () => {
 
   const handleAddBlueprint = async () => {
     try {
+      if (!blueprintForm.item_name || !blueprintForm.player_id || !blueprintForm.quantity) {
+        showAlert('Please fill in all fields', 'error');
+        return;
+      }
+
       // TODO: Implement API call to add blueprint
       console.log('Adding blueprint:', blueprintForm);
       showAlert('Blueprint added successfully', 'success');
       setAddBlueprintDialog(false);
-      setBlueprintForm({ item_name: '', player_name: '', quantity: 1 });
+      setBlueprintForm({ item_name: '', player_id: '', quantity: 1 });
       fetchData();
     } catch (error) {
       console.error('Error adding blueprint:', error);
@@ -228,7 +242,7 @@ const BlueprintsInventory = () => {
                           </TableCell>
                           <TableCell>
                             <Typography variant="body2">
-                              {blueprint.player_name}
+                              {guildMembers.find(m => m.id === blueprint.player_id)?.discord_name || 'Unknown Player'}
                             </Typography>
                           </TableCell>
                           <TableCell>
@@ -351,7 +365,7 @@ const BlueprintsInventory = () => {
                                     {freeCrafters.map((bp) => (
                                       <Chip
                                         key={bp.id}
-                                        label={bp.player_name}
+                                        label={guildMembers.find(m => m.id === bp.player_id)?.discord_name || 'Unknown Player'}
                                         color="success"
                                         size="small"
                                         variant="outlined"
@@ -369,7 +383,7 @@ const BlueprintsInventory = () => {
                                     {consumeCrafters.map((bp) => (
                                       <Chip
                                         key={bp.id}
-                                        label={`${bp.player_name} (${bp.quantity})`}
+                                        label={`${guildMembers.find(m => m.id === bp.player_id)?.discord_name || 'Unknown Player'} (${bp.quantity})`}
                                         color="warning"
                                         size="small"
                                         variant="outlined"
@@ -421,13 +435,20 @@ const BlueprintsInventory = () => {
                 </Select>
               </FormControl>
               
-              <TextField
-                fullWidth
-                label="Player Name"
-                value={blueprintForm.player_name}
-                onChange={(e) => setBlueprintForm({ ...blueprintForm, player_name: e.target.value })}
-                required
-              />
+              <FormControl fullWidth required>
+                <InputLabel>Player</InputLabel>
+                <Select
+                  value={blueprintForm.player_id}
+                  onChange={(e) => setBlueprintForm({ ...blueprintForm, player_id: e.target.value })}
+                  label="Player"
+                >
+                  {guildMembers.map((member) => (
+                    <MenuItem key={member.id} value={member.id}>
+                      {member.discord_name || member.username}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               
               <TextField
                 fullWidth
@@ -448,7 +469,7 @@ const BlueprintsInventory = () => {
               onClick={handleAddBlueprint}
               variant="contained"
               startIcon={<SaveIcon />}
-              disabled={!blueprintForm.item_name || !blueprintForm.player_name}
+              disabled={!blueprintForm.item_name || !blueprintForm.player_id}
               sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
             >
               Add Blueprint
