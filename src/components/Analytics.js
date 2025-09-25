@@ -1014,21 +1014,22 @@ export default function Analytics() {
         </Box>
 
         {/* Widgets Grid - 3 columns, equal size */}
-        <Grid container spacing={3}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
           {widgets
             .filter(widget => widget.visible)
             .map((widget) => (
-              <Grid 
-                key={widget.id} 
-                item 
-                xs={12} 
-                md={4}
-                lg={4}
+              <Box 
+                key={widget.id}
+                sx={{ 
+                  flex: '1 1 calc(33.333% - 16px)',
+                  minWidth: '300px',
+                  maxWidth: 'calc(33.333% - 16px)'
+                }}
               >
                 {renderWidget(widget)}
-              </Grid>
+              </Box>
             ))}
-        </Grid>
+        </Box>
 
 
       {/* Widget Settings Dialog */}
