@@ -15,6 +15,7 @@ import EventDetails from './components/EventDetails';
 import DiscordBotConfig from './components/DiscordBotConfig';
 import Analytics from './components/Analytics';
 import UserManagement from './components/UserManagement';
+import BlueprintsInventory from './components/BlueprintsInventory';
 import './App.css';
 
 function App() {
@@ -68,6 +69,11 @@ function App() {
             <Route path="/users" element={
               <ProtectedRoute>
                 <UserManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/blueprints" element={
+              <ProtectedRoute>
+                <BlueprintsInventory />
               </ProtectedRoute>
             } />
           </Routes>

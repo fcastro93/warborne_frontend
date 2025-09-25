@@ -22,6 +22,7 @@ import AnalyticsRoundedIcon from '@mui/icons-material/AnalyticsRounded';
 import SmartToyRoundedIcon from '@mui/icons-material/SmartToyRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import SecurityRoundedIcon from '@mui/icons-material/SecurityRounded';
+import InventoryRoundedIcon from '@mui/icons-material/InventoryRounded';
 
 const drawerWidth = 240;
 
@@ -41,6 +42,7 @@ const mainListItems = [
   { text: 'Members', icon: <PeopleRoundedIcon />, path: '/members' },
   { text: 'Rec. Builds', icon: <RecommendRoundedIcon />, path: '/recbuilds' },
   { text: 'Events', icon: <EventRoundedIcon />, path: '/events' },
+  { text: 'Blueprints', icon: <InventoryRoundedIcon />, path: '/blueprints' },
   { text: 'Analytics', icon: <AnalyticsRoundedIcon />, path: '/analytics' },
 ];
 
