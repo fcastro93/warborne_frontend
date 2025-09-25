@@ -37,7 +37,8 @@ import {
   Inventory as InventoryIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
-  Visibility as ViewIcon
+  Visibility as ViewIcon,
+  Search as SearchIcon
 } from '@mui/icons-material';
 import Layout from './Layout';
 import { apiService } from '../services/api';
@@ -53,6 +54,8 @@ const BlueprintsInventory = () => {
   const [showEmptyItems, setShowEmptyItems] = useState(false);
   const [showEmptyInventoryItems, setShowEmptyInventoryItems] = useState(false);
   const [guildMembers, setGuildMembers] = useState([]);
+  const [searchInventory, setSearchInventory] = useState('');
+  const [searchCrafters, setSearchCrafters] = useState('');
 
   // Form states
   const [blueprintForm, setBlueprintForm] = useState({
@@ -392,6 +395,29 @@ const BlueprintsInventory = () => {
                   </Button>
                 </Box>
               </Box>
+              
+              {/* Search Box */}
+              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <TextField
+                  fullWidth
+                  placeholder="Search items by name..."
+                  value={searchInventory}
+                  onChange={(e) => setSearchInventory(e.target.value)}
+                  InputProps={{
+                    startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
+                  }}
+                />
+                {searchInventory && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => setSearchInventory('')}
+                    sx={{ minWidth: 'auto', px: 2 }}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </Box>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 Track legendary blueprints by item. Each item shows all players who have blueprints for it. Players with 5+ blueprints can craft for free.
                 {!showEmptyInventoryItems && (() => {
@@ -407,7 +433,10 @@ const BlueprintsInventory = () => {
                 {legendaryItems
                   .filter((item) => {
                     const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
-                    return showEmptyInventoryItems || itemBlueprints.length > 0;
+                    const hasBlueprints = itemBlueprints.length > 0;
+                    const matchesSearch = searchInventory === '' || 
+                      item.toLowerCase().includes(searchInventory.toLowerCase());
+                    return (showEmptyInventoryItems || hasBlueprints) && matchesSearch;
                   })
                   .map((item) => {
                     const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
@@ -456,11 +485,17 @@ const BlueprintsInventory = () => {
                 
                 {legendaryItems.filter(item => {
                   const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
-                  return showEmptyInventoryItems || itemBlueprints.length > 0;
+                  const hasBlueprints = itemBlueprints.length > 0;
+                  const matchesSearch = searchInventory === '' || 
+                    item.toLowerCase().includes(searchInventory.toLowerCase());
+                  return (showEmptyInventoryItems || hasBlueprints) && matchesSearch;
                 }).length === 0 && (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant="body2" color="text.secondary">
-                      No blueprints found. Add some blueprints to get started.
+                      {searchInventory ? 
+                        `No items found matching "${searchInventory}". Try a different search term.` :
+                        'No blueprints found. Add some blueprints to get started.'
+                      }
                     </Typography>
                   </Box>
                 )}
@@ -492,6 +527,29 @@ const BlueprintsInventory = () => {
                   </Button>
                 </Box>
               </Box>
+              
+              {/* Search Box */}
+              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <TextField
+                  fullWidth
+                  placeholder="Search items by name..."
+                  value={searchCrafters}
+                  onChange={(e) => setSearchCrafters(e.target.value)}
+                  InputProps={{
+                    startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
+                  }}
+                />
+                {searchCrafters && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => setSearchCrafters('')}
+                    sx={{ minWidth: 'auto', px: 2 }}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </Box>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 Legendary items and their designated crafters. Crafters can craft these items for the guild.
                 {!showEmptyItems && (() => {
@@ -507,7 +565,10 @@ const BlueprintsInventory = () => {
                 {legendaryItems
                   .filter((item) => {
                     const itemCrafters = crafters.filter(c => c.item_name === item);
-                    return showEmptyItems || itemCrafters.length > 0;
+                    const hasCrafters = itemCrafters.length > 0;
+                    const matchesSearch = searchCrafters === '' || 
+                      item.toLowerCase().includes(searchCrafters.toLowerCase());
+                    return (showEmptyItems || hasCrafters) && matchesSearch;
                   })
                   .map((item) => {
                     const itemCrafters = crafters.filter(c => c.item_name === item);
@@ -567,6 +628,23 @@ const BlueprintsInventory = () => {
                       </Card>
                     );
                   })}
+                
+                {legendaryItems.filter(item => {
+                  const itemCrafters = crafters.filter(c => c.item_name === item);
+                  const hasCrafters = itemCrafters.length > 0;
+                  const matchesSearch = searchCrafters === '' || 
+                    item.toLowerCase().includes(searchCrafters.toLowerCase());
+                  return (showEmptyItems || hasCrafters) && matchesSearch;
+                }).length === 0 && (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {searchCrafters ? 
+                        `No items found matching "${searchCrafters}". Try a different search term.` :
+                        'No crafters found. Assign some crafters to get started.'
+                      }
+                    </Typography>
+                  </Box>
+                )}
               </Box>
             </CardContent>
           </Card>
