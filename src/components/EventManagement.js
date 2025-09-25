@@ -43,11 +43,13 @@ import { apiService } from '../services/api';
 const EventManagement = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
+  const [dateFilter, setDateFilter] = useState('all');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -88,6 +90,49 @@ const EventManagement = () => {
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    applyDateFilter();
+  }, [events, dateFilter]);
+
+  const applyDateFilter = () => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    let filtered = events;
+
+    switch (dateFilter) {
+      case 'upcoming':
+        filtered = events.filter(event => new Date(event.event_datetime) > now);
+        break;
+      case 'past':
+        filtered = events.filter(event => new Date(event.event_datetime) <= now);
+        break;
+      case 'today':
+        filtered = events.filter(event => {
+          const eventDate = new Date(event.event_datetime);
+          const eventDateOnly = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+          return eventDateOnly.getTime() === today.getTime();
+        });
+        break;
+      case 'this_week':
+        filtered = events.filter(event => {
+          const eventDate = new Date(event.event_datetime);
+          return eventDate >= today && eventDate <= nextWeek;
+        });
+        break;
+      case 'all':
+      default:
+        filtered = events;
+        break;
+    }
+
+    setFilteredEvents(filtered);
+  };
 
   const fetchEvents = async () => {
     try {
@@ -349,16 +394,66 @@ const EventManagement = () => {
         </Alert>
       )}
 
+      {/* Date Filter */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <span>📅</span>
+          Filter Events
+        </Typography>
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          {[
+            { value: 'all', label: 'All Events', count: events.length },
+            { value: 'upcoming', label: 'Upcoming', count: events.filter(event => new Date(event.event_datetime) > new Date()).length },
+            { value: 'past', label: 'Past Events', count: events.filter(event => new Date(event.event_datetime) <= new Date()).length },
+            { value: 'today', label: 'Today', count: events.filter(event => {
+              const eventDate = new Date(event.event_datetime);
+              const today = new Date();
+              const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+              const eventDateOnly = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+              return eventDateOnly.getTime() === todayOnly.getTime();
+            }).length },
+            { value: 'this_week', label: 'This Week', count: events.filter(event => {
+              const eventDate = new Date(event.event_datetime);
+              const today = new Date();
+              const nextWeek = new Date(today);
+              nextWeek.setDate(nextWeek.getDate() + 7);
+              return eventDate >= today && eventDate <= nextWeek;
+            }).length }
+          ].map((filter) => (
+            <Chip
+              key={filter.value}
+              label={`${filter.label} (${filter.count})`}
+              onClick={() => setDateFilter(filter.value)}
+              color={dateFilter === filter.value ? 'primary' : 'default'}
+              variant={dateFilter === filter.value ? 'filled' : 'outlined'}
+              sx={{ 
+                cursor: 'pointer',
+                '&:hover': { 
+                  backgroundColor: dateFilter === filter.value ? 'primary.dark' : 'action.hover' 
+                }
+              }}
+            />
+          ))}
+        </Stack>
+      </Box>
+
       {/* Events Grid */}
-      {events.length === 0 ? (
+      {filteredEvents.length === 0 ? (
         <Card>
           <CardContent sx={{ textAlign: 'center', py: 4 }}>
             <EventIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
-              No Events Found
+              {events.length === 0 ? 'No Events Found' : 'No Events Match Filter'}
             </Typography>
             <Typography color="text.secondary" sx={{ mb: 2 }}>
-              Create your first event to get started
+              {events.length === 0 
+                ? 'Create your first event to get started'
+                : `No events found for "${dateFilter === 'all' ? 'All Events' : 
+                    dateFilter === 'upcoming' ? 'Upcoming' :
+                    dateFilter === 'past' ? 'Past Events' :
+                    dateFilter === 'today' ? 'Today' :
+                    dateFilter === 'this_week' ? 'This Week' : dateFilter}"`
+              }
             </Typography>
             <Button
               variant="contained"
@@ -372,7 +467,7 @@ const EventManagement = () => {
         </Card>
       ) : (
         <Grid container spacing={3}>
-          {events.map((event) => (
+          {filteredEvents.map((event) => (
             <Grid item xs={12} sm={6} md={3} key={event.id}>
               <Card sx={{ 
                 height: '100%', 
