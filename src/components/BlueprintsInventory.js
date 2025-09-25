@@ -77,9 +77,6 @@ const BlueprintsInventory = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API calls
-      // const blueprintsData = await apiService.getBlueprints();
-      // setBlueprints(blueprintsData);
       
       // Fetch guild members for the dropdown
       try {
@@ -94,8 +91,28 @@ const BlueprintsInventory = () => {
         setGuildMembers([]);
       }
       
-      // For now, using mock data
-      setBlueprints([]);
+      // Fetch blueprints data
+      try {
+        const response = await fetch('/api/blueprints/', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Blueprints data:', data);
+          setBlueprints(data.blueprints || []);
+        } else {
+          console.error('Failed to fetch blueprints:', response.status);
+          setBlueprints([]);
+        }
+      } catch (blueprintError) {
+        console.error('Error fetching blueprints:', blueprintError);
+        setBlueprints([]);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       showAlert('Error fetching data', 'error');
@@ -116,12 +133,32 @@ const BlueprintsInventory = () => {
         return;
       }
 
-      // TODO: Implement API call to add blueprint
-      console.log('Adding blueprint:', blueprintForm);
-      showAlert('Blueprint added successfully', 'success');
-      setAddBlueprintDialog(false);
-      setBlueprintForm({ item_name: '', player_id: '', quantity: 1 });
-      fetchData();
+      const response = await fetch('/api/blueprints/create/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          item_name: blueprintForm.item_name,
+          player_id: parseInt(blueprintForm.player_id),
+          quantity: parseInt(blueprintForm.quantity)
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Blueprint created/updated:', data);
+        showAlert(data.message || 'Blueprint added successfully', 'success');
+        setAddBlueprintDialog(false);
+        setBlueprintForm({ item_name: '', player_id: '', quantity: 1 });
+        fetchData();
+      } else {
+        const errorData = await response.json();
+        showAlert(errorData.error || 'Failed to add blueprint', 'error');
+      }
     } catch (error) {
       console.error('Error adding blueprint:', error);
       showAlert('Error adding blueprint', 'error');
@@ -131,10 +168,24 @@ const BlueprintsInventory = () => {
   const handleDeleteBlueprint = async (id) => {
     if (window.confirm('Are you sure you want to delete this blueprint?')) {
       try {
-        // TODO: Implement API call to delete blueprint
-        console.log('Deleting blueprint:', id);
-        showAlert('Blueprint deleted successfully', 'success');
-        fetchData();
+        const response = await fetch(`/api/blueprints/${id}/delete/`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+          },
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          showAlert(data.message || 'Blueprint deleted successfully', 'success');
+          fetchData();
+        } else {
+          const errorData = await response.json();
+          showAlert(errorData.error || 'Failed to delete blueprint', 'error');
+        }
       } catch (error) {
         console.error('Error deleting blueprint:', error);
         showAlert('Error deleting blueprint', 'error');
@@ -219,91 +270,56 @@ const BlueprintsInventory = () => {
                 Blueprint Inventory
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Track individual legendary blueprints owned by each player. Players with 5+ blueprints can craft for free, others consume blueprints when crafting.
+                Track legendary blueprints by item. Each item shows all players who have blueprints for it. Players with 5+ blueprints can craft for free.
               </Typography>
               
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Item</TableCell>
-                      <TableCell>Player</TableCell>
-                      <TableCell>Quantity</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell align="center">Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {blueprints.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                          <Typography variant="body2" color="text.secondary">
-                            No blueprints found. Add some blueprints to get started.
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      blueprints.map((blueprint) => (
-                        <TableRow key={blueprint.id}>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Avatar
-                                src={getItemIcon(blueprint.item_name)}
-                                sx={{ width: 32, height: 32 }}
+              {blueprints.length === 0 ? (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    No blueprints found. Add some blueprints to get started.
+                  </Typography>
+                </Box>
+              ) : (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {legendaryItems.map((item) => {
+                    const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
+                    
+                    if (itemBlueprints.length === 0) return null;
+                    
+                    return (
+                      <Card key={item} variant="outlined">
+                        <CardContent>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                            <Avatar
+                              src={getItemIcon(item)}
+                              sx={{ width: 40, height: 40 }}
+                            />
+                            <Typography variant="h6">{item}</Typography>
+                            <Chip 
+                              label={`${itemBlueprints.length} player${itemBlueprints.length > 1 ? 's' : ''}`}
+                              size="small"
+                              color="primary"
+                            />
+                          </Box>
+                          
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {itemBlueprints.map((blueprint) => (
+                              <Chip
+                                key={blueprint.id}
+                                label={`${getPlayerDisplayName(blueprint.player_id)}: ${blueprint.quantity}`}
+                                color={blueprint.quantity >= 5 ? 'success' : 'warning'}
+                                variant="outlined"
+                                onDelete={() => handleDeleteBlueprint(blueprint.id)}
+                                deleteIcon={<DeleteIcon />}
                               />
-                              <Typography variant="body2" fontWeight="medium">
-                                {blueprint.item_name}
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">
-                              {Array.isArray(guildMembers) ? 
-                                (guildMembers.find(m => m.id === blueprint.player_id)?.discord_name || 
-                                 guildMembers.find(m => m.id === blueprint.player_id)?.name || 
-                                 'Unknown Player')?.replace('#0', '') :
-                                'Loading...'
-                              }
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={blueprint.quantity} 
-                              color={blueprint.quantity >= 5 ? 'success' : 'primary'}
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={blueprint.quantity >= 5 ? 'Can Craft Free' : 'Needs More'}
-                              color={blueprint.quantity >= 5 ? 'success' : 'warning'}
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell align="center">
-                            <Stack direction="row" spacing={1} justifyContent="center">
-                              <Tooltip title="Edit">
-                                <IconButton size="small" color="primary">
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Delete">
-                                <IconButton 
-                                  size="small" 
-                                  color="error"
-                                  onClick={() => handleDeleteBlueprint(blueprint.id)}
-                                >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            </Stack>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                            ))}
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </Box>
+              )}
             </CardContent>
           </Card>
         )}
@@ -354,7 +370,6 @@ const BlueprintsInventory = () => {
                   <TableBody>
                     {legendaryItems
                       .map((item) => {
-                        // TODO: Replace with actual data from API
                         const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
                         const freeCrafters = itemBlueprints.filter(bp => bp.quantity >= 5);
                         const consumeCrafters = itemBlueprints.filter(bp => bp.quantity > 0 && bp.quantity < 5);
