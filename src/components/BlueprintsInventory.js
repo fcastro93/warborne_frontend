@@ -134,6 +134,12 @@ const BlueprintsInventory = () => {
         return;
       }
 
+      const selectedPlayer = guildMembers.find(m => m.id === parseInt(blueprintForm.player_id));
+      if (!selectedPlayer) {
+        showAlert('Selected player not found', 'error');
+        return;
+      }
+
       const response = await fetch('/api/blueprints/create/', {
         method: 'POST',
         headers: {
@@ -144,7 +150,7 @@ const BlueprintsInventory = () => {
         credentials: 'include',
         body: JSON.stringify({
           item_name: blueprintForm.item_name,
-          player_id: parseInt(blueprintForm.player_id),
+          player_name: selectedPlayer.discord_name,
           quantity: parseInt(blueprintForm.quantity)
         })
       });
