@@ -895,11 +895,11 @@ const EventParticipationAnalyticsWidget = ({ onToggle, data, loading }) => {
 };
 
 // Default widget configuration
-// Standard: 1 metric block = md: 4 (size of Player Gear Power)
+// All widgets have equal size in a 3-column grid
 const defaultWidgets = [
-  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 4 } }, // 1 metric block
-  { id: 'roleAnalytics', type: 'role', title: 'Players by Role', visible: true, size: { xs: 12, md: 4 } }, // 1 metric block
-  { id: 'eventParticipation', type: 'eventParticipation', title: 'Event Participation', visible: true, size: { xs: 12, md: 8 } }, // width: 2 metric blocks
+  { id: 'gearPowerAnalytics', type: 'gearPower', title: 'Player Gear Power', visible: true, size: { xs: 12, md: 4 } },
+  { id: 'roleAnalytics', type: 'role', title: 'Players by Role', visible: true, size: { xs: 12, md: 4 } },
+  { id: 'eventParticipation', type: 'eventParticipation', title: 'Event Participation', visible: true, size: { xs: 12, md: 4 } },
 ];
 
 export default function Analytics() {
@@ -1013,12 +1013,18 @@ export default function Analytics() {
           </Typography>
         </Box>
 
-        {/* Widgets Grid */}
+        {/* Widgets Grid - 3 columns, equal size */}
         <Grid container spacing={3}>
           {widgets
             .filter(widget => widget.visible)
             .map((widget) => (
-              <Grid key={widget.id} item {...widget.size}>
+              <Grid 
+                key={widget.id} 
+                item 
+                xs={12} 
+                md={4}
+                lg={4}
+              >
                 {renderWidget(widget)}
               </Grid>
             ))}
