@@ -43,22 +43,16 @@ import Layout from './Layout';
 
 const BlueprintsInventory = () => {
   const [blueprints, setBlueprints] = useState([]);
-  const [craftedItems, setCraftedItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
   const [addBlueprintDialog, setAddBlueprintDialog] = useState(false);
-  const [addCraftedDialog, setAddCraftedDialog] = useState(false);
-  const [selectedTab, setSelectedTab] = useState('blueprints');
+  const [selectedTab, setSelectedTab] = useState('inventory');
 
   // Form states
   const [blueprintForm, setBlueprintForm] = useState({
     item_name: '',
     player_name: '',
     quantity: 1
-  });
-  const [craftedForm, setCraftedForm] = useState({
-    item_name: '',
-    player_name: ''
   });
 
   // Legendary items list
@@ -83,7 +77,6 @@ const BlueprintsInventory = () => {
       // TODO: Replace with actual API calls
       // For now, using mock data
       setBlueprints([]);
-      setCraftedItems([]);
     } catch (error) {
       console.error('Error fetching data:', error);
       showAlert('Error fetching data', 'error');
@@ -111,20 +104,6 @@ const BlueprintsInventory = () => {
     }
   };
 
-  const handleAddCrafted = async () => {
-    try {
-      // TODO: Implement API call to add crafted item
-      console.log('Adding crafted item:', craftedForm);
-      showAlert('Crafted item added successfully', 'success');
-      setAddCraftedDialog(false);
-      setCraftedForm({ item_name: '', player_name: '' });
-      fetchData();
-    } catch (error) {
-      console.error('Error adding crafted item:', error);
-      showAlert('Error adding crafted item', 'error');
-    }
-  };
-
   const handleDeleteBlueprint = async (id) => {
     if (window.confirm('Are you sure you want to delete this blueprint?')) {
       try {
@@ -135,20 +114,6 @@ const BlueprintsInventory = () => {
       } catch (error) {
         console.error('Error deleting blueprint:', error);
         showAlert('Error deleting blueprint', 'error');
-      }
-    }
-  };
-
-  const handleDeleteCrafted = async (id) => {
-    if (window.confirm('Are you sure you want to delete this crafted item?')) {
-      try {
-        // TODO: Implement API call to delete crafted item
-        console.log('Deleting crafted item:', id);
-        showAlert('Crafted item deleted successfully', 'success');
-        fetchData();
-      } catch (error) {
-        console.error('Error deleting crafted item:', error);
-        showAlert('Error deleting crafted item', 'error');
       }
     }
   };
@@ -175,28 +140,14 @@ const BlueprintsInventory = () => {
             <InventoryIcon />
             Blueprints Inventory
           </Typography>
-          <Stack direction="row" spacing={1}>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => setAddBlueprintDialog(true)}
-              sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
-            >
-              Add Blueprint
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<BuildIcon />}
-              onClick={() => setAddCraftedDialog(true)}
-              sx={{ 
-                borderColor: '#9c27b0', 
-                color: '#9c27b0',
-                '&:hover': { borderColor: '#7b1fa2', bgcolor: 'rgba(156, 39, 176, 0.1)' }
-              }}
-            >
-              Add Crafted
-            </Button>
-          </Stack>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setAddBlueprintDialog(true)}
+            sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
+          >
+            Add Blueprint
+          </Button>
         </Box>
 
         {/* Alert */}
@@ -210,34 +161,34 @@ const BlueprintsInventory = () => {
         <Box sx={{ mb: 3 }}>
           <Stack direction="row" spacing={1}>
             <Button
-              variant={selectedTab === 'blueprints' ? 'contained' : 'outlined'}
-              onClick={() => setSelectedTab('blueprints')}
+              variant={selectedTab === 'inventory' ? 'contained' : 'outlined'}
+              onClick={() => setSelectedTab('inventory')}
               startIcon={<InventoryIcon />}
             >
-              Legendary Blueprints
+              Blueprint Inventory
             </Button>
             <Button
-              variant={selectedTab === 'crafted' ? 'contained' : 'outlined'}
-              onClick={() => setSelectedTab('crafted')}
+              variant={selectedTab === 'crafters' ? 'contained' : 'outlined'}
+              onClick={() => setSelectedTab('crafters')}
               startIcon={<BuildIcon />}
             >
-              Crafted Items
+              Who Can Craft
             </Button>
           </Stack>
         </Box>
 
         <Divider sx={{ mb: 3 }} />
 
-        {/* Blueprints Table */}
-        {selectedTab === 'blueprints' && (
+        {/* Blueprints Inventory Table */}
+        {selectedTab === 'inventory' && (
           <Card>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <InventoryIcon />
-                Legendary Blueprints Inventory
+                Blueprint Inventory
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Track how many legendary blueprints each player has. Blueprints are consumed when used to craft, but 5 blueprints allow free crafting.
+                Track individual legendary blueprints owned by each player. Players with 5+ blueprints can craft for free, others consume blueprints when crafting.
               </Typography>
               
               <TableContainer component={Paper}>
@@ -321,16 +272,16 @@ const BlueprintsInventory = () => {
           </Card>
         )}
 
-        {/* Crafted Items Table */}
-        {selectedTab === 'crafted' && (
+        {/* Who Can Craft Table */}
+        {selectedTab === 'crafters' && (
           <Card>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <BuildIcon />
-                Crafted Legendary Items
+                Who Can Craft
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Players who have successfully crafted legendary items. No limit on how many items a player can craft.
+                Players who can craft legendary items. Green = Free crafting (5+ blueprints), Orange = Consumes blueprint (1-4 blueprints).
               </Typography>
               
               <TableContainer component={Paper}>
@@ -338,65 +289,85 @@ const BlueprintsInventory = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Item</TableCell>
-                      <TableCell>Player</TableCell>
-                      <TableCell>Crafted Date</TableCell>
-                      <TableCell align="center">Actions</TableCell>
+                      <TableCell>Players Who Can Craft</TableCell>
+                      <TableCell>Total Crafters</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {craftedItems.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                          <Typography variant="body2" color="text.secondary">
-                            No crafted items found. Add crafted items to track player achievements.
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      craftedItems.map((crafted) => (
-                        <TableRow key={crafted.id}>
+                    {legendaryItems.map((item) => {
+                      // TODO: Replace with actual data from API
+                      const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
+                      const freeCrafters = itemBlueprints.filter(bp => bp.quantity >= 5);
+                      const consumeCrafters = itemBlueprints.filter(bp => bp.quantity > 0 && bp.quantity < 5);
+                      
+                      return (
+                        <TableRow key={item}>
                           <TableCell>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <Avatar
-                                src={getItemIcon(crafted.item_name)}
+                                src={getItemIcon(item)}
                                 sx={{ width: 32, height: 32 }}
                               />
                               <Typography variant="body2" fontWeight="medium">
-                                {crafted.item_name}
+                                {item}
                               </Typography>
                             </Box>
                           </TableCell>
                           <TableCell>
-                            <Typography variant="body2">
-                              {crafted.player_name}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" color="text.secondary">
-                              {crafted.crafted_date || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell align="center">
-                            <Stack direction="row" spacing={1} justifyContent="center">
-                              <Tooltip title="View Details">
-                                <IconButton size="small" color="primary">
-                                  <ViewIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Delete">
-                                <IconButton 
-                                  size="small" 
-                                  color="error"
-                                  onClick={() => handleDeleteCrafted(crafted.id)}
-                                >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
+                            <Stack spacing={1}>
+                              {freeCrafters.length > 0 && (
+                                <Box>
+                                  <Typography variant="caption" color="success.main" fontWeight="bold">
+                                    Free Crafting ({freeCrafters.length}):
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                                    {freeCrafters.map((bp) => (
+                                      <Chip
+                                        key={bp.id}
+                                        label={bp.player_name}
+                                        color="success"
+                                        size="small"
+                                        variant="outlined"
+                                      />
+                                    ))}
+                                  </Box>
+                                </Box>
+                              )}
+                              {consumeCrafters.length > 0 && (
+                                <Box>
+                                  <Typography variant="caption" color="warning.main" fontWeight="bold">
+                                    Consumes Blueprint ({consumeCrafters.length}):
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                                    {consumeCrafters.map((bp) => (
+                                      <Chip
+                                        key={bp.id}
+                                        label={`${bp.player_name} (${bp.quantity})`}
+                                        color="warning"
+                                        size="small"
+                                        variant="outlined"
+                                      />
+                                    ))}
+                                  </Box>
+                                </Box>
+                              )}
+                              {itemBlueprints.length === 0 && (
+                                <Typography variant="body2" color="text.secondary">
+                                  No one can craft this item yet
+                                </Typography>
+                              )}
                             </Stack>
                           </TableCell>
+                          <TableCell>
+                            <Chip 
+                              label={itemBlueprints.length} 
+                              color={itemBlueprints.length > 0 ? 'primary' : 'default'}
+                              size="small"
+                            />
+                          </TableCell>
                         </TableRow>
-                      ))
-                    )}
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -459,50 +430,6 @@ const BlueprintsInventory = () => {
           </DialogActions>
         </Dialog>
 
-        {/* Add Crafted Item Dialog */}
-        <Dialog open={addCraftedDialog} onClose={() => setAddCraftedDialog(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Add Crafted Legendary Item</DialogTitle>
-          <DialogContent>
-            <Stack spacing={3} sx={{ mt: 1 }}>
-              <FormControl fullWidth>
-                <InputLabel>Item Name</InputLabel>
-                <Select
-                  value={craftedForm.item_name}
-                  onChange={(e) => setCraftedForm({ ...craftedForm, item_name: e.target.value })}
-                  label="Item Name"
-                >
-                  {legendaryItems.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      {item}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              
-              <TextField
-                fullWidth
-                label="Player Name"
-                value={craftedForm.player_name}
-                onChange={(e) => setCraftedForm({ ...craftedForm, player_name: e.target.value })}
-                required
-              />
-            </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setAddCraftedDialog(false)} startIcon={<CancelIcon />}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleAddCrafted}
-              variant="contained"
-              startIcon={<SaveIcon />}
-              disabled={!craftedForm.item_name || !craftedForm.player_name}
-              sx={{ bgcolor: '#9c27b0', '&:hover': { bgcolor: '#7b1fa2' } }}
-            >
-              Add Crafted Item
-            </Button>
-          </DialogActions>
-        </Dialog>
       </Box>
     </Layout>
   );
