@@ -47,6 +47,7 @@ const BlueprintsInventory = () => {
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
   const [addBlueprintDialog, setAddBlueprintDialog] = useState(false);
   const [selectedTab, setSelectedTab] = useState('inventory');
+  const [showEmptyItems, setShowEmptyItems] = useState(false);
 
   // Form states
   const [blueprintForm, setBlueprintForm] = useState({
@@ -276,12 +277,34 @@ const BlueprintsInventory = () => {
         {selectedTab === 'crafters' && (
           <Card>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <BuildIcon />
-                Who Can Craft
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <BuildIcon />
+                  Who Can Craft
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Show empty items:
+                  </Typography>
+                  <Button
+                    variant={showEmptyItems ? 'contained' : 'outlined'}
+                    size="small"
+                    onClick={() => setShowEmptyItems(!showEmptyItems)}
+                    sx={{ minWidth: 'auto', px: 1 }}
+                  >
+                    {showEmptyItems ? 'Hide' : 'Show'}
+                  </Button>
+                </Box>
+              </Box>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 Players who can craft legendary items. Green = Free crafting (5+ blueprints), Orange = Consumes blueprint (1-4 blueprints).
+                {!showEmptyItems && (() => {
+                  const emptyItemsCount = legendaryItems.filter(item => {
+                    const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
+                    return itemBlueprints.length === 0;
+                  }).length;
+                  return emptyItemsCount > 0 ? ` (${emptyItemsCount} items with no blueprints are hidden)` : '';
+                })()}
               </Typography>
               
               <TableContainer component={Paper}>
@@ -294,13 +317,17 @@ const BlueprintsInventory = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {legendaryItems.map((item) => {
-                      // TODO: Replace with actual data from API
-                      const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
-                      const freeCrafters = itemBlueprints.filter(bp => bp.quantity >= 5);
-                      const consumeCrafters = itemBlueprints.filter(bp => bp.quantity > 0 && bp.quantity < 5);
-                      
-                      return (
+                    {legendaryItems
+                      .map((item) => {
+                        // TODO: Replace with actual data from API
+                        const itemBlueprints = blueprints.filter(bp => bp.item_name === item);
+                        const freeCrafters = itemBlueprints.filter(bp => bp.quantity >= 5);
+                        const consumeCrafters = itemBlueprints.filter(bp => bp.quantity > 0 && bp.quantity < 5);
+                        
+                        return { item, itemBlueprints, freeCrafters, consumeCrafters };
+                      })
+                      .filter(({ itemBlueprints }) => showEmptyItems || itemBlueprints.length > 0)
+                      .map(({ item, itemBlueprints, freeCrafters, consumeCrafters }) => (
                         <TableRow key={item}>
                           <TableCell>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -366,8 +393,7 @@ const BlueprintsInventory = () => {
                             />
                           </TableCell>
                         </TableRow>
-                      );
-                    })}
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>
