@@ -147,6 +147,13 @@ const BlueprintsInventory = () => {
     return '/static/icons/placeholder.png';
   };
 
+  const getPlayerDisplayName = (playerId) => {
+    if (!Array.isArray(guildMembers)) return 'Loading...';
+    const member = guildMembers.find(m => m.id === playerId);
+    if (!member) return 'Unknown Player';
+    return (member.discord_name || member.name || 'Unknown Player')?.replace('#0', '');
+  };
+
   if (loading) {
     return (
       <Box sx={{ p: 3, textAlign: 'center' }}>
@@ -252,7 +259,9 @@ const BlueprintsInventory = () => {
                           <TableCell>
                             <Typography variant="body2">
                               {Array.isArray(guildMembers) ? 
-                                guildMembers.find(m => m.id === blueprint.player_id)?.discord_name || 'Unknown Player' :
+                                (guildMembers.find(m => m.id === blueprint.player_id)?.discord_name || 
+                                 guildMembers.find(m => m.id === blueprint.player_id)?.name || 
+                                 'Unknown Player')?.replace('#0', '') :
                                 'Loading...'
                               }
                             </Typography>
@@ -378,7 +387,9 @@ const BlueprintsInventory = () => {
                                       <Chip
                                         key={bp.id}
                                         label={Array.isArray(guildMembers) ? 
-                                          guildMembers.find(m => m.id === bp.player_id)?.discord_name || 'Unknown Player' :
+                                          (guildMembers.find(m => m.id === bp.player_id)?.discord_name || 
+                                           guildMembers.find(m => m.id === bp.player_id)?.name || 
+                                           'Unknown Player')?.replace('#0', '') :
                                           'Loading...'
                                         }
                                         color="success"
@@ -399,7 +410,9 @@ const BlueprintsInventory = () => {
                                       <Chip
                                         key={bp.id}
                                         label={`${Array.isArray(guildMembers) ? 
-                                          guildMembers.find(m => m.id === bp.player_id)?.discord_name || 'Unknown Player' :
+                                          (guildMembers.find(m => m.id === bp.player_id)?.discord_name || 
+                                           guildMembers.find(m => m.id === bp.player_id)?.name || 
+                                           'Unknown Player')?.replace('#0', '') :
                                           'Loading...'
                                         } (${bp.quantity})`}
                                         color="warning"
@@ -463,7 +476,7 @@ const BlueprintsInventory = () => {
                   {Array.isArray(guildMembers) && guildMembers.length > 0 ? (
                     guildMembers.map((member) => (
                       <MenuItem key={member.id} value={member.id}>
-                        {member.discord_name || member.username}
+                        {(member.discord_name || member.name)?.replace('#0', '')}
                       </MenuItem>
                     ))
                   ) : (
