@@ -58,7 +58,8 @@ const EventManagement = () => {
     event_type: 'other',
     event_datetime: '',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Get user's timezone
-    max_participants: ''
+    max_participants: '',
+    points_per_participant: 0
   });
 
   const eventTypes = [
@@ -177,7 +178,8 @@ const EventManagement = () => {
       event_type: event.event_type,
       event_datetime: new Date(event.event_datetime).toISOString().slice(0, 16),
       timezone: event.timezone, // Keep original timezone
-      max_participants: event.max_participants || ''
+      max_participants: event.max_participants || '',
+      points_per_participant: event.points_per_participant || 0
     });
     setEditModalOpen(true);
   };
@@ -712,6 +714,16 @@ const EventManagement = () => {
               onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
               helperText="Leave empty for unlimited participants"
             />
+            
+            <TextField
+              fullWidth
+              label="CryptoTommys Points Per Participant"
+              type="number"
+              value={formData.points_per_participant}
+              onChange={(e) => setFormData({ ...formData, points_per_participant: e.target.value })}
+              helperText="Number of CryptoTommys points each participant will receive"
+              inputProps={{ min: 0 }}
+            />
           </Stack>
         </DialogContent>
         <DialogActions>
@@ -785,6 +797,16 @@ const EventManagement = () => {
               value={formData.max_participants}
               onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
               helperText="Leave empty for unlimited participants"
+            />
+            
+            <TextField
+              fullWidth
+              label="CryptoTommys Points Per Participant"
+              type="number"
+              value={formData.points_per_participant}
+              onChange={(e) => setFormData({ ...formData, points_per_participant: e.target.value })}
+              helperText="Number of CryptoTommys points each participant will receive"
+              inputProps={{ min: 0 }}
             />
           </Stack>
         </DialogContent>
