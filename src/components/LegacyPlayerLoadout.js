@@ -338,7 +338,7 @@ export default function LegacyPlayerLoadout() {
       const response = await apiService.equipGear(
         playerId,
         gearItem.id,
-        currentDrifter.number,
+        currentDrifter?.number,
         slotType,
         tier,
         itemLevel
@@ -1268,11 +1268,11 @@ export default function LegacyPlayerLoadout() {
                     */}
                     {(() => {
                       const statItems = [
-                        { label: 'Health',  value: currentDrifter.base_health || 0,  Icon: Healing,      accent: '#66bb6a' },
-                        { label: 'Energy',  value: currentDrifter.base_energy || 0,  Icon: FlashOn,      accent: '#64b5f6' },
-                        { label: 'Damage',  value: currentDrifter.base_damage || 0,  Icon: MilitaryTech, accent: '#ffb74d' },
-                        { label: 'Defense', value: currentDrifter.base_defense || 0, Icon: Shield,       accent: '#b39ddb' },
-                        { label: 'Speed',   value: currentDrifter.base_speed || 0,   Icon: Speed,        accent: '#4dd0e1' },
+                        { label: 'Health',  value: currentDrifter?.base_health || 0,  Icon: Healing,      accent: '#66bb6a' },
+                        { label: 'Energy',  value: currentDrifter?.base_energy || 0,  Icon: FlashOn,      accent: '#64b5f6' },
+                        { label: 'Damage',  value: currentDrifter?.base_damage || 0,  Icon: MilitaryTech, accent: '#ffb74d' },
+                        { label: 'Defense', value: currentDrifter?.base_defense || 0, Icon: Shield,       accent: '#b39ddb' },
+                        { label: 'Speed',   value: currentDrifter?.base_speed || 0,   Icon: Speed,        accent: '#4dd0e1' },
                       ];
 
                       return (
@@ -1349,7 +1349,7 @@ export default function LegacyPlayerLoadout() {
                 {/* Equipped Items Count */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.25, pb: 0.625, borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                   <Typography sx={{ color: '#90caf9', fontWeight: 600 }}>Equipped Items:</Typography>
-                  <Typography sx={{ color: '#ffffff' }}>{currentDrifter.equipped_count || 0}/9</Typography>
+                  <Typography sx={{ color: '#ffffff' }}>{currentDrifter?.equipped_count || 0}/9</Typography>
                 </Box>
 
                 {/* Gear Slots */}
@@ -1364,7 +1364,7 @@ export default function LegacyPlayerLoadout() {
                     }}
                   >
                     {slotLabels.map((label, i) => {
-                      const gear = currentDrifter.gear_slots?.[i] || null;
+                      const gear = currentDrifter?.gear_slots?.[i] || null;
                       // Debug logging for gear data
                       if (gear && gear.gear_item) {
                         console.log(`Gear slot ${i} (${label}):`, gear.gear_item);
