@@ -193,7 +193,7 @@ export default function LegacyPlayerLoadout() {
   const [filterRarity, setFilterRarity] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // const [accessDenied, setAccessDenied] = useState(false); // Temporarily disabled
+  const [accessDenied, setAccessDenied] = useState(false);
   const [filterStat, setFilterStat] = useState('all');
   const [filterWeaponType, setFilterWeaponType] = useState('all');
   const [editingName, setEditingName] = useState(false);
@@ -227,10 +227,31 @@ export default function LegacyPlayerLoadout() {
     try {
       setLoading(true);
       setError(null);
-      // setAccessDenied(false); // Temporarily disabled
+      setAccessDenied(false);
 
-      // Temporarily make loadout page public - fetch player data directly
-      const playerData = await apiService.getPlayer(playerId);
+      // Check for access token
+      const token = searchParams.get('token');
+      console.log('Token from URL:', token);
+      console.log('Player ID:', playerId);
+      
+      if (!token) {
+        setAccessDenied(true);
+        setError('Access token is required to view this loadout.');
+        return;
+      }
+
+      // Validate token and get player data
+      console.log('Calling validateProfileToken with:', { playerId, token });
+      const response = await apiService.validateProfileToken(playerId, token);
+      console.log('validateProfileToken response:', response);
+      
+      if (!response.success) {
+        setAccessDenied(true);
+        setError(response.error || 'Invalid or expired access token.');
+        return;
+      }
+
+      const playerData = response.player;
       console.log('Player data:', playerData);
       setPlayer(playerData);
       setEditName(playerData?.in_game_name || '');
@@ -848,7 +869,34 @@ export default function LegacyPlayerLoadout() {
     );
   }
 
-  // Temporarily removed access control check - making loadout page public
+  if (accessDenied || error) {
+    return (
+      <Layout>
+        <Box sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 2,
+          p: 3
+        }}>
+          <Security color="error" sx={{ fontSize: 64, color: '#ff4444' }} />
+          <Typography variant="h4" sx={{ color: '#ff4444', fontSize: '2rem' }} gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body1" sx={{ color: '#ffffff', textAlign: 'center', maxWidth: 400 }}>
+            {error || 'You do not have permission to view this loadout.'}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#cccccc', textAlign: 'center', maxWidth: 400, mt: 2 }}>
+            This loadout is only accessible to the player owner or staff members. 
+            Please request a new access link from the Discord bot.
+          </Typography>
+        </Box>
+      </Layout>
+    );
+  }
 
   if (!player) {
     return (
