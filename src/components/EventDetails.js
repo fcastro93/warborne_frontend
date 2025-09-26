@@ -1015,14 +1015,14 @@ const EventDetails = () => {
                     >
                       Add Participant
                     </Button>
-                    <Button
-                      variant="outlined"
-                      startIcon={<SettingsIcon />}
-                      onClick={() => setConfigModalOpen(true)}
-                      size="small"
-                    >
-                      Configure Parties
-                    </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<SettingsIcon />}
+                    onClick={() => setConfigModalOpen(true)}
+                    size="small"
+                  >
+                    Configure Parties
+                  </Button>
                   </Box>
                 </Box>
                 
@@ -1045,7 +1045,7 @@ const EventDetails = () => {
                         <FilterListIcon sx={{ mr: 1, color: 'primary.main' }} />
                         <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
                           Filter Participants
-                        </Typography>
+                              </Typography>
                       </Box>
                       
                       <Grid container spacing={3} alignItems="center">
@@ -1259,20 +1259,20 @@ const EventDetails = () => {
                                 </Typography>
                               </TableCell>
                               <TableCell align="center">
-                                <IconButton
+                          <IconButton
                                   size="small"
-                                  onClick={() => {
-                                    setSelectedParticipant(participant);
-                                    setRemoveParticipantModalOpen(true);
-                                  }}
+                            onClick={() => {
+                              setSelectedParticipant(participant);
+                              setRemoveParticipantModalOpen(true);
+                            }}
                                   color="error"
                                   title="Remove participant"
-                                >
+                          >
                                   <DeleteIcon />
-                                </IconButton>
+                          </IconButton>
                               </TableCell>
                             </TableRow>
-                          ))}
+                    ))}
                         </TableBody>
                       </Table>
                     </TableContainer>
@@ -1306,9 +1306,9 @@ const EventDetails = () => {
                           <CardContent>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                               <Typography variant="h6">
-                                Party {party.party_number}
+                              Party {party.party_number}
                                 {party.party_name && ` - ${party.party_name}`}
-                              </Typography>
+                            </Typography>
                               <Box sx={{ display: 'flex', gap: 0.5 }}>
                                 <IconButton 
                                   size="small" 
@@ -1361,9 +1361,9 @@ const EventDetails = () => {
                                     <ListItemText
                                       primary={
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                          <Typography variant="body2">
+                                        <Typography variant="body2">
                                             {member.player?.in_game_name || 'Unknown'}
-                                          </Typography>
+                                        </Typography>
                                           {getPartyLeader(party)?.id === member.id && (
                                             <CrownIcon sx={{ fontSize: 16, color: 'gold' }} />
                                           )}
