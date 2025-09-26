@@ -229,29 +229,10 @@ export default function LegacyPlayerLoadout() {
       setError(null);
       setAccessDenied(false);
 
-      // Check for access token
-      const token = searchParams.get('token');
-      console.log('Token from URL:', token);
+      // Get player data directly (public access)
       console.log('Player ID:', playerId);
       
-      if (!token) {
-        setAccessDenied(true);
-        setError('Access token is required to view this loadout.');
-        return;
-      }
-
-      // Validate token and get player data
-      console.log('Calling validateProfileToken with:', { playerId, token });
-      const response = await apiService.validateProfileToken(playerId, token);
-      console.log('validateProfileToken response:', response);
-      
-      if (!response.success) {
-        setAccessDenied(true);
-        setError(response.error || 'Invalid or expired access token.');
-        return;
-      }
-
-      const playerData = response.player;
+      const playerData = await apiService.getPlayer(playerId);
       console.log('Player data:', playerData);
       setPlayer(playerData);
       setEditName(playerData?.in_game_name || '');
