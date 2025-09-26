@@ -339,7 +339,8 @@ const EventDetails = () => {
       event_type: event.event_type,
       event_datetime: new Date(event.event_datetime).toISOString().slice(0, 16),
       timezone: event.timezone,
-      max_participants: event.max_participants || ''
+      max_participants: event.max_participants || '',
+      points_per_participant: event.points_per_participant || 0
     });
     setEditModalOpen(true);
   };
@@ -1295,6 +1296,16 @@ const EventDetails = () => {
                 onChange={(e) => handleFormChange('max_participants', e.target.value)}
                 fullWidth
                 inputProps={{ min: 1 }}
+              />
+              
+              <TextField
+                label="CryptoTommys Points Per Participant"
+                type="number"
+                value={formData.points_per_participant}
+                onChange={(e) => handleFormChange('points_per_participant', e.target.value)}
+                fullWidth
+                helperText="Number of CryptoTommys points each participant will receive"
+                inputProps={{ min: 0 }}
               />
             </Stack>
           </DialogContent>
