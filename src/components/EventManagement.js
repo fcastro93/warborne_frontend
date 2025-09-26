@@ -708,11 +708,12 @@ const EventManagement = () => {
             
             <TextField
               fullWidth
-              label="Max Participants (optional)"
+              label="Max Participants Per Party"
               type="number"
               value={formData.max_participants}
               onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
-              helperText="Leave empty for unlimited participants"
+              helperText="Maximum number of participants per party (default: 15)"
+              inputProps={{ min: 1 }}
             />
             
             <TextField
@@ -792,11 +793,12 @@ const EventManagement = () => {
             
             <TextField
               fullWidth
-              label="Max Participants (optional)"
+              label="Max Participants Per Party"
               type="number"
               value={formData.max_participants}
               onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
-              helperText="Leave empty for unlimited participants"
+              helperText="Maximum number of participants per party (default: 15)"
+              inputProps={{ min: 1 }}
             />
             
             <TextField

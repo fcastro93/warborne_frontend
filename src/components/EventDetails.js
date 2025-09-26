@@ -1290,11 +1290,12 @@ const EventDetails = () => {
               />
               
               <TextField
-                label="Max Participants"
+                label="Max Participants Per Party"
                 type="number"
                 value={formData.max_participants}
                 onChange={(e) => handleFormChange('max_participants', e.target.value)}
                 fullWidth
+                helperText="Maximum number of participants per party (default: 15)"
                 inputProps={{ min: 1 }}
               />
               
