@@ -942,7 +942,6 @@ const EventDetails = () => {
                     <PeopleIcon fontSize="small" color="action" />
                     <Typography variant="body2">
                       {event.participant_count} participants
-                      {event.max_participants && ` / ${event.max_participants} max`}
                     </Typography>
                   </Box>
                 </Stack>
