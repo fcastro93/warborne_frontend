@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/api` : 'https://violenceguild.duckdns.org/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/api` : 'https://weareviolence.com/api';
 
 // Helper function to get CSRF token from cookies
 const getCSRFToken = () => {

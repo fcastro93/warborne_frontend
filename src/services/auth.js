@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://violenceguild.duckdns.org';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://weareviolence.com';
 
 // Create axios instance with default config
 const authAPI = axios.create({
