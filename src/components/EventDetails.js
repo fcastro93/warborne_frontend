@@ -697,27 +697,34 @@ const EventDetails = () => {
         selectedMembers.includes(member.id)
       );
 
-      for (const member of selectedGuildMembers) {
-        const participantData = {
-          discord_name: member.discord_name || member.name,
-          assigned_role: member.game_role
-        };
+      // Prepare participants data for bulk join
+      const participants = selectedGuildMembers.map(member => ({
+        discord_name: member.discord_name || member.name,
+        discord_user_id: member.discord_user_id,
+        assigned_role: member.game_role
+      }));
 
-        await fetch(`/api/events/${eventId}/join/`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          credentials: 'include',
-          body: JSON.stringify(participantData)
-        });
-      }
-
-      setAlert({ 
-        type: 'success', 
-        message: `Successfully added ${selectedGuildMembers.length} participants to the event` 
+      // Use bulk join endpoint
+      const response = await fetch(`/api/events/${eventId}/bulk-join/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+        body: JSON.stringify({ participants })
       });
-      await fetchEventDetails(); // Refresh data
-      setShowAddParticipantDialog(false);
-      setSelectedMembers([]);
+
+      if (response.ok) {
+        const data = await response.json();
+        setAlert({ 
+          type: 'success', 
+          message: data.message
+        });
+        await fetchEventDetails(); // Refresh data
+        setShowAddParticipantDialog(false);
+        setSelectedMembers([]);
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', message: errorData.error || 'Failed to add participants' });
+      }
     } catch (error) {
       setAlert({ type: 'error', message: 'Error adding participants: ' + error.message });
     }
