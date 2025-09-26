@@ -881,8 +881,18 @@ export default function LegacyPlayerLoadout() {
     hasSelectedDrifter
   });
 
-  // Add error boundary for React error #31
-  try {
+    // Add error boundary for React error #31
+    console.log('About to render main component, current state:', {
+      loading,
+      accessDenied,
+      error,
+      player: player ? { id: player.id, name: player.in_game_name } : null,
+      drifters: drifters ? drifters.map(d => ({ number: d.number, name: d.name, id: d.id })) : null,
+      allDrifters: allDrifters ? allDrifters.slice(0, 3).map(d => ({ id: d.id, name: d.name })) : null,
+      gearItems: gearItems ? gearItems.length : 0
+    });
+    
+    try {
 
   if (loading) {
     return (
@@ -1162,6 +1172,7 @@ export default function LegacyPlayerLoadout() {
                 const hasGearSlots = drifter && drifter.name !== null;
                 // Use number as key since main drifters don't have id, only number
                 const drifterKey = drifter && drifter.number ? `drifter-${drifter.number}` : `drifter-${index}`;
+                console.log(`Using key for drifter ${index}:`, drifterKey);
                 return (
                   <Button
                     key={drifterKey}
@@ -1828,11 +1839,13 @@ export default function LegacyPlayerLoadout() {
               {(() => {
                 const filteredItems = getFilteredItems();
                 console.log('Filtered items:', filteredItems ? filteredItems.length : 0);
-                return filteredItems.length > 0 ? filteredItems.map((item) => {
+                return filteredItems.length > 0 ? filteredItems.map((item, itemIndex) => {
                   console.log('Rendering item:', item ? { id: item.id, name: item.base_name } : null);
+                  const itemKey = item && item.id ? `item-${item.id}` : `item-${itemIndex}`;
+                  console.log('Using key for item:', itemKey);
                   return (
                 <Box
-                  key={item.id}
+                  key={itemKey}
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -2271,9 +2284,11 @@ export default function LegacyPlayerLoadout() {
                 console.log('Filtered drifters for modal:', filteredDrifters ? filteredDrifters.map(d => ({ id: d.id, name: d.name })) : null);
                 return filteredDrifters.length > 0 ? filteredDrifters.map((drifter, index) => {
                   console.log(`Rendering modal drifter ${index}:`, drifter ? { id: drifter.id, name: drifter.name } : null);
+                  const modalDrifterKey = drifter && drifter.id ? `modal-drifter-${drifter.id}` : `modal-drifter-${index}`;
+                  console.log('Using key for modal drifter:', modalDrifterKey);
                   return (
                 <Button
-                  key={index}
+                  key={modalDrifterKey}
                   onClick={async () => {
                     try {
                       // Save to backend first
