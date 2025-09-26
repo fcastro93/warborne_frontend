@@ -29,7 +29,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/recbuilds" element={<RecommendedBuildsList />} />
             <Route path="/recbuilds/:buildId" element={<RecommendedBuilds />} />
-            <Route path="/player/:playerId/loadout" element={<PlayerLoadout />} />
+            <Route path="/player/:playerId/loadout" element={<LegacyPlayerLoadout />} />
             <Route path="/player/:playerId/profile" element={<PlayerProfile />} />
             
             {/* Protected routes (authentication required) */}
