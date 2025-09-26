@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Box, Typography, Button, Paper, Avatar, Chip, IconButton, Tabs, Tab, Grid, Card, CardContent, TextField, InputAdornment, Stack, Divider, Badge, Alert, FormControl, Select, MenuItem, InputLabel, List, ListItem, ListItemText, ListItemIcon, ListItemButton, ListSubheader, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { ArrowBack, Add, Inventory2, Person, Search, Close, Edit, Check, Cancel, FilterList, LocalFireDepartment, Shield, Healing, Speed, FlashOn, MilitaryTech, Public, WorkspacePremium, Inventory, Security, Star, Diamond, AutoAwesome } from '@mui/icons-material';
 import Layout from './Layout';
@@ -181,6 +181,7 @@ const mockGearItems = [
 
 export default function LegacyPlayerLoadout() {
   const { playerId } = useParams();
+  const [searchParams] = useSearchParams();
   const [player, setPlayer] = useState(null);
   const [drifters, setDrifters] = useState([]);
   const [allDrifters, setAllDrifters] = useState([]);
@@ -190,6 +191,9 @@ export default function LegacyPlayerLoadout() {
   const [activeAttributeTab, setActiveAttributeTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRarity, setFilterRarity] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [accessDenied, setAccessDenied] = useState(false);
   const [filterStat, setFilterStat] = useState('all');
   const [filterWeaponType, setFilterWeaponType] = useState('all');
   const [editingName, setEditingName] = useState(false);
@@ -198,7 +202,6 @@ export default function LegacyPlayerLoadout() {
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [showDrifterModal, setShowDrifterModal] = useState(false);
   const [drifterSearchTerm, setDrifterSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
   const [tierDialogOpen, setTierDialogOpen] = useState(false);
   const [selectedGearForTier, setSelectedGearForTier] = useState(null);
   const [selectedItemLevel, setSelectedItemLevel] = useState(30);
@@ -223,11 +226,29 @@ export default function LegacyPlayerLoadout() {
   const fetchPlayerData = async () => {
     try {
       setLoading(true);
-      // Fetch player data
-      const playerData = await apiService.getPlayer(playerId);
+      setError(null);
+      setAccessDenied(false);
+
+      // Check for access token
+      const token = searchParams.get('token');
+      if (!token) {
+        setAccessDenied(true);
+        setError('Access token is required to view this loadout.');
+        return;
+      }
+
+      // Validate token and get player data
+      const response = await apiService.validateProfileToken(playerId, token);
+      if (!response.success) {
+        setAccessDenied(true);
+        setError(response.error || 'Invalid or expired access token.');
+        return;
+      }
+
+      const playerData = response.player;
       console.log('Player data:', playerData);
       setPlayer(playerData);
-      setEditName(playerData?.name || '');
+      setEditName(playerData?.in_game_name || '');
 
       // Fetch drifters data
       const driftersData = await apiService.getPlayerDrifters(playerId);
@@ -247,6 +268,7 @@ export default function LegacyPlayerLoadout() {
 
     } catch (error) {
       console.error('Error fetching player data:', error);
+      setError('An unexpected error occurred while loading the loadout.');
     } finally {
       setLoading(false);
     }
@@ -835,6 +857,35 @@ export default function LegacyPlayerLoadout() {
         }}>
           <Typography sx={{ color: '#ffffff', fontSize: '1.5rem' }}>
             Loading player data...
+          </Typography>
+        </Box>
+      </Layout>
+    );
+  }
+
+  if (accessDenied || error) {
+    return (
+      <Layout>
+        <Box sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 2,
+          p: 3
+        }}>
+          <Security color="error" sx={{ fontSize: 64, color: '#ff4444' }} />
+          <Typography variant="h4" sx={{ color: '#ff4444', fontSize: '2rem' }} gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body1" sx={{ color: '#ffffff', textAlign: 'center', maxWidth: 400 }}>
+            {error || 'You do not have permission to view this loadout.'}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#cccccc', textAlign: 'center', maxWidth: 400, mt: 2 }}>
+            This loadout is only accessible to the player owner or staff members. 
+            Please request a new access link from the Discord bot.
           </Typography>
         </Box>
       </Layout>

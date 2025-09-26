@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -13,7 +13,11 @@ import {
   Alert,
   CircularProgress,
   Button,
-  Paper
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon
 } from '@mui/material';
 import {
   Person,
@@ -23,7 +27,9 @@ import {
   Group,
   Star,
   AccessTime,
-  Security
+  Security,
+  Build,
+  ArrowForward
 } from '@mui/icons-material';
 import { apiService } from '../services/api';
 
@@ -336,20 +342,51 @@ export default function PlayerProfile() {
             Drifters
           </Typography>
           <Divider sx={{ mb: 2 }} />
-          <Grid container spacing={2}>
+          <List>
             {[player.drifter_1, player.drifter_2, player.drifter_3].map((drifter, index) => (
-              <Grid item xs={12} sm={4} key={index}>
-                <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'background.paper' }}>
-                  <Typography variant="h6" gutterBottom>
-                    Drifter {index + 1}
-                  </Typography>
-                  <Typography variant="body1" color={drifter ? 'text.primary' : 'text.secondary'}>
-                    {drifter || 'Not Assigned'}
-                  </Typography>
-                </Paper>
-              </Grid>
+              <ListItem key={index} sx={{ px: 0 }}>
+                <ListItemIcon>
+                  <Person color="action" />
+                </ListItemIcon>
+                <ListItemText
+                  primary={`Drifter ${index + 1}`}
+                  secondary={drifter || 'Not Assigned'}
+                  secondaryTypographyProps={{
+                    color: drifter ? 'text.primary' : 'text.secondary'
+                  }}
+                />
+              </ListItem>
             ))}
-          </Grid>
+          </List>
+        </CardContent>
+      </Card>
+
+      {/* Loadout Section */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Build color="primary" />
+            Loadout
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            View and manage your equipment, weapons, and gear configurations.
+          </Typography>
+          <Button
+            component={Link}
+            to={`/player/${player.id}/loadout?token=${searchParams.get('token')}`}
+            variant="contained"
+            startIcon={<Build />}
+            endIcon={<ArrowForward />}
+            sx={{ 
+              background: 'linear-gradient(45deg, #4a9eff, #6bb6ff)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #3a8eef, #5ba6ef)',
+              }
+            }}
+          >
+            Open Loadout
+          </Button>
         </CardContent>
       </Card>
 
