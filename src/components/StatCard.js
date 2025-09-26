@@ -2,8 +2,17 @@ import React from 'react';
 import { Card, CardContent, Typography, Box, Stack, Chip } from '@mui/material';
 import { TrendingUp, TrendingDown, TrendingFlat } from '@mui/icons-material';
 
-export default function StatCard({ title, value, interval, data, icon, color = 'primary' }) {
+export default function StatCard({ title, value, interval, data, icon, color = 'primary', percentageChange }) {
   const getTrendPercentage = () => {
+    // Use the real percentage from the API if available
+    if (percentageChange !== undefined && percentageChange !== null) {
+      return { 
+        value: percentageChange, 
+        display: `${percentageChange > 0 ? '+' : ''}${percentageChange.toFixed(1)}%` 
+      };
+    }
+    
+    // Fallback to calculating from data array if percentageChange not provided
     if (!data || data.length < 2) return { value: 0, display: '' };
     const current = data[data.length - 1];
     const previous = data[data.length - 2];

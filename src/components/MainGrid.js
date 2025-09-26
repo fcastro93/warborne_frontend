@@ -28,40 +28,20 @@ export default function MainGrid() {
     return <div>Loading...</div>;
   }
 
-  // Helper function to generate weekly trend data
-  const generateWeeklyTrendData = (currentValue) => {
-    const num = parseInt(currentValue, 10);
-    if (isNaN(num) || num < 0) return [];
-
-    if (num === 0) {
-      return [0, 0]; // No change if value is 0
-    }
-
-    // For weekly comparison, simulate last week's data
-    // If current is 2, last week might have been 0 (new guild) or 1 (growth)
-    if (num === 1) {
-      return [0, 1]; // 0 to 1 = +100%
-    } else if (num === 2) {
-      return [0, 2]; // 0 to 2 = +100% (new guild)
-    } else if (num >= 3) {
-      return [Math.floor(num * 0.8), num]; // 20% growth week over week
-    }
-    
-    return [num, num]; // No change
-  };
-
   const data = [
     {
       title: 'Guild Members',
       value: guildStats?.total_members?.toString() || '0',
       interval: 'vs. last week',
-      data: generateWeeklyTrendData(guildStats?.total_members),
+      data: guildStats?.member_growth ? [guildStats.member_growth.last_week, guildStats.member_growth.current] : [0, 0],
+      percentageChange: guildStats?.member_growth?.percentage_change || 0,
     },
     {
       title: 'Active Events',
       value: guildStats?.active_events?.toString() || '0',
       interval: 'vs. last week',
-      data: generateWeeklyTrendData(guildStats?.active_events),
+      data: guildStats?.event_growth ? [guildStats.event_growth.last_week, guildStats.event_growth.current] : [0, 0],
+      percentageChange: guildStats?.event_growth?.percentage_change || 0,
     },
   ];
   return (
@@ -78,7 +58,7 @@ export default function MainGrid() {
       >
         {data.map((card, index) => (
           <Grid key={index} size={{ xs: 12, sm: 6, lg: 6 }}>
-            <StatCard {...card} />
+            <StatCard {...card} percentageChange={card.percentageChange} />
           </Grid>
         ))}
       </Grid>

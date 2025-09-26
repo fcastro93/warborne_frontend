@@ -42,6 +42,16 @@ export const apiService = {
     return response.json();
   },
 
+  async validateProfileToken(playerId, token) {
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/validate-profile-token/?token=${token}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    });
+    return response.json();
+  },
+
   async getDiscordPresence(discordUserIds) {
     const response = await fetch(`${API_BASE_URL}/discord/presence/`, {
       method: 'POST',

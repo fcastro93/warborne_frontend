@@ -16,6 +16,7 @@ import DiscordBotConfig from './components/DiscordBotConfig';
 import Analytics from './components/Analytics';
 import UserManagement from './components/UserManagement';
 import BlueprintsInventory from './components/BlueprintsInventory';
+import PlayerProfile from './components/PlayerProfile';
 import './App.css';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="/recbuilds" element={<RecommendedBuildsList />} />
             <Route path="/recbuilds/:buildId" element={<RecommendedBuilds />} />
             <Route path="/player/:playerId/loadout" element={<LegacyPlayerLoadout />} />
+            <Route path="/player/:playerId/profile" element={<PlayerProfile />} />
             
             {/* Protected routes (authentication required) */}
             <Route path="/" element={
