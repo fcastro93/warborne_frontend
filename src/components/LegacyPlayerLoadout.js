@@ -259,7 +259,7 @@ export default function LegacyPlayerLoadout() {
       // Fetch drifters data
       const driftersData = await apiService.getPlayerDrifters(playerId);
       console.log('Drifters data:', driftersData);
-      console.log('Drifters data structure:', driftersData.drifters ? driftersData.drifters.map(d => ({ id: d.id, name: d.name, number: d.number })) : null);
+      console.log('Drifters data structure:', driftersData.drifters ? driftersData.drifters.map(d => ({ id: d.id, name: d.name, number: d.number, keys: Object.keys(d) })) : null);
       setDrifters(driftersData.drifters || []);
 
       // Fetch gear items data
@@ -271,7 +271,7 @@ export default function LegacyPlayerLoadout() {
       // Fetch all available drifters
       const allDriftersData = await apiService.getAllDrifters();
       console.log('All drifters data:', allDriftersData);
-      console.log('All drifters data structure:', allDriftersData.drifters ? allDriftersData.drifters.map(d => ({ id: d.id, name: d.name })) : null);
+      console.log('All drifters data structure:', allDriftersData.drifters ? allDriftersData.drifters.map(d => ({ id: d.id, name: d.name, keys: Object.keys(d) })) : null);
       setAllDrifters(allDriftersData.drifters || []);
 
     } catch (error) {
@@ -878,6 +878,9 @@ export default function LegacyPlayerLoadout() {
     currentDrifter: currentDrifter ? { id: currentDrifter.id, name: currentDrifter.name } : null,
     hasSelectedDrifter
   });
+
+  // Add error boundary for React error #31
+  try {
 
   if (loading) {
     return (
@@ -2548,4 +2551,39 @@ export default function LegacyPlayerLoadout() {
       </Box>
     </Layout>
   );
+  } catch (error) {
+    console.error('React error #31 caught:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      currentDrifter,
+      drifters: drifters ? drifters.map(d => ({ id: d.id, name: d.name, keys: Object.keys(d) })) : null,
+      allDrifters: allDrifters ? allDrifters.slice(0, 3).map(d => ({ id: d.id, name: d.name, keys: Object.keys(d) })) : null
+    });
+    
+    return (
+      <Layout>
+        <Box sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 2,
+          p: 3
+        }}>
+          <Typography variant="h4" sx={{ color: '#ff4444', fontSize: '2rem' }} gutterBottom>
+            Render Error
+          </Typography>
+          <Typography variant="body1" sx={{ color: '#ffffff', textAlign: 'center', maxWidth: 400 }}>
+            React error #31 detected. Check console for details.
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#cccccc', textAlign: 'center', maxWidth: 400, mt: 2 }}>
+            Error: {error.message}
+          </Typography>
+        </Box>
+      </Layout>
+    );
+  }
 }
