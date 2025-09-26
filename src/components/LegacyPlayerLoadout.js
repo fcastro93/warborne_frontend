@@ -259,6 +259,7 @@ export default function LegacyPlayerLoadout() {
       // Fetch drifters data
       const driftersData = await apiService.getPlayerDrifters(playerId);
       console.log('Drifters data:', driftersData);
+      console.log('Drifters data structure:', driftersData.drifters ? driftersData.drifters.map(d => ({ id: d.id, name: d.name, number: d.number })) : null);
       setDrifters(driftersData.drifters || []);
 
       // Fetch gear items data
@@ -270,6 +271,7 @@ export default function LegacyPlayerLoadout() {
       // Fetch all available drifters
       const allDriftersData = await apiService.getAllDrifters();
       console.log('All drifters data:', allDriftersData);
+      console.log('All drifters data structure:', allDriftersData.drifters ? allDriftersData.drifters.map(d => ({ id: d.id, name: d.name })) : null);
       setAllDrifters(allDriftersData.drifters || []);
 
     } catch (error) {
@@ -1153,9 +1155,11 @@ export default function LegacyPlayerLoadout() {
               {(drifters || []).map((drifter, index) => {
                 console.log(`Rendering drifter ${index}:`, drifter ? { id: drifter.id, name: drifter.name } : null);
                 const hasGearSlots = drifter && drifter.name !== null;
+                // Use index as fallback key if id is undefined
+                const drifterKey = drifter && drifter.id !== undefined ? drifter.id : `drifter-${index}`;
                 return (
                   <Button
-                    key={index}
+                    key={drifterKey}
                     onClick={() => setActiveDrifterTab(index)}
                     sx={{
                       flex: 1,
