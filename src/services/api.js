@@ -97,7 +97,9 @@ export const apiService = {
 
   async getPlayerDrifters(playerId) {
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/drifters/`, {
-      headers: getAuthHeaders(),
+      headers: {
+        'Content-Type': 'application/json'
+      },
       credentials: 'include'
     });
     return response.json();
@@ -105,7 +107,9 @@ export const apiService = {
 
   async getGearItems() {
     const response = await fetch(`${API_BASE_URL}/gear-items/`, {
-      headers: getAuthHeaders(),
+      headers: {
+        'Content-Type': 'application/json'
+      },
       credentials: 'include'
     });
     const data = await response.json();
@@ -114,7 +118,9 @@ export const apiService = {
 
   async getAllDrifters() {
     const response = await fetch(`${API_BASE_URL}/drifters/`, {
-      headers: getAuthHeaders(),
+      headers: {
+        'Content-Type': 'application/json'
+      },
       credentials: 'include'
     });
     return response.json();
