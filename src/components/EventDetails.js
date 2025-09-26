@@ -1025,6 +1025,7 @@ const EventDetails = () => {
                           <TableCell><strong>Discord Name</strong></TableCell>
                           <TableCell><strong>Role</strong></TableCell>
                           <TableCell><strong>Guild</strong></TableCell>
+                          <TableCell><strong>Level</strong></TableCell>
                           <TableCell><strong>Joined</strong></TableCell>
                           <TableCell align="center"><strong>Actions</strong></TableCell>
                         </TableRow>
@@ -1047,11 +1048,17 @@ const EventDetails = () => {
                                 label={getRoleDisplayName(participant.player?.game_role || 'unknown')}
                                 size="small"
                                 color={getRoleColor(participant.player?.game_role || 'unknown')}
+                                variant="outlined"
                               />
                             </TableCell>
                             <TableCell>
                               <Typography variant="body2">
                                 {participant.player?.guild?.name || 'No Guild'}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2">
+                                {participant.player?.character_level || 'N/A'}
                               </Typography>
                             </TableCell>
                             <TableCell>
@@ -1062,13 +1069,14 @@ const EventDetails = () => {
                             <TableCell align="center">
                               <IconButton
                                 size="small"
-                                color="error"
                                 onClick={() => {
                                   setSelectedParticipant(participant);
                                   setRemoveParticipantModalOpen(true);
                                 }}
+                                color="error"
+                                title="Remove participant"
                               >
-                                <RemoveIcon />
+                                <RemoveIcon fontSize="small" />
                               </IconButton>
                             </TableCell>
                           </TableRow>
