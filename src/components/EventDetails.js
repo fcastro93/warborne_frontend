@@ -57,9 +57,6 @@ import {
   Support as SupportIcon,
   EmojiEvents as CrownIcon,
   CardGiftcard as RewardsIcon,
-  FilterList as FilterListIcon,
-  Search as SearchIcon,
-  Clear as ClearIcon
 } from '@mui/icons-material';
 import Layout from './Layout';
 
@@ -100,12 +97,6 @@ const EventDetails = () => {
   const [guildConflictData, setGuildConflictData] = useState(null);
   const [showRewardsModal, setShowRewardsModal] = useState(false);
   
-  // Filter states for participants
-  const [participantFilter, setParticipantFilter] = useState({
-    role: '',
-    guild: '',
-    search: ''
-  });
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -1030,195 +1021,6 @@ const EventDetails = () => {
                   <Typography color="text.secondary">No participants yet</Typography>
                 ) : (
                   <>
-                    {/* Filter Controls */}
-                    <Paper 
-                      elevation={3} 
-                      sx={{ 
-                        mb: 3, 
-                        p: 4, 
-                        borderRadius: 3,
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        border: '2px solid #4f46e5',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                        backdropFilter: 'blur(10px)'
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                        <FilterListIcon sx={{ mr: 2, color: 'white', fontSize: 28 }} />
-                        <Typography variant="h5" sx={{ fontWeight: 700, color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
-                          🔍 Filter Participants
-                        </Typography>
-                      </Box>
-                      
-                      <Grid container spacing={3} alignItems="center">
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            fullWidth
-                            size="medium"
-                            label="Search participants"
-                            value={participantFilter.search}
-                            onChange={(e) => setParticipantFilter(prev => ({ ...prev, search: e.target.value }))}
-                            placeholder="Search by name..."
-                            variant="outlined"
-                            sx={{
-                              '& .MuiOutlinedInput-root': {
-                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                borderRadius: 3,
-                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                                '&:hover': {
-                                  '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#4f46e5',
-                                    borderWidth: '2px',
-                                  },
-                                },
-                                '&.Mui-focused': {
-                                  '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#4f46e5',
-                                    borderWidth: '2px',
-                                  },
-                                },
-                              },
-                              '& .MuiInputLabel-root': {
-                                color: '#374151',
-                                fontWeight: 600,
-                              },
-                            }}
-                            InputProps={{
-                              startAdornment: <SearchIcon sx={{ color: 'action.active', mr: 1 }} />
-                            }}
-                          />
-                        </Grid>
-                        
-                        <Grid item xs={12} md={4}>
-                          <FormControl fullWidth size="medium">
-                            <InputLabel sx={{ fontWeight: 500 }}>Filter by Role</InputLabel>
-                            <Select
-                              value={participantFilter.role}
-                              onChange={(e) => setParticipantFilter(prev => ({ ...prev, role: e.target.value }))}
-                              label="Filter by Role"
-                              variant="outlined"
-                              sx={{
-                                backgroundColor: 'white',
-                                borderRadius: 2,
-                                '&:hover': {
-                                  '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: 'primary.main',
-                                  },
-                                },
-                              }}
-                            >
-                              <MenuItem value="">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <ClearIcon sx={{ mr: 1, fontSize: 16 }} />
-                                  All Roles
-                                </Box>
-                              </MenuItem>
-                              <MenuItem value="healer">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <Chip size="small" label="H" sx={{ mr: 1, bgcolor: 'success.main', color: 'white', minWidth: 24, height: 24 }} />
-                                  Healer
-                                </Box>
-                              </MenuItem>
-                              <MenuItem value="defensive_tank">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <Chip size="small" label="DT" sx={{ mr: 1, bgcolor: 'primary.main', color: 'white', minWidth: 24, height: 24 }} />
-                                  Defensive Tank
-                                </Box>
-                              </MenuItem>
-                              <MenuItem value="offensive_tank">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <Chip size="small" label="OT" sx={{ mr: 1, bgcolor: 'secondary.main', color: 'white', minWidth: 24, height: 24 }} />
-                                  Offensive Tank
-                                </Box>
-                              </MenuItem>
-                              <MenuItem value="ranged_dps">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <Chip size="small" label="RD" sx={{ mr: 1, bgcolor: 'warning.main', color: 'white', minWidth: 24, height: 24 }} />
-                                  Ranged DPS
-                                </Box>
-                              </MenuItem>
-                              <MenuItem value="melee_dps">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <Chip size="small" label="MD" sx={{ mr: 1, bgcolor: 'error.main', color: 'white', minWidth: 24, height: 24 }} />
-                                  Melee DPS
-                                </Box>
-                              </MenuItem>
-                              <MenuItem value="support">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <Chip size="small" label="S" sx={{ mr: 1, bgcolor: 'info.main', color: 'white', minWidth: 24, height: 24 }} />
-                                  Support
-                                </Box>
-                              </MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Grid>
-                        
-                        <Grid item xs={12} md={4}>
-                          <FormControl fullWidth size="medium">
-                            <InputLabel sx={{ fontWeight: 500 }}>Filter by Guild</InputLabel>
-                            <Select
-                              value={participantFilter.guild}
-                              onChange={(e) => setParticipantFilter(prev => ({ ...prev, guild: e.target.value }))}
-                              label="Filter by Guild"
-                              variant="outlined"
-                              sx={{
-                                backgroundColor: 'white',
-                                borderRadius: 2,
-                                '&:hover': {
-                                  '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: 'primary.main',
-                                  },
-                                },
-                              }}
-                            >
-                              <MenuItem value="">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <ClearIcon sx={{ mr: 1, fontSize: 16 }} />
-                                  All Guilds
-                                </Box>
-                              </MenuItem>
-                              {Array.from(new Set(participants.map(p => p.player?.guild?.name).filter(Boolean))).map(guildName => (
-                                <MenuItem key={guildName} value={guildName}>
-                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Chip 
-                                      size="small" 
-                                      label={guildName.charAt(0)} 
-                                      sx={{ 
-                                        mr: 1, 
-                                        bgcolor: 'primary.light', 
-                                        color: 'primary.contrastText',
-                                        minWidth: 24, 
-                                        height: 24 
-                                      }} 
-                                    />
-                                    {guildName}
-                                  </Box>
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        </Grid>
-                      </Grid>
-                      
-                      {/* Clear Filters Button */}
-                      {(participantFilter.search || participantFilter.role || participantFilter.guild) && (
-                        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<ClearIcon />}
-                            onClick={() => setParticipantFilter({ search: '', role: '', guild: '' })}
-                            sx={{ 
-                              borderRadius: 2,
-                              textTransform: 'none',
-                              fontWeight: 500
-                            }}
-                          >
-                            Clear All Filters
-                          </Button>
-                        </Box>
-                      )}
-                    </Paper>
 
                     {/* Participants Table */}
                     <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
@@ -1234,16 +1036,7 @@ const EventDetails = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {participants
-                            .filter(participant => {
-                              const matchesSearch = !participantFilter.search || 
-                                (participant.player?.in_game_name?.toLowerCase().includes(participantFilter.search.toLowerCase()) ||
-                                 participant.player?.discord_name?.toLowerCase().includes(participantFilter.search.toLowerCase()));
-                              const matchesRole = !participantFilter.role || participant.player?.game_role === participantFilter.role;
-                              const matchesGuild = !participantFilter.guild || participant.player?.guild?.name === participantFilter.guild;
-                              return matchesSearch && matchesRole && matchesGuild;
-                            })
-                            .map((participant) => (
+                          {participants.map((participant) => (
                             <TableRow key={participant.id} hover>
                               <TableCell>
                                 <Typography variant="body2" fontWeight="medium">
