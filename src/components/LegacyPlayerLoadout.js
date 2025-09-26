@@ -863,6 +863,19 @@ export default function LegacyPlayerLoadout() {
 
   const currentDrifter = activeDrifterTab >= 0 ? drifters[activeDrifterTab] || null : null;
   const hasSelectedDrifter = currentDrifter !== null && currentDrifter.name !== null;
+  
+  console.log('Render state:', {
+    loading,
+    accessDenied,
+    error,
+    player: player ? { id: player.id, name: player.in_game_name } : null,
+    drifters: drifters ? drifters.map(d => ({ id: d.id, name: d.name })) : null,
+    allDrifters: allDrifters ? allDrifters.length : 0,
+    gearItems: gearItems ? gearItems.length : 0,
+    activeDrifterTab,
+    currentDrifter: currentDrifter ? { id: currentDrifter.id, name: currentDrifter.name } : null,
+    hasSelectedDrifter
+  });
 
   if (loading) {
     return (
@@ -1138,6 +1151,7 @@ export default function LegacyPlayerLoadout() {
               p: 0.625
             }}>
               {(drifters || []).map((drifter, index) => {
+                console.log(`Rendering drifter ${index}:`, drifter ? { id: drifter.id, name: drifter.name } : null);
                 const hasGearSlots = drifter && drifter.name !== null;
                 return (
                   <Button
@@ -1802,7 +1816,12 @@ export default function LegacyPlayerLoadout() {
               p: '10px 0',
               alignContent: 'start'
             }}>
-              {getFilteredItems().length > 0 ? getFilteredItems().map((item) => (
+              {(() => {
+                const filteredItems = getFilteredItems();
+                console.log('Filtered items:', filteredItems ? filteredItems.length : 0);
+                return filteredItems.length > 0 ? filteredItems.map((item) => {
+                  console.log('Rendering item:', item ? { id: item.id, name: item.base_name } : null);
+                  return (
                 <Box
                   key={item.id}
                   sx={{
@@ -1971,8 +1990,9 @@ export default function LegacyPlayerLoadout() {
                       {isItemEquipped(item) ? 'Unequip' : 'Equip'}
                     </Button>
                   </Box>
-                </Box>
-              )) : (
+                  </Box>
+                  );
+                }) : (
                 <Box sx={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -1989,7 +2009,8 @@ export default function LegacyPlayerLoadout() {
                     Try adjusting your search or filters
                   </Typography>
                 </Box>
-              )}
+              );
+              })()}
             </Box>
           </Box>
         </Box>
@@ -2236,7 +2257,12 @@ export default function LegacyPlayerLoadout() {
                 </Typography>
               </Button>
               
-              {getFilteredDrifters().length > 0 ? getFilteredDrifters().map((drifter, index) => (
+              {(() => {
+                const filteredDrifters = getFilteredDrifters();
+                console.log('Filtered drifters for modal:', filteredDrifters ? filteredDrifters.map(d => ({ id: d.id, name: d.name })) : null);
+                return filteredDrifters.length > 0 ? filteredDrifters.map((drifter, index) => {
+                  console.log(`Rendering modal drifter ${index}:`, drifter ? { id: drifter.id, name: drifter.name } : null);
+                  return (
                 <Button
                   key={index}
                   onClick={async () => {
@@ -2326,8 +2352,9 @@ export default function LegacyPlayerLoadout() {
                   }}>
                     {drifter.special_abilities ? 'Special' : 'Available'}
                   </Typography>
-                </Button>
-              )) : (
+                  </Button>
+                  );
+                }) : (
                 <Box sx={{
                   gridColumn: '1 / -1',
                   textAlign: 'center',
@@ -2341,7 +2368,8 @@ export default function LegacyPlayerLoadout() {
                     Try adjusting your search term
                   </Typography>
                 </Box>
-              )}
+              );
+              })()}
             </Box>
           </Box>
           
