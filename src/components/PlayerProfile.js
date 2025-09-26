@@ -45,6 +45,12 @@ const getFactionColor = (faction) => {
   }
 };
 
+const getDiscordDisplayName = (discordName) => {
+  if (!discordName) return 'Not Set';
+  // Remove the #0 discriminator suffix
+  return discordName.replace(/#0$/, '');
+};
+
 const getGameRoleIcon = (gameRole) => {
   switch (gameRole) {
     case 'defensive_tank':
@@ -404,7 +410,7 @@ export default function PlayerProfile() {
                 Discord Name
               </Typography>
               <Typography variant="body1" gutterBottom>
-                {player.discord_name || 'Not Set'}
+                {getDiscordDisplayName(player.discord_name)}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
