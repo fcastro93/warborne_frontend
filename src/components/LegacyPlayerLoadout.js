@@ -1400,7 +1400,9 @@ export default function LegacyPlayerLoadout() {
                                     }}
                                     onError={(e) => {
                                       e.target.style.display = 'none';
-                                      e.target.nextSibling.style.display = 'flex';
+                                      if (e.target.nextSibling) {
+                                        e.target.nextSibling.style.display = 'flex';
+                                      }
                                     }}
                                   />
                                 ) : null}
@@ -1430,10 +1432,10 @@ export default function LegacyPlayerLoadout() {
                                   maxWidth: '100%'
                                 }}
                               >
-                                {gear.gear_item.base_name}
+                                {gear.gear_item?.base_name || 'Unknown Item'}
                               </Typography>
 
-                              {gear.gear_item.skill_name && (
+                              {gear.gear_item?.skill_name && (
                                 <Typography
                                   sx={{
                                     fontSize: '0.7rem',
@@ -1452,14 +1454,14 @@ export default function LegacyPlayerLoadout() {
                                     '&:hover': { color: '#90caf9', borderBottomColor: '#90caf9' }
                                   }}
                                   onClick={() =>
-                                    showSkillModal(gear.gear_item.skill_name, 'No description available', gear.gear_item.game_id)
+                                    showSkillModal(gear.gear_item?.skill_name, 'No description available', gear.gear_item?.game_id)
                                   }
                                 >
-                                  {gear.gear_item.skill_name}
+                                  {gear.gear_item?.skill_name}
                                 </Typography>
                               )}
 
-                              {gear.gear_item.health_bonus > 0 && (
+                              {gear.gear_item?.health_bonus > 0 && (
                                 <Typography sx={{ fontSize: '0.7rem', color: '#4caf50', textAlign: 'center', lineHeight: 1.1 }}>
                                   HP: +{gear.gear_item.health_bonus}
                                 </Typography>
@@ -1477,7 +1479,7 @@ export default function LegacyPlayerLoadout() {
                                   fontWeight: 'bold'
                                 }}
                               >
-                                Power: {gear.gear_item.tier ? 
+                                Power: {gear.gear_item?.tier ? 
                                   getGearPower(gear.gear_item.tier, gear.gear_item.rarity, gear.gear_item.item_level || 30) : 
                                   'N/A'}
                               </Typography>
