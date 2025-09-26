@@ -55,7 +55,8 @@ import {
   SportsEsports as DPSIcon,
   Security as TankIcon,
   Support as SupportIcon,
-  EmojiEvents as CrownIcon
+  EmojiEvents as CrownIcon,
+  CardGiftcard as RewardsIcon
 } from '@mui/icons-material';
 import Layout from './Layout';
 
@@ -94,6 +95,7 @@ const EventDetails = () => {
   const [selectedPartyForEdit, setSelectedPartyForEdit] = useState(null);
   const [showGuildConflictDialog, setShowGuildConflictDialog] = useState(false);
   const [guildConflictData, setGuildConflictData] = useState(null);
+  const [showRewardsModal, setShowRewardsModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -878,6 +880,14 @@ const EventDetails = () => {
           </Button>
           <Button
             variant="outlined"
+            startIcon={<RewardsIcon />}
+            onClick={() => setShowRewardsModal(true)}
+            sx={{ borderColor: '#9c27b0', color: '#9c27b0', '&:hover': { borderColor: '#7b1fa2', bgcolor: 'rgba(156, 39, 176, 0.1)' } }}
+          >
+            Give Rewards
+          </Button>
+          <Button
+            variant="outlined"
             color="error"
             startIcon={<CancelIcon />}
             onClick={handleCancelEvent}
@@ -1591,6 +1601,38 @@ const EventDetails = () => {
               color="primary"
             >
               Disable Guild Split & Fill Parties
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Give Rewards Modal */}
+        <Dialog open={showRewardsModal} onClose={() => setShowRewardsModal(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>Give CryptoTommys Rewards</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ pt: 2 }}>
+              <Alert severity="info">
+                This will give {event?.points_per_participant || 0} CryptoTommys points to all {participants.length} participants of this event.
+              </Alert>
+              <Typography variant="body2" color="text.secondary">
+                Total points to be distributed: {(event?.points_per_participant || 0) * participants.length}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Participants will receive: {event?.points_per_participant || 0} points each
+              </Typography>
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowRewardsModal(false)}>Cancel</Button>
+            <Button 
+              onClick={() => {
+                // TODO: Implement give rewards functionality in Task 4
+                setShowRewardsModal(false);
+                showAlert('info', 'Give Rewards functionality will be implemented in the next step');
+              }} 
+              variant="contained"
+              color="primary"
+            >
+              Give Rewards
             </Button>
           </DialogActions>
         </Dialog>
