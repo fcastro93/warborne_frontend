@@ -96,6 +96,13 @@ const EventDetails = () => {
   const [showGuildConflictDialog, setShowGuildConflictDialog] = useState(false);
   const [guildConflictData, setGuildConflictData] = useState(null);
   const [showRewardsModal, setShowRewardsModal] = useState(false);
+  
+  // Filter states for participants
+  const [participantFilter, setParticipantFilter] = useState({
+    role: '',
+    guild: '',
+    search: ''
+  });
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -461,9 +468,25 @@ const EventDetails = () => {
       defensive_tank: 'Defensive Tank',
       offensive_tank: 'Offensive Tank',
       offensive_support: 'Offensive Support',
-      defensive_support: 'Defensive Support'
+      defensive_support: 'Defensive Support',
+      support: 'Support'
     };
     return roleNames[role] || role;
+  };
+
+  const getRoleColor = (role) => {
+    const colorMap = {
+      'healer': 'success',
+      'defensive_tank': 'primary',
+      'offensive_tank': 'secondary',
+      'ranged_dps': 'warning',
+      'melee_dps': 'error',
+      'support': 'info',
+      'offensive_support': 'info',
+      'defensive_support': 'info',
+      'unknown': 'default'
+    };
+    return colorMap[role] || 'default';
   };
 
   const getPartyLeader = (party) => {
@@ -1003,44 +1026,127 @@ const EventDetails = () => {
                 {participants.length === 0 ? (
                   <Typography color="text.secondary">No participants yet</Typography>
                 ) : (
-                  <List>
-                    {participants.map((participant) => (
-                      <ListItem key={participant.id} divider>
-                        <ListItemAvatar>
-                          <Avatar>
-                            {participant.player?.discord_name?.charAt(0) || '?'}
-                          </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={participant.player?.in_game_name || 'Unknown Player'}
-                          secondary={
-                            <Box>
-                              <Typography variant="body2" color="text.secondary">
-                                Role: {getRoleDisplayName(participant.player?.game_role || 'unknown')}
-                              </Typography>
-                              {participant.player?.guild && (
-                                <Typography variant="body2" color="text.secondary">
-                                  Guild: {participant.player.guild.name}
+                  <>
+                    {/* Filter Controls */}
+                    <Box sx={{ mb: 3, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+                      <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={12} sm={4}>
+                          <TextField
+                            fullWidth
+                            size="small"
+                            label="Search participants"
+                            value={participantFilter.search}
+                            onChange={(e) => setParticipantFilter(prev => ({ ...prev, search: e.target.value }))}
+                            placeholder="Search by name..."
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel>Filter by Role</InputLabel>
+                            <Select
+                              value={participantFilter.role}
+                              onChange={(e) => setParticipantFilter(prev => ({ ...prev, role: e.target.value }))}
+                              label="Filter by Role"
+                            >
+                              <MenuItem value="">All Roles</MenuItem>
+                              <MenuItem value="healer">Healer</MenuItem>
+                              <MenuItem value="defensive_tank">Defensive Tank</MenuItem>
+                              <MenuItem value="offensive_tank">Offensive Tank</MenuItem>
+                              <MenuItem value="ranged_dps">Ranged DPS</MenuItem>
+                              <MenuItem value="melee_dps">Melee DPS</MenuItem>
+                              <MenuItem value="support">Support</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel>Filter by Guild</InputLabel>
+                            <Select
+                              value={participantFilter.guild}
+                              onChange={(e) => setParticipantFilter(prev => ({ ...prev, guild: e.target.value }))}
+                              label="Filter by Guild"
+                            >
+                              <MenuItem value="">All Guilds</MenuItem>
+                              {Array.from(new Set(participants.map(p => p.player?.guild?.name).filter(Boolean))).map(guildName => (
+                                <MenuItem key={guildName} value={guildName}>{guildName}</MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                      </Grid>
+                    </Box>
+
+                    {/* Participants Table */}
+                    <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+                      <Table stickyHeader>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Player Name</TableCell>
+                            <TableCell>Discord Name</TableCell>
+                            <TableCell>Role</TableCell>
+                            <TableCell>Guild</TableCell>
+                            <TableCell>Joined</TableCell>
+                            <TableCell align="center">Actions</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {participants
+                            .filter(participant => {
+                              const matchesSearch = !participantFilter.search || 
+                                (participant.player?.in_game_name?.toLowerCase().includes(participantFilter.search.toLowerCase()) ||
+                                 participant.player?.discord_name?.toLowerCase().includes(participantFilter.search.toLowerCase()));
+                              const matchesRole = !participantFilter.role || participant.player?.game_role === participantFilter.role;
+                              const matchesGuild = !participantFilter.guild || participant.player?.guild?.name === participantFilter.guild;
+                              return matchesSearch && matchesRole && matchesGuild;
+                            })
+                            .map((participant) => (
+                            <TableRow key={participant.id} hover>
+                              <TableCell>
+                                <Typography variant="body2" fontWeight="medium">
+                                  {participant.player?.in_game_name || 'Unknown Player'}
                                 </Typography>
-                              )}
-                            </Box>
-                          }
-                        />
-                        <ListItemSecondaryAction>
-                          <IconButton
-                            edge="end"
-                            color="error"
-                            onClick={() => {
-                              setSelectedParticipant(participant);
-                              setRemoveParticipantModalOpen(true);
-                            }}
-                          >
-                            <RemoveIcon />
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    ))}
-                  </List>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2" color="text.secondary">
+                                  {participant.player?.discord_name || 'N/A'}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Chip 
+                                  label={getRoleDisplayName(participant.player?.game_role || 'unknown')}
+                                  size="small"
+                                  color={getRoleColor(participant.player?.game_role || 'unknown')}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">
+                                  {participant.player?.guild?.name || 'No Guild'}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2" color="text.secondary">
+                                  {new Date(participant.joined_at).toLocaleDateString()}
+                                </Typography>
+                              </TableCell>
+                              <TableCell align="center">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => {
+                                    setSelectedParticipant(participant);
+                                    setRemoveParticipantModalOpen(true);
+                                  }}
+                                  color="error"
+                                  title="Remove participant"
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </>
                 )}
               </Box>
             )}
