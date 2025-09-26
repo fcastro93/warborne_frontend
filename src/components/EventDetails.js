@@ -466,6 +466,20 @@ const EventDetails = () => {
     return roleNames[role] || role;
   };
 
+  const getRoleColor = (role) => {
+    const roleColors = {
+      healer: 'success',
+      ranged_dps: 'error',
+      melee_dps: 'error',
+      defensive_tank: 'warning',
+      offensive_tank: 'warning',
+      offensive_support: 'info',
+      defensive_support: 'info',
+      unknown: 'default'
+    };
+    return roleColors[role] || 'default';
+  };
+
   const getPartyLeader = (party) => {
     if (!party.members || party.members.length === 0) return null;
     // First member is typically the leader (based on creation order)
@@ -1003,44 +1017,65 @@ const EventDetails = () => {
                 {participants.length === 0 ? (
                   <Typography color="text.secondary">No participants yet</Typography>
                 ) : (
-                  <List>
-                    {participants.map((participant) => (
-                      <ListItem key={participant.id} divider>
-                        <ListItemAvatar>
-                          <Avatar>
-                            {participant.player?.discord_name?.charAt(0) || '?'}
-                          </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={participant.player?.in_game_name || 'Unknown Player'}
-                          secondary={
-                            <Box>
-                              <Typography variant="body2" color="text.secondary">
-                                Role: {getRoleDisplayName(participant.player?.game_role || 'unknown')}
+                  <TableContainer component={Paper} sx={{ mt: 2 }}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell><strong>Player Name</strong></TableCell>
+                          <TableCell><strong>Discord Name</strong></TableCell>
+                          <TableCell><strong>Role</strong></TableCell>
+                          <TableCell><strong>Guild</strong></TableCell>
+                          <TableCell><strong>Joined</strong></TableCell>
+                          <TableCell align="center"><strong>Actions</strong></TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {participants.map((participant) => (
+                          <TableRow key={participant.id} hover>
+                            <TableCell>
+                              <Typography variant="body2" fontWeight="medium">
+                                {participant.player?.in_game_name || 'Unknown Player'}
                               </Typography>
-                              {participant.player?.guild && (
-                                <Typography variant="body2" color="text.secondary">
-                                  Guild: {participant.player.guild.name}
-                                </Typography>
-                              )}
-                            </Box>
-                          }
-                        />
-                        <ListItemSecondaryAction>
-                          <IconButton
-                            edge="end"
-                            color="error"
-                            onClick={() => {
-                              setSelectedParticipant(participant);
-                              setRemoveParticipantModalOpen(true);
-                            }}
-                          >
-                            <RemoveIcon />
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    ))}
-                  </List>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2" color="text.secondary">
+                                {participant.discord_name || 'N/A'}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Chip 
+                                label={getRoleDisplayName(participant.player?.game_role || 'unknown')}
+                                size="small"
+                                color={getRoleColor(participant.player?.game_role || 'unknown')}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2">
+                                {participant.player?.guild?.name || 'No Guild'}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2" color="text.secondary">
+                                {new Date(participant.joined_at).toLocaleDateString()}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="center">
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => {
+                                  setSelectedParticipant(participant);
+                                  setRemoveParticipantModalOpen(true);
+                                }}
+                              >
+                                <RemoveIcon />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
                 )}
               </Box>
             )}
