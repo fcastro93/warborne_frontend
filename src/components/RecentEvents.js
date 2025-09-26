@@ -3,58 +3,6 @@ import { Card, CardContent, Typography, List, ListItem, ListItemText, ListItemIc
 import { Event, Group, LocalFireDepartment, Shield, Healing, Schedule } from '@mui/icons-material';
 import { apiService } from '../services/api';
 
-const events = [
-  {
-    id: 1,
-    title: 'Guild War - Emberwild vs Ashen',
-    type: 'guild_war',
-    datetime: '2024-09-25 20:00',
-    participants: 15,
-    maxParticipants: 20,
-    status: 'upcoming',
-    organizer: 'ViolenceGuild'
-  },
-  {
-    id: 2,
-    title: 'Boss Raid - Ancient Dragon',
-    type: 'boss_raid',
-    datetime: '2024-09-24 19:30',
-    participants: 12,
-    maxParticipants: 15,
-    status: 'upcoming',
-    organizer: 'ShadowStrike'
-  },
-  {
-    id: 3,
-    title: 'PvP Training Session',
-    type: 'training',
-    datetime: '2024-09-23 18:00',
-    participants: 8,
-    maxParticipants: 10,
-    status: 'completed',
-    organizer: 'HealMaster'
-  },
-  {
-    id: 4,
-    title: 'Resource Farming - Iron Mines',
-    type: 'resource_farming',
-    datetime: '2024-09-22 16:00',
-    participants: 6,
-    maxParticipants: 8,
-    status: 'completed',
-    organizer: 'DPSKing'
-  },
-  {
-    id: 5,
-    title: 'Social Event - Guild Meeting',
-    type: 'social_event',
-    datetime: '2024-09-21 15:00',
-    participants: 24,
-    maxParticipants: 30,
-    status: 'completed',
-    organizer: 'ViolenceGuild'
-  }
-];
 
 const getEventIcon = (type) => {
   switch (type) {
@@ -137,115 +85,13 @@ export default function RecentEvents() {
             .slice(0, 5);
           setEvents(sortedEvents);
         } else {
-          // Fallback to static data if no events found
-          setEvents([
-            {
-              id: 1,
-              title: 'Guild War - Emberwild vs Ashen',
-              event_type: 'guild_war',
-              event_datetime: '2024-09-25 20:00',
-              participant_count: 15,
-              max_participants: 20,
-              created_by_discord_name: 'ViolenceGuild',
-              created_at: '2024-09-20'
-            },
-            {
-              id: 2,
-              title: 'Boss Raid - Ancient Dragon',
-              event_type: 'boss_raid',
-              event_datetime: '2024-09-24 19:30',
-              participant_count: 12,
-              max_participants: 15,
-              created_by_discord_name: 'ShadowStrike',
-              created_at: '2024-09-19'
-            },
-            {
-              id: 3,
-              title: 'PvP Training Session',
-              event_type: 'training',
-              event_datetime: '2024-09-23 18:00',
-              participant_count: 8,
-              max_participants: 10,
-              created_by_discord_name: 'HealMaster',
-              created_at: '2024-09-18'
-            },
-            {
-              id: 4,
-              title: 'Resource Farming - Iron Mines',
-              event_type: 'resource_farming',
-              event_datetime: '2024-09-22 16:00',
-              participant_count: 6,
-              max_participants: 8,
-              created_by_discord_name: 'DPSKing',
-              created_at: '2024-09-17'
-            },
-            {
-              id: 5,
-              title: 'Social Event - Guild Meeting',
-              event_type: 'social_event',
-              event_datetime: '2024-09-21 15:00',
-              participant_count: 24,
-              max_participants: 30,
-              created_by_discord_name: 'ViolenceGuild',
-              created_at: '2024-09-16'
-            }
-          ].slice(0, 5));
+          // No events found, show empty state
+          setEvents([]);
         }
       } catch (error) {
         console.error('Error fetching events:', error);
-        // Keep fallback data but limit to 5
-        setEvents([
-          {
-            id: 1,
-            title: 'Guild War - Emberwild vs Ashen',
-            event_type: 'guild_war',
-            event_datetime: '2024-09-25 20:00',
-            participant_count: 15,
-            max_participants: 20,
-            created_by_discord_name: 'ViolenceGuild',
-            created_at: '2024-09-20'
-          },
-          {
-            id: 2,
-            title: 'Boss Raid - Ancient Dragon',
-            event_type: 'boss_raid',
-            event_datetime: '2024-09-24 19:30',
-            participant_count: 12,
-            max_participants: 15,
-            created_by_discord_name: 'ShadowStrike',
-            created_at: '2024-09-19'
-          },
-          {
-            id: 3,
-            title: 'PvP Training Session',
-            event_type: 'training',
-            event_datetime: '2024-09-23 18:00',
-            participant_count: 8,
-            max_participants: 10,
-            created_by_discord_name: 'HealMaster',
-            created_at: '2024-09-18'
-          },
-          {
-            id: 4,
-            title: 'Resource Farming - Iron Mines',
-            event_type: 'resource_farming',
-            event_datetime: '2024-09-22 16:00',
-            participant_count: 6,
-            max_participants: 8,
-            created_by_discord_name: 'DPSKing',
-            created_at: '2024-09-17'
-          },
-          {
-            id: 5,
-            title: 'Social Event - Guild Meeting',
-            event_type: 'social_event',
-            event_datetime: '2024-09-21 15:00',
-            participant_count: 24,
-            max_participants: 30,
-            created_by_discord_name: 'ViolenceGuild',
-            created_at: '2024-09-16'
-          }
-        ].slice(0, 5));
+        // Show empty state on error
+        setEvents([]);
       } finally {
         setLoading(false);
       }
@@ -273,8 +119,13 @@ export default function RecentEvents() {
         <Typography variant="h6" gutterBottom>
           Recent Events
         </Typography>
-        <List>
-          {events.map((event) => {
+        {events.length === 0 ? (
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+            No recent events to display
+          </Typography>
+        ) : (
+          <List>
+            {events.map((event) => {
             const status = getEventStatus(event);
             const formattedDateTime = formatEventDateTime(event.event_datetime);
             const participantCount = event.participant_count || 0;
@@ -323,7 +174,8 @@ export default function RecentEvents() {
               </ListItem>
             );
           })}
-        </List>
+          </List>
+        )}
       </CardContent>
     </Card>
   );
