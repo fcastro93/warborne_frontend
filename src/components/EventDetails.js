@@ -1032,20 +1032,22 @@ const EventDetails = () => {
                   <>
                     {/* Filter Controls */}
                     <Paper 
-                      elevation={1} 
+                      elevation={3} 
                       sx={{ 
                         mb: 3, 
-                        p: 3, 
-                        borderRadius: 2,
-                        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-                        border: '1px solid #e0e0e0'
+                        p: 4, 
+                        borderRadius: 3,
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        border: '2px solid #4f46e5',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                        backdropFilter: 'blur(10px)'
                       }}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <FilterListIcon sx={{ mr: 1, color: 'primary.main' }} />
-                        <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                          Filter Participants
-                              </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                        <FilterListIcon sx={{ mr: 2, color: 'white', fontSize: 28 }} />
+                        <Typography variant="h5" sx={{ fontWeight: 700, color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+                          🔍 Filter Participants
+                        </Typography>
                       </Box>
                       
                       <Grid container spacing={3} alignItems="center">
@@ -1060,13 +1062,25 @@ const EventDetails = () => {
                             variant="outlined"
                             sx={{
                               '& .MuiOutlinedInput-root': {
-                                backgroundColor: 'white',
-                                borderRadius: 2,
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                borderRadius: 3,
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                                 '&:hover': {
                                   '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: 'primary.main',
+                                    borderColor: '#4f46e5',
+                                    borderWidth: '2px',
                                   },
                                 },
+                                '&.Mui-focused': {
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#4f46e5',
+                                    borderWidth: '2px',
+                                  },
+                                },
+                              },
+                              '& .MuiInputLabel-root': {
+                                color: '#374151',
+                                fontWeight: 600,
                               },
                             }}
                             InputProps={{
