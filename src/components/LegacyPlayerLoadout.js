@@ -260,6 +260,7 @@ export default function LegacyPlayerLoadout() {
       const driftersData = await apiService.getPlayerDrifters(playerId);
       console.log('Drifters data:', driftersData);
       console.log('Drifters data structure:', driftersData.drifters ? driftersData.drifters.map(d => ({ id: d.id, name: d.name, number: d.number, keys: Object.keys(d) })) : null);
+      console.log('First drifter keys:', driftersData.drifters && driftersData.drifters[0] ? Object.keys(driftersData.drifters[0]) : null);
       setDrifters(driftersData.drifters || []);
 
       // Fetch gear items data
@@ -272,6 +273,7 @@ export default function LegacyPlayerLoadout() {
       const allDriftersData = await apiService.getAllDrifters();
       console.log('All drifters data:', allDriftersData);
       console.log('All drifters data structure:', allDriftersData.drifters ? allDriftersData.drifters.map(d => ({ id: d.id, name: d.name, keys: Object.keys(d) })) : null);
+      console.log('First all drifter keys:', allDriftersData.drifters && allDriftersData.drifters[0] ? Object.keys(allDriftersData.drifters[0]) : null);
       setAllDrifters(allDriftersData.drifters || []);
 
     } catch (error) {
@@ -1156,10 +1158,10 @@ export default function LegacyPlayerLoadout() {
               p: 0.625
             }}>
               {(drifters || []).map((drifter, index) => {
-                console.log(`Rendering drifter ${index}:`, drifter ? { id: drifter.id, name: drifter.name } : null);
+                console.log(`Rendering drifter ${index}:`, drifter ? { id: drifter.id, name: drifter.name, number: drifter.number } : null);
                 const hasGearSlots = drifter && drifter.name !== null;
-                // Use index as fallback key if id is undefined
-                const drifterKey = drifter && drifter.id !== undefined ? drifter.id : `drifter-${index}`;
+                // Use number as key since main drifters don't have id, only number
+                const drifterKey = drifter && drifter.number ? `drifter-${drifter.number}` : `drifter-${index}`;
                 return (
                   <Button
                     key={drifterKey}
