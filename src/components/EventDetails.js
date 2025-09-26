@@ -403,7 +403,7 @@ const EventDetails = () => {
   const handleSubmitEvent = async () => {
     try {
       const response = await fetch(`/api/events/${eventId}/update/`, {
-        method: 'POST',
+        method: 'PUT',
         headers: getAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify(formData)
