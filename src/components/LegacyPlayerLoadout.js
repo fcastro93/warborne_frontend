@@ -553,12 +553,16 @@ export default function LegacyPlayerLoadout() {
 
   // Filter drifters based on search term
   const getFilteredDrifters = () => {
+    if (!allDrifters || !Array.isArray(allDrifters)) {
+      return [];
+    }
+    
     if (!drifterSearchTerm.trim()) {
       return allDrifters;
     }
     
     return allDrifters.filter(drifter => 
-      drifter.name && drifter.name.toLowerCase().includes(drifterSearchTerm.toLowerCase())
+      drifter && drifter.name && drifter.name.toLowerCase().includes(drifterSearchTerm.toLowerCase())
     );
   };
 
@@ -616,13 +620,16 @@ export default function LegacyPlayerLoadout() {
 
   const getCurrentCategoryItems = () => {
     const currentCategory = getCurrentCategory();
-    return gearByType[currentCategory] || [];
+    return (gearByType && gearByType[currentCategory]) || [];
   };
 
   // Get available rarities for current category, sorted by rarity hierarchy
   const getAvailableRarities = () => {
     const categoryItems = getCurrentCategoryItems();
-    const rarities = [...new Set(categoryItems.map(item => item.rarity).filter(Boolean))];
+    if (!categoryItems || !Array.isArray(categoryItems)) {
+      return [];
+    }
+    const rarities = [...new Set(categoryItems.map(item => item && item.rarity).filter(Boolean))];
     
     // Define rarity hierarchy for proper sorting
     const rarityOrder = {
@@ -648,6 +655,9 @@ export default function LegacyPlayerLoadout() {
     if (getCurrentCategory() !== 'weapon') return [{ key: 'all', label: 'All', icon: null }];
     
     const categoryItems = getCurrentCategoryItems();
+    if (!categoryItems || !Array.isArray(categoryItems)) {
+      return [{ key: 'all', label: 'All', icon: null }];
+    }
     
     // Extract weapon types from game_id prefixes
     const weaponTypeMap = {};
@@ -786,6 +796,9 @@ export default function LegacyPlayerLoadout() {
   // Filter items by search, rarity, stat, and weapon type
   const getFilteredItems = () => {
     const categoryItems = getCurrentCategoryItems();
+    if (!categoryItems || !Array.isArray(categoryItems)) {
+      return [];
+    }
     return categoryItems.filter(item => {
       const matchesSearch = item.base_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            item.skill_name?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -1124,8 +1137,8 @@ export default function LegacyPlayerLoadout() {
               borderRadius: 1.25,
               p: 0.625
             }}>
-              {drifters.map((drifter, index) => {
-                const hasGearSlots = drifter.name !== null;
+              {(drifters || []).map((drifter, index) => {
+                const hasGearSlots = drifter && drifter.name !== null;
                 return (
                   <Button
                     key={index}
