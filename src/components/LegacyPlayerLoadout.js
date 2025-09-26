@@ -552,7 +552,7 @@ export default function LegacyPlayerLoadout() {
     }
     
     return allDrifters.filter(drifter => 
-      drifter.name.toLowerCase().includes(drifterSearchTerm.toLowerCase())
+      drifter.name && drifter.name.toLowerCase().includes(drifterSearchTerm.toLowerCase())
     );
   };
 
@@ -2267,7 +2267,7 @@ export default function LegacyPlayerLoadout() {
                     }
                   }}
                 >
-                  {drifterIconMap[drifter.name] ? (
+                  {drifter.name && drifterIconMap[drifter.name] ? (
                     <img 
                       src={getDrifterIconUrl(drifterIconMap[drifter.name])} 
                       alt={drifter.name}
@@ -2290,7 +2290,7 @@ export default function LegacyPlayerLoadout() {
                       fontSize: '1.5rem',
                       fontWeight: 'bold'
                     }}>
-                      {drifter.name.charAt(0).toUpperCase()}
+                      {drifter.name ? drifter.name.charAt(0).toUpperCase() : '?'}
                     </Avatar>
                   )}
                   <Typography sx={{ 
@@ -2298,7 +2298,7 @@ export default function LegacyPlayerLoadout() {
                     fontSize: '1rem',
                     textAlign: 'center'
                   }}>
-                    {drifter.name}
+                    {drifter.name || 'Unknown Drifter'}
                   </Typography>
                   <Typography sx={{ 
                     fontSize: '0.8rem',
