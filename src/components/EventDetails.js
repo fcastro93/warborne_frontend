@@ -308,6 +308,29 @@ const EventDetails = () => {
     }
   };
 
+  const handleGiveRewards = async () => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/give-rewards/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        showAlert('success', data.message);
+        setShowRewardsModal(false);
+        // Refresh event data to show updated points
+        fetchEventDetails();
+      } else {
+        showAlert('error', data.error || 'Failed to give rewards');
+      }
+    } catch (error) {
+      showAlert('error', 'Error giving rewards: ' + error.message);
+    }
+  };
+
   const handleEditEvent = () => {
     setSelectedEvent(event);
     setFormData({
@@ -1624,11 +1647,7 @@ const EventDetails = () => {
           <DialogActions>
             <Button onClick={() => setShowRewardsModal(false)}>Cancel</Button>
             <Button 
-              onClick={() => {
-                // TODO: Implement give rewards functionality in Task 4
-                setShowRewardsModal(false);
-                showAlert('info', 'Give Rewards functionality will be implemented in the next step');
-              }} 
+              onClick={handleGiveRewards} 
               variant="contained"
               color="primary"
             >
