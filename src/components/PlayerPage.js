@@ -22,7 +22,7 @@ import {
   Visibility as ViewIcon
 } from '@mui/icons-material';
 import Layout from './Layout';
-import apiService from '../services/api';
+import { apiService } from '../services/api';
 
 const PlayerPage = () => {
   const { playerId } = useParams();
