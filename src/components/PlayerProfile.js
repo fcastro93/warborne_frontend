@@ -43,6 +43,7 @@ import {
   Settings
 } from '@mui/icons-material';
 import { apiService } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 // Game roles from Discord bot
 const GAME_ROLES = [
