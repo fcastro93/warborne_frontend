@@ -4,6 +4,7 @@ import { Box, Typography, Button, Paper, Avatar, Chip, IconButton, Tabs, Tab, Gr
 import { ArrowBack, Add, Inventory2, Person, Search, Close, Edit, Check, Cancel, FilterList, LocalFireDepartment, Shield, Healing, Speed, FlashOn, MilitaryTech, Public, WorkspacePremium, Inventory, Security, Star, Diamond, AutoAwesome } from '@mui/icons-material';
 import Layout from './Layout';
 import { apiService } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 // Tier options for gear power calculation
 const TIER_OPTIONS = [
@@ -182,6 +183,7 @@ const mockGearItems = [
 export default function LegacyPlayerLoadout() {
   const { playerId } = useParams();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const [player, setPlayer] = useState(null);
   const [drifters, setDrifters] = useState([]);
   const [allDrifters, setAllDrifters] = useState([]);
@@ -229,9 +231,11 @@ export default function LegacyPlayerLoadout() {
       setError(null);
       setAccessDenied(false);
 
-      // Check for token authentication
+      // Check for authentication: either token OR staff user
       const token = searchParams.get('token');
-      console.log('Player ID:', playerId, 'Token:', token ? 'Present' : 'Not present');
+      const isStaffUser = user && (user.is_staff || user.is_superuser);
+      
+      console.log('Player ID:', playerId, 'Token:', token ? 'Present' : 'Not present', 'Staff:', isStaffUser);
       
       if (token) {
         // Validate token first
@@ -242,38 +246,39 @@ export default function LegacyPlayerLoadout() {
           setLoading(false);
           return;
         }
-        // Token is valid, get player data
-        const playerData = await apiService.getPlayer(playerId);
-        console.log('Player data:', playerData);
-        setPlayer(playerData);
-        setEditName(playerData?.in_game_name || '');
-
-        // Fetch drifters data
-        const driftersData = await apiService.getPlayerDrifters(playerId);
-        console.log('Drifters data:', driftersData);
-        console.log('Drifters data structure:', driftersData.drifters ? driftersData.drifters.map(d => ({ id: d.id, name: d.name, number: d.number, keys: Object.keys(d) })) : null);
-        console.log('First drifter keys:', driftersData.drifters && driftersData.drifters[0] ? Object.keys(driftersData.drifters[0]) : null);
-        setDrifters(driftersData.drifters || []);
-
-        // Fetch gear items data
-        const gearData = await apiService.getGearItems();
-        console.log('Gear items data:', gearData);
-        // The API returns the array directly, not wrapped in a gear_items property
-        setGearItems(Array.isArray(gearData) ? gearData : (gearData.gear_items || []));
-
-        // Fetch all available drifters
-        const allDriftersData = await apiService.getAllDrifters();
-        console.log('All drifters data:', allDriftersData);
-        console.log('All drifters data structure:', allDriftersData.drifters ? allDriftersData.drifters.map(d => ({ id: d.id, name: d.name, keys: Object.keys(d) })) : null);
-        console.log('First all drifter keys:', allDriftersData.drifters && allDriftersData.drifters[0] ? Object.keys(allDriftersData.drifters[0]) : null);
-        setAllDrifters(allDriftersData.drifters || []);
-      } else {
-        // No token provided - deny access
-        setError('Access token is required to view this loadout');
+      } else if (!isStaffUser) {
+        // No token and not staff - deny access
+        setError('Access token is required to view this loadout. Please access through Discord bot or contact staff.');
         setAccessDenied(true);
         setLoading(false);
         return;
       }
+      
+      // Either token is valid OR user is staff - proceed with data fetching
+      const playerData = await apiService.getPlayer(playerId);
+      console.log('Player data:', playerData);
+      setPlayer(playerData);
+      setEditName(playerData?.in_game_name || '');
+
+      // Fetch drifters data
+      const driftersData = await apiService.getPlayerDrifters(playerId);
+      console.log('Drifters data:', driftersData);
+      console.log('Drifters data structure:', driftersData.drifters ? driftersData.drifters.map(d => ({ id: d.id, name: d.name, number: d.number, keys: Object.keys(d) })) : null);
+      console.log('First drifter keys:', driftersData.drifters && driftersData.drifters[0] ? Object.keys(driftersData.drifters[0]) : null);
+      setDrifters(driftersData.drifters || []);
+
+      // Fetch gear items data
+      const gearData = await apiService.getGearItems();
+      console.log('Gear items data:', gearData);
+      // The API returns the array directly, not wrapped in a gear_items property
+      setGearItems(Array.isArray(gearData) ? gearData : (gearData.gear_items || []));
+
+      // Fetch all available drifters
+      const allDriftersData = await apiService.getAllDrifters();
+      console.log('All drifters data:', allDriftersData);
+      console.log('All drifters data structure:', allDriftersData.drifters ? allDriftersData.drifters.map(d => ({ id: d.id, name: d.name, keys: Object.keys(d) })) : null);
+      console.log('First all drifter keys:', allDriftersData.drifters && allDriftersData.drifters[0] ? Object.keys(allDriftersData.drifters[0]) : null);
+      setAllDrifters(allDriftersData.drifters || []);
 
     } catch (error) {
       console.error('Error fetching player data:', error);
