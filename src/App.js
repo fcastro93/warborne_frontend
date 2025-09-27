@@ -17,6 +17,7 @@ import Analytics from './components/Analytics';
 import UserManagement from './components/UserManagement';
 import BlueprintsInventory from './components/BlueprintsInventory';
 import PlayerProfile from './components/PlayerProfile';
+import PlayerPage from './components/PlayerPage';
 import './App.css';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
             <Route path="/recbuilds/:buildId" element={<RecommendedBuilds />} />
             <Route path="/player/:playerId/loadout" element={<LegacyPlayerLoadout />} />
             <Route path="/player/:playerId/profile" element={<PlayerProfile />} />
+            <Route path="/player/:playerId" element={<PlayerPage />} />
             
             {/* Protected routes (authentication required) */}
             <Route path="/" element={
