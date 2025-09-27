@@ -17,7 +17,17 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemIcon
+  ListItemIcon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  IconButton
 } from '@mui/material';
 import {
   Person,
@@ -29,9 +39,22 @@ import {
   AccessTime,
   Security,
   Build,
-  ArrowForward
+  ArrowForward,
+  Settings
 } from '@mui/icons-material';
 import { apiService } from '../services/api';
+
+// Game roles from Discord bot
+const GAME_ROLES = [
+  { value: 'healer', label: 'Healer' },
+  { value: 'defensive_tank', label: 'Defensive Tank' },
+  { value: 'offensive_tank', label: 'Offensive Tank' },
+  { value: 'ranged_dps', label: 'Ranged DPS' },
+  { value: 'melee_dps', label: 'Melee DPS' },
+  { value: 'defensive_support', label: 'Defensive Support' },
+  { value: 'offensive_support', label: 'Offensive Support' },
+  { value: 'support', label: 'Support' }
+];
 
 const getFactionColor = (faction) => {
   switch (faction) {
@@ -80,10 +103,22 @@ const getRoleColor = (role) => {
 export default function PlayerProfile() {
   const { playerId } = useParams();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tokenExpired, setTokenExpired] = useState(false);
+  
+  // Edit modal state
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    in_game_name: '',
+    character_level: 1,
+    game_role: '',
+    guild_id: 'none'
+  });
+  const [guilds, setGuilds] = useState([]);
+  const [editLoading, setEditLoading] = useState(false);
 
   useEffect(() => {
     const fetchPlayerProfile = async () => {
@@ -115,6 +150,71 @@ export default function PlayerProfile() {
 
     fetchPlayerProfile();
   }, [playerId, searchParams]);
+
+  // Edit modal functions
+  const handleOpenEditModal = async () => {
+    try {
+      // Load guilds list
+      const guildsResponse = await apiService.getGuildsList();
+      if (guildsResponse.success) {
+        setGuilds(guildsResponse.guilds);
+      }
+      
+      // Set form data with current player data
+      setEditFormData({
+        in_game_name: player?.in_game_name || '',
+        character_level: player?.character_level || 1,
+        game_role: player?.game_role || '',
+        guild_id: player?.guild?.id || 'none'
+      });
+      
+      setEditModalOpen(true);
+    } catch (error) {
+      console.error('Error loading edit data:', error);
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setEditFormData({
+      in_game_name: '',
+      character_level: 1,
+      game_role: '',
+      guild_id: 'none'
+    });
+  };
+
+  const handleFormChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSavePlayer = async () => {
+    try {
+      setEditLoading(true);
+      
+      const response = await apiService.updatePlayerProfile(playerId, editFormData);
+      
+      if (response.success) {
+        // Update local player state
+        setPlayer(prev => ({
+          ...prev,
+          ...response.player
+        }));
+        
+        handleCloseEditModal();
+      } else {
+        alert('Error updating player: ' + (response.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error updating player:', error);
+      alert('Error updating player: ' + error.message);
+    } finally {
+      setEditLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -180,16 +280,33 @@ export default function PlayerProfile() {
     <Box sx={{ width: '100%', maxWidth: { sm: "100%", md: "1200px" }, mx: 'auto', p: 3 }}>
       {/* Header Section */}
       <Box sx={{ mb: 4 }}>
-        <Typography component="h1" variant="h4" gutterBottom sx={{ 
-          fontWeight: 700,
-          background: 'linear-gradient(45deg, #4a9eff, #6bb6ff)',
-          backgroundClip: 'text',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textAlign: 'center'
-        }}>
-          Player Profile
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 2 }}>
+          <Typography component="h1" variant="h4" sx={{ 
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #4a9eff, #6bb6ff)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            margin: 0
+          }}>
+            Player Profile
+          </Typography>
+          {user && (user.is_staff || user.is_superuser) && (
+            <IconButton
+              onClick={handleOpenEditModal}
+              sx={{
+                color: 'primary.main',
+                '&:hover': {
+                  backgroundColor: 'primary.light',
+                  color: 'white'
+                }
+              }}
+              title="Edit Player"
+            >
+              <Settings />
+            </IconButton>
+          )}
+        </Box>
         <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 3 }}>
           Personal player information and statistics
         </Typography>
@@ -436,6 +553,88 @@ export default function PlayerProfile() {
           </Stack>
         </Paper>
       </Box>
+
+      {/* Edit Player Modal */}
+      <Dialog open={editModalOpen} onClose={handleCloseEditModal} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Settings color="primary" />
+            Edit Player
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 2 }}>
+            {/* Player Name */}
+            <TextField
+              fullWidth
+              label="Player Name"
+              value={editFormData.in_game_name}
+              onChange={(e) => handleFormChange('in_game_name', e.target.value)}
+              margin="normal"
+              required
+            />
+            
+            {/* Character Level */}
+            <TextField
+              fullWidth
+              label="Character Level"
+              type="number"
+              value={editFormData.character_level}
+              onChange={(e) => handleFormChange('character_level', parseInt(e.target.value) || 1)}
+              margin="normal"
+              inputProps={{ min: 1, max: 100 }}
+              required
+            />
+            
+            {/* Game Role */}
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Game Role</InputLabel>
+              <Select
+                value={editFormData.game_role}
+                onChange={(e) => handleFormChange('game_role', e.target.value)}
+                label="Game Role"
+              >
+                <MenuItem value="">
+                  <em>No Role</em>
+                </MenuItem>
+                {GAME_ROLES.map((role) => (
+                  <MenuItem key={role.value} value={role.value}>
+                    {role.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            
+            {/* Guild */}
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Guild</InputLabel>
+              <Select
+                value={editFormData.guild_id}
+                onChange={(e) => handleFormChange('guild_id', e.target.value)}
+                label="Guild"
+              >
+                {guilds.map((guild) => (
+                  <MenuItem key={guild.id} value={guild.id}>
+                    {guild.name} {guild.member_count > 0 && `(${guild.member_count} members)`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEditModal} disabled={editLoading}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSavePlayer} 
+            variant="contained" 
+            disabled={editLoading || !editFormData.in_game_name}
+          >
+            {editLoading ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

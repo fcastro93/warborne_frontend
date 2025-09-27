@@ -52,6 +52,24 @@ export const apiService = {
     return response.json();
   },
 
+  async updatePlayerProfile(playerId, playerData) {
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/update-profile/`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(playerData)
+    });
+    return response.json();
+  },
+
+  async getGuildsList() {
+    const response = await fetch(`${API_BASE_URL}/guilds/list/`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    return response.json();
+  },
+
   async getDiscordPresence(discordUserIds) {
     const response = await fetch(`${API_BASE_URL}/discord/presence/`, {
       method: 'POST',
