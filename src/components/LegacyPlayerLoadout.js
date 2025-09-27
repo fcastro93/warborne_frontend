@@ -229,33 +229,51 @@ export default function LegacyPlayerLoadout() {
       setError(null);
       setAccessDenied(false);
 
-      // Get player data directly (public access)
-      console.log('Player ID:', playerId);
+      // Check for token authentication
+      const token = searchParams.get('token');
+      console.log('Player ID:', playerId, 'Token:', token ? 'Present' : 'Not present');
       
-      const playerData = await apiService.getPlayer(playerId);
-      console.log('Player data:', playerData);
-      setPlayer(playerData);
-      setEditName(playerData?.in_game_name || '');
+      if (token) {
+        // Validate token first
+        const validationResponse = await apiService.validateProfileToken(playerId, token);
+        if (!validationResponse.success) {
+          setError(validationResponse.error || 'Invalid or expired token');
+          setAccessDenied(true);
+          setLoading(false);
+          return;
+        }
+        // Token is valid, get player data
+        const playerData = await apiService.getPlayer(playerId);
+        console.log('Player data:', playerData);
+        setPlayer(playerData);
+        setEditName(playerData?.in_game_name || '');
 
-      // Fetch drifters data
-      const driftersData = await apiService.getPlayerDrifters(playerId);
-      console.log('Drifters data:', driftersData);
-      console.log('Drifters data structure:', driftersData.drifters ? driftersData.drifters.map(d => ({ id: d.id, name: d.name, number: d.number, keys: Object.keys(d) })) : null);
-      console.log('First drifter keys:', driftersData.drifters && driftersData.drifters[0] ? Object.keys(driftersData.drifters[0]) : null);
-      setDrifters(driftersData.drifters || []);
+        // Fetch drifters data
+        const driftersData = await apiService.getPlayerDrifters(playerId);
+        console.log('Drifters data:', driftersData);
+        console.log('Drifters data structure:', driftersData.drifters ? driftersData.drifters.map(d => ({ id: d.id, name: d.name, number: d.number, keys: Object.keys(d) })) : null);
+        console.log('First drifter keys:', driftersData.drifters && driftersData.drifters[0] ? Object.keys(driftersData.drifters[0]) : null);
+        setDrifters(driftersData.drifters || []);
 
-      // Fetch gear items data
-      const gearData = await apiService.getGearItems();
-      console.log('Gear items data:', gearData);
-      // The API returns the array directly, not wrapped in a gear_items property
-      setGearItems(Array.isArray(gearData) ? gearData : (gearData.gear_items || []));
+        // Fetch gear items data
+        const gearData = await apiService.getGearItems();
+        console.log('Gear items data:', gearData);
+        // The API returns the array directly, not wrapped in a gear_items property
+        setGearItems(Array.isArray(gearData) ? gearData : (gearData.gear_items || []));
 
-      // Fetch all available drifters
-      const allDriftersData = await apiService.getAllDrifters();
-      console.log('All drifters data:', allDriftersData);
-      console.log('All drifters data structure:', allDriftersData.drifters ? allDriftersData.drifters.map(d => ({ id: d.id, name: d.name, keys: Object.keys(d) })) : null);
-      console.log('First all drifter keys:', allDriftersData.drifters && allDriftersData.drifters[0] ? Object.keys(allDriftersData.drifters[0]) : null);
-      setAllDrifters(allDriftersData.drifters || []);
+        // Fetch all available drifters
+        const allDriftersData = await apiService.getAllDrifters();
+        console.log('All drifters data:', allDriftersData);
+        console.log('All drifters data structure:', allDriftersData.drifters ? allDriftersData.drifters.map(d => ({ id: d.id, name: d.name, keys: Object.keys(d) })) : null);
+        console.log('First all drifter keys:', allDriftersData.drifters && allDriftersData.drifters[0] ? Object.keys(allDriftersData.drifters[0]) : null);
+        setAllDrifters(allDriftersData.drifters || []);
+      } else {
+        // No token provided - deny access
+        setError('Access token is required to view this loadout');
+        setAccessDenied(true);
+        setLoading(false);
+        return;
+      }
 
     } catch (error) {
       console.error('Error fetching player data:', error);
