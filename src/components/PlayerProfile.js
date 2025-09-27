@@ -380,7 +380,7 @@ export default function PlayerProfile() {
           </Typography>
           <Button
             component={Link}
-            to={`/player/${player.id}/loadout?token=${searchParams.get('token')}`}
+            to={`/guilds-legacy/player/${player.id}/loadout/?token=${searchParams.get('token')}`}
             variant="contained"
             startIcon={<Build />}
             endIcon={<ArrowForward />}
