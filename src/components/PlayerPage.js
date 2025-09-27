@@ -248,8 +248,8 @@ const PlayerPage = () => {
               </Avatar>
             </Grid>
             <Grid item xs>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="h4" sx={{ color: 'white', fontWeight: 'bold', mb: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Typography variant="h4" sx={{ color: 'white', fontWeight: 'bold' }}>
                   {player.in_game_name || 'Unknown Player'}
                 </Typography>
                 {/* Settings icon - visible to staff users or users with Discord token */}
@@ -258,14 +258,24 @@ const PlayerPage = () => {
                     onClick={handleOpenEditModal}
                     sx={{ 
                       color: 'rgba(255,255,255,0.7)', 
-                      '&:hover': { color: 'white' },
-                      mb: 1
+                      '&:hover': { color: 'white' }
                     }}
                     size="small"
                   >
                     <Settings />
                   </IconButton>
                 )}
+              </Box>
+              {/* Crypto Tommys display instead of Player Profile label */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <img 
+                  src="/icons/cryptotommys.png" 
+                  alt="CryptoTommys" 
+                  style={{ width: '20px', height: '20px' }}
+                />
+                <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 'bold' }}>
+                  {player.crypto_tommys || 0} CryptoTommys
+                </Typography>
               </Box>
               <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.8)', mb: 2 }}>
                 {player.discord_name || 'No Discord Name'}
@@ -283,22 +293,6 @@ const PlayerPage = () => {
                   />
                 )}
               </Box>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                startIcon={<ViewIcon />}
-                onClick={handleViewLoadout}
-                sx={{
-                  bgcolor: 'rgba(255,255,255,0.2)',
-                  color: 'white',
-                  '&:hover': {
-                    bgcolor: 'rgba(255,255,255,0.3)'
-                  }
-                }}
-              >
-                View Loadout
-              </Button>
             </Grid>
           </Grid>
         </Paper>
