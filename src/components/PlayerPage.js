@@ -12,26 +12,63 @@ import {
   Divider,
   Paper,
   CircularProgress,
-  Alert
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  IconButton,
+  Button as MuiButton
 } from '@mui/material';
 import {
   Person as PersonIcon,
   MilitaryTech as LevelIcon,
   Group as GuildIcon,
   Build as GearIcon,
-  Visibility as ViewIcon
+  Visibility as ViewIcon,
+  Settings
 } from '@mui/icons-material';
 import Layout from './Layout';
 import { apiService } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+
+// Game roles from Discord bot
+const GAME_ROLES = [
+  { value: 'healer', label: 'Healer' },
+  { value: 'defensive_tank', label: 'Defensive Tank' },
+  { value: 'offensive_tank', label: 'Offensive Tank' },
+  { value: 'ranged_dps', label: 'Ranged DPS' },
+  { value: 'melee_dps', label: 'Melee DPS' },
+  { value: 'defensive_support', label: 'Defensive Support' },
+  { value: 'offensive_support', label: 'Offensive Support' },
+  { value: 'support', label: 'Support' }
+];
 
 const PlayerPage = () => {
   const { playerId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [accessDenied, setAccessDenied] = useState(false);
+  
+  // Edit modal state
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    in_game_name: '',
+    character_level: 1,
+    game_role: '',
+    guild_id: 'none'
+  });
+  const [guilds, setGuilds] = useState([]);
+  const [editLoading, setEditLoading] = useState(false);
 
   useEffect(() => {
     fetchPlayerData();
@@ -82,6 +119,74 @@ const PlayerPage = () => {
       navigate(`/player/${playerId}/loadout?token=${token}`);
     } else {
       navigate(`/player/${playerId}/loadout`);
+    }
+  };
+
+  // Edit modal functions
+  const handleOpenEditModal = async () => {
+    try {
+      // Load guilds list
+      const guildsResponse = await apiService.getGuildsList();
+      if (guildsResponse.success) {
+        setGuilds(guildsResponse.guilds);
+      }
+      
+      // Set form data with current player data
+      setEditFormData({
+        in_game_name: player?.in_game_name || '',
+        character_level: player?.character_level || 1,
+        game_role: player?.game_role || '',
+        guild_id: player?.guild?.id || 'none'
+      });
+      
+      setEditModalOpen(true);
+    } catch (error) {
+      console.error('Error loading edit data:', error);
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setEditFormData({
+      in_game_name: '',
+      character_level: 1,
+      game_role: '',
+      guild_id: 'none'
+    });
+  };
+
+  const handleFormChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSavePlayer = async () => {
+    try {
+      setEditLoading(true);
+      
+      // Get token from URL params if available (for Discord bot users)
+      const token = searchParams.get('token');
+      
+      const response = await apiService.updatePlayerProfile(playerId, editFormData, token);
+      
+      if (response.success) {
+        // Update local player state
+        setPlayer(prev => ({
+          ...prev,
+          ...response.player
+        }));
+        
+        handleCloseEditModal();
+      } else {
+        alert('Error updating player: ' + (response.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error updating player:', error);
+      alert('Error updating player: ' + error.message);
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -143,9 +248,25 @@ const PlayerPage = () => {
               </Avatar>
             </Grid>
             <Grid item xs>
-              <Typography variant="h4" sx={{ color: 'white', fontWeight: 'bold', mb: 1 }}>
-                {player.in_game_name || 'Unknown Player'}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="h4" sx={{ color: 'white', fontWeight: 'bold', mb: 1 }}>
+                  {player.in_game_name || 'Unknown Player'}
+                </Typography>
+                {/* Settings icon - visible to staff users or users with Discord token */}
+                {(user?.is_staff || user?.is_superuser || searchParams.get('token')) && (
+                  <IconButton 
+                    onClick={handleOpenEditModal}
+                    sx={{ 
+                      color: 'rgba(255,255,255,0.7)', 
+                      '&:hover': { color: 'white' },
+                      mb: 1
+                    }}
+                    size="small"
+                  >
+                    <Settings />
+                  </IconButton>
+                )}
+              </Box>
               <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.8)', mb: 2 }}>
                 {player.discord_name || 'No Discord Name'}
               </Typography>
@@ -273,6 +394,76 @@ const PlayerPage = () => {
           </CardContent>
         </Card>
       </Box>
+      
+      {/* Edit Player Modal */}
+      <Dialog open={editModalOpen} onClose={handleCloseEditModal} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Player Information</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/* Player Name */}
+            <TextField
+              label="Player Name"
+              value={editFormData.in_game_name}
+              onChange={(e) => handleFormChange('in_game_name', e.target.value)}
+              fullWidth
+              required
+            />
+            
+            {/* Character Level */}
+            <TextField
+              label="Character Level"
+              type="number"
+              value={editFormData.character_level}
+              onChange={(e) => handleFormChange('character_level', parseInt(e.target.value) || 1)}
+              fullWidth
+              inputProps={{ min: 1 }}
+            />
+            
+            {/* Game Role */}
+            <FormControl fullWidth>
+              <InputLabel>Game Role</InputLabel>
+              <Select
+                value={editFormData.game_role}
+                onChange={(e) => handleFormChange('game_role', e.target.value)}
+                label="Game Role"
+              >
+                <MenuItem value="">No Role</MenuItem>
+                {GAME_ROLES.map((role) => (
+                  <MenuItem key={role.value} value={role.value}>
+                    {role.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            
+            {/* Guild */}
+            <FormControl fullWidth>
+              <InputLabel>Guild</InputLabel>
+              <Select
+                value={editFormData.guild_id}
+                onChange={(e) => handleFormChange('guild_id', e.target.value)}
+                label="Guild"
+              >
+                {guilds.map((guild) => (
+                  <MenuItem key={guild.id} value={guild.id}>
+                    {guild.name} ({guild.member_count} members)
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <MuiButton onClick={handleCloseEditModal}>Cancel</MuiButton>
+          <MuiButton 
+            onClick={handleSavePlayer} 
+            variant="contained" 
+            disabled={editLoading}
+          >
+            {editLoading ? 'Saving...' : 'Save Changes'}
+          </MuiButton>
+        </DialogActions>
+      </Dialog>
     </Layout>
   );
 };
