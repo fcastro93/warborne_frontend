@@ -69,9 +69,13 @@ export const apiService = {
     return response.json();
   },
 
-  async getGuildsList() {
+  async getGuildsList(token = null) {
+    const headers = getAuthHeaders();
+    if (token) {
+      headers['X-Profile-Token'] = token;
+    }
     const response = await fetch(`${API_BASE_URL}/guilds/list/`, {
-      headers: getAuthHeaders(),
+      headers,
       credentials: 'include'
     });
     return response.json();

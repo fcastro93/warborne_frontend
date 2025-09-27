@@ -37,7 +37,7 @@ import Layout from './Layout';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
-// Game roles from Discord bot
+// Game roles from Discord bot (excluding 'support' as requested)
 const GAME_ROLES = [
   { value: 'healer', label: 'Healer' },
   { value: 'defensive_tank', label: 'Defensive Tank' },
@@ -45,8 +45,7 @@ const GAME_ROLES = [
   { value: 'ranged_dps', label: 'Ranged DPS' },
   { value: 'melee_dps', label: 'Melee DPS' },
   { value: 'defensive_support', label: 'Defensive Support' },
-  { value: 'offensive_support', label: 'Offensive Support' },
-  { value: 'support', label: 'Support' }
+  { value: 'offensive_support', label: 'Offensive Support' }
 ];
 
 const PlayerPage = () => {
@@ -125,8 +124,9 @@ const PlayerPage = () => {
   // Edit modal functions
   const handleOpenEditModal = async () => {
     try {
-      // Load guilds list
-      const guildsResponse = await apiService.getGuildsList();
+      // Load guilds list with token if available (for Discord bot users)
+      const token = searchParams.get('token');
+      const guildsResponse = await apiService.getGuildsList(token);
       if (guildsResponse.success) {
         setGuilds(guildsResponse.guilds);
       }
