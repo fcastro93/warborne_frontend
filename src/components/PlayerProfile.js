@@ -196,7 +196,10 @@ export default function PlayerProfile() {
     try {
       setEditLoading(true);
       
-      const response = await apiService.updatePlayerProfile(playerId, editFormData);
+      // Get token from URL params if available (for Discord bot users)
+      const token = searchParams.get('token');
+      
+      const response = await apiService.updatePlayerProfile(playerId, editFormData, token);
       
       if (response.success) {
         // Update local player state
@@ -292,7 +295,7 @@ export default function PlayerProfile() {
           }}>
             Player Profile
           </Typography>
-          {user && (user.is_staff || user.is_superuser) && (
+          {(user && (user.is_staff || user.is_superuser)) || searchParams.get('token') ? (
             <IconButton
               onClick={handleOpenEditModal}
               sx={{
@@ -302,11 +305,11 @@ export default function PlayerProfile() {
                   color: 'white'
                 }
               }}
-              title="Edit Player"
+              title={user && (user.is_staff || user.is_superuser) ? "Edit Player (Staff)" : "Edit Player"}
             >
               <Settings />
             </IconButton>
-          )}
+          ) : null}
         </Box>
         <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 3 }}>
           Personal player information and statistics

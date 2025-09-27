@@ -52,10 +52,17 @@ export const apiService = {
     return response.json();
   },
 
-  async updatePlayerProfile(playerId, playerData) {
+  async updatePlayerProfile(playerId, playerData, token = null) {
+    const headers = getAuthHeaders();
+    
+    // Add token to headers if provided (for Discord bot users)
+    if (token) {
+      headers['X-Profile-Token'] = token;
+    }
+    
     const response = await fetch(`${API_BASE_URL}/player/${playerId}/update-profile/`, {
       method: 'PUT',
-      headers: getAuthHeaders(),
+      headers,
       credentials: 'include',
       body: JSON.stringify(playerData)
     });
