@@ -29,7 +29,6 @@ import {
   Person as PersonIcon,
   MilitaryTech as LevelIcon,
   Group as GuildIcon,
-  Build as GearIcon,
   Visibility as ViewIcon,
   Settings
 } from '@mui/icons-material';
@@ -373,13 +372,6 @@ const PlayerPage = () => {
                 onClick={handleViewLoadout}
               >
                 View Loadout
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<GearIcon />}
-                onClick={handleViewLoadout}
-              >
-                Manage Equipment
               </Button>
             </Box>
           </CardContent>
