@@ -86,7 +86,19 @@ export const apiService = {
     formData.append('image', imageFile);
     formData.append('type', imageType);
 
-    const headers = getAuthHeaders();
+    // Don't use getAuthHeaders() for file uploads - it sets Content-Type: application/json
+    // Let the browser set the correct multipart/form-data content type automatically
+    const headers = {
+      'X-CSRFToken': getCSRFToken()
+    };
+    
+    // Add JWT token if available (for staff users)
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    
+    // Add profile token if provided (for Discord bot users)
     if (token) {
       headers['X-Profile-Token'] = token;
     }
