@@ -28,7 +28,6 @@ import {
 import {
   Person as PersonIcon,
   MilitaryTech as LevelIcon,
-  Group as GuildIcon,
   Visibility as ViewIcon,
   Settings
 } from '@mui/icons-material';
@@ -314,7 +313,7 @@ const PlayerPage = () => {
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="body2" color="text.secondary">Discord Name:</Typography>
-                    <Typography variant="body2">{player.discord_name || 'Not set'}</Typography>
+                    <Typography variant="body2">{(player.discord_name || 'Not set').split('#')[0]}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="body2" color="text.secondary">Character Level:</Typography>
@@ -324,38 +323,15 @@ const PlayerPage = () => {
                     <Typography variant="body2" color="text.secondary">Game Role:</Typography>
                     <Typography variant="body2">{player.game_role || 'Not set'}</Typography>
                   </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" color="text.secondary">Guild:</Typography>
+                    <Typography variant="body2">{player.guild?.name || 'No guild'}</Typography>
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <GuildIcon color="primary" />
-                  Guild Information
-                </Typography>
-                <Divider sx={{ mb: 2 }} />
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Guild:</Typography>
-                    <Typography variant="body2">{player.guild?.name || 'No guild'}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Guild Role:</Typography>
-                    <Typography variant="body2">{player.guild_role || 'No role'}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">Joined:</Typography>
-                    <Typography variant="body2">
-                      {player.created_at ? new Date(player.created_at).toLocaleDateString() : 'Unknown'}
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
         </Grid>
 
         {/* Quick Actions */}
