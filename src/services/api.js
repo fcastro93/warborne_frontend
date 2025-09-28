@@ -81,6 +81,25 @@ export const apiService = {
     return response.json();
   },
 
+  async uploadPlayerImage(playerId, imageFile, imageType, token = null) {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('type', imageType);
+
+    const headers = getAuthHeaders();
+    if (token) {
+      headers['X-Profile-Token'] = token;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/player/${playerId}/upload-image/`, {
+      method: 'POST',
+      headers,
+      body: formData,
+      credentials: 'include'
+    });
+    return response.json();
+  },
+
   async getDiscordPresence(discordUserIds) {
     const response = await fetch(`${API_BASE_URL}/discord/presence/`, {
       method: 'POST',

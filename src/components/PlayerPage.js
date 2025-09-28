@@ -66,6 +66,10 @@ const PlayerPage = () => {
   });
   const [guilds, setGuilds] = useState([]);
   const [editLoading, setEditLoading] = useState(false);
+  
+  // Image upload state
+  const [imageUploading, setImageUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ profile: false, banner: false });
 
   useEffect(() => {
     fetchPlayerData();
@@ -188,6 +192,57 @@ const PlayerPage = () => {
     }
   };
 
+  // Image upload functions
+  const handleImageUpload = async (imageType, event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.');
+      return;
+    }
+
+    // Validate file size
+    const maxSize = imageType === 'profile' ? 5 * 1024 * 1024 : 10 * 1024 * 1024; // 5MB for profile, 10MB for banner
+    if (file.size > maxSize) {
+      const maxSizeMB = imageType === 'profile' ? 5 : 10;
+      alert(`File too large. Maximum size is ${maxSizeMB}MB for ${imageType} pictures.`);
+      return;
+    }
+
+    try {
+      setImageUploading(true);
+      setUploadProgress(prev => ({ ...prev, [imageType]: true }));
+
+      // Get token from URL params if available (for Discord bot users)
+      const token = searchParams.get('token');
+      
+      const response = await apiService.uploadPlayerImage(playerId, file, imageType, token);
+      
+      if (response.success) {
+        // Update local player state
+        setPlayer(prev => ({
+          ...prev,
+          [imageType === 'profile' ? 'profile_picture' : 'banner_picture']: response.url
+        }));
+        
+        alert(`${imageType.charAt(0).toUpperCase() + imageType.slice(1)} picture uploaded successfully!`);
+      } else {
+        alert('Error uploading image: ' + (response.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error uploading image: ' + error.message);
+    } finally {
+      setImageUploading(false);
+      setUploadProgress(prev => ({ ...prev, [imageType]: false }));
+      // Reset file input
+      event.target.value = '';
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -234,16 +289,63 @@ const PlayerPage = () => {
         <Paper sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
           <Grid container spacing={3} alignItems="center">
             <Grid item>
-              <Avatar
-                sx={{
-                  width: 80,
-                  height: 80,
-                  bgcolor: 'rgba(255,255,255,0.2)',
-                  fontSize: '2rem'
-                }}
-              >
-                <PersonIcon fontSize="large" />
-              </Avatar>
+              <Box sx={{ position: 'relative' }}>
+                <Avatar
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    bgcolor: 'rgba(255,255,255,0.2)',
+                    color: 'white',
+                    cursor: (user?.is_staff || user?.is_superuser || searchParams.get('token')) ? 'pointer' : 'default'
+                  }}
+                  onClick={() => {
+                    if (user?.is_staff || user?.is_superuser || searchParams.get('token')) {
+                      document.getElementById('profile-picture-input').click();
+                    }
+                  }}
+                >
+                  {player?.profile_picture ? (
+                    <img 
+                      src={player.profile_picture} 
+                      alt="Profile" 
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover',
+                        borderRadius: '50%'
+                      }} 
+                    />
+                  ) : (
+                    <PersonIcon fontSize="large" />
+                  )}
+                </Avatar>
+                
+                {/* Upload indicator */}
+                {uploadProgress.profile && (
+                  <CircularProgress
+                    size={24}
+                    sx={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      marginTop: '-12px',
+                      marginLeft: '-12px',
+                      color: 'white'
+                    }}
+                  />
+                )}
+                
+                {/* Hidden file input */}
+                {(user?.is_staff || user?.is_superuser || searchParams.get('token')) && (
+                  <input
+                    id="profile-picture-input"
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={(e) => handleImageUpload('profile', e)}
+                  />
+                )}
+              </Box>
             </Grid>
             <Grid item xs>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -285,6 +387,74 @@ const PlayerPage = () => {
                   <Chip
                     label={player.game_role}
                     sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
+                  />
+                )}
+              </Box>
+            </Grid>
+            
+            {/* Banner Picture Upload Area */}
+            <Grid item xs={6}>
+              <Box sx={{ 
+                position: 'relative',
+                height: 120,
+                border: '2px dashed rgba(255,255,255,0.3)',
+                borderRadius: 2,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: (user?.is_staff || user?.is_superuser || searchParams.get('token')) ? 'pointer' : 'default',
+                '&:hover': {
+                  borderColor: 'rgba(255,255,255,0.5)',
+                  backgroundColor: 'rgba(255,255,255,0.1)'
+                }
+              }}
+              onClick={() => {
+                if (user?.is_staff || user?.is_superuser || searchParams.get('token')) {
+                  document.getElementById('banner-picture-input').click();
+                }
+              }}
+              >
+                {player?.banner_picture ? (
+                  <img 
+                    src={player.banner_picture} 
+                    alt="Banner" 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                ) : (
+                  <Box sx={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)' }}>
+                    <Typography variant="body2">
+                      {(user?.is_staff || user?.is_superuser || searchParams.get('token')) 
+                        ? 'Click to upload banner' 
+                        : 'No banner uploaded'
+                      }
+                    </Typography>
+                  </Box>
+                )}
+                
+                {/* Upload indicator */}
+                {uploadProgress.banner && (
+                  <CircularProgress
+                    size={32}
+                    sx={{
+                      position: 'absolute',
+                      color: 'white'
+                    }}
+                  />
+                )}
+                
+                {/* Hidden file input */}
+                {(user?.is_staff || user?.is_superuser || searchParams.get('token')) && (
+                  <input
+                    id="banner-picture-input"
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={(e) => handleImageUpload('banner', e)}
                   />
                 )}
               </Box>
