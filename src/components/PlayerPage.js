@@ -277,9 +277,6 @@ const PlayerPage = () => {
                   {player.crypto_tommys || 0} CryptoTommys
                 </Typography>
               </Box>
-              <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.8)', mb: 2 }}>
-                {player.discord_name || 'No Discord Name'}
-              </Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 <Chip
                   icon={<LevelIcon />}
