@@ -782,8 +782,7 @@ const EventManagement = () => {
                 <Card sx={{ 
                   height: '100%', 
                   display: 'flex', 
-                  flexDirection: 'column',
-                  aspectRatio: '1/1'
+                  flexDirection: 'column'
                 }}>
                   <CardContent sx={{ 
                     flexGrow: 1, 
