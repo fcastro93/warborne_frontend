@@ -23,7 +23,10 @@ import {
   Avatar,
   Divider,
   Paper,
-  Fab
+  Fab,
+  Tabs,
+  Tab,
+  Badge
 } from '@mui/material';
 import Layout from './Layout';
 import {
@@ -36,7 +39,10 @@ import {
   LocationOn as LocationIcon,
   Close as CloseIcon,
   Save as SaveIcon,
-  Cancel as CancelIcon
+  Cancel as CancelIcon,
+  ContentCopy as DuplicateIcon,
+  SaveAlt as SaveTemplateIcon,
+  Template as TemplateIcon
 } from '@mui/icons-material';
 import { apiService } from '../services/api';
 
@@ -44,12 +50,16 @@ const EventManagement = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
+  const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
+  const [saveTemplateModalOpen, setSaveTemplateModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
   const [dateFilter, setDateFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState(0);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -60,6 +70,20 @@ const EventManagement = () => {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Get user's timezone
     max_participants: '',
     points_per_participant: 0
+  });
+
+  // Duplicate form state
+  const [duplicateFormData, setDuplicateFormData] = useState({
+    title: '',
+    event_datetime: '',
+    points_per_participant: 0,
+    description: ''
+  });
+
+  // Save template form state
+  const [templateFormData, setTemplateFormData] = useState({
+    name: '',
+    description: ''
   });
 
   const eventTypes = [
@@ -90,6 +114,7 @@ const EventManagement = () => {
 
   useEffect(() => {
     fetchEvents();
+    fetchTemplates();
   }, []);
 
   useEffect(() => {
@@ -150,6 +175,21 @@ const EventManagement = () => {
       showAlert('Error fetching events', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTemplates = async () => {
+    try {
+      const response = await fetch('/api/events/templates/', {
+        method: 'GET',
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setTemplates(data.templates || []);
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+      showAlert('Error fetching templates', 'error');
     }
   };
 
@@ -239,6 +279,135 @@ const EventManagement = () => {
     } catch (error) {
       console.error('Error saving event:', error);
       showAlert('Error saving event', 'error');
+    }
+  };
+
+  const handleDuplicateEvent = (event) => {
+    setSelectedEvent(event);
+    setDuplicateFormData({
+      title: `${event.title} (Copy)`,
+      event_datetime: '',
+      points_per_participant: event.points_per_participant || 0,
+      description: event.description || ''
+    });
+    setDuplicateModalOpen(true);
+  };
+
+  const handleSubmitDuplicate = async () => {
+    try {
+      const response = await fetch('/api/events/duplicate/', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+        body: JSON.stringify({
+          original_event_id: selectedEvent.id,
+          title: duplicateFormData.title,
+          event_datetime: duplicateFormData.event_datetime,
+          points_per_participant: duplicateFormData.points_per_participant,
+          description: duplicateFormData.description
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showAlert(`Event duplicated successfully! Created ${data.duplicated.participants} participants and ${data.duplicated.parties} parties.`, 'success');
+        setDuplicateModalOpen(false);
+        setSelectedEvent(null);
+        fetchEvents();
+      } else {
+        showAlert(data.error || 'Error duplicating event', 'error');
+      }
+    } catch (error) {
+      console.error('Error duplicating event:', error);
+      showAlert('Error duplicating event', 'error');
+    }
+  };
+
+  const handleSaveAsTemplate = (event) => {
+    setSelectedEvent(event);
+    setTemplateFormData({
+      name: `${event.title} Template`,
+      description: event.description || ''
+    });
+    setSaveTemplateModalOpen(true);
+  };
+
+  const handleSubmitSaveTemplate = async () => {
+    try {
+      const response = await fetch('/api/events/save-template/', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+        body: JSON.stringify({
+          event_id: selectedEvent.id,
+          name: templateFormData.name,
+          description: templateFormData.description
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showAlert('Template saved successfully!', 'success');
+        setSaveTemplateModalOpen(false);
+        setSelectedEvent(null);
+        fetchTemplates();
+      } else {
+        showAlert(data.error || 'Error saving template', 'error');
+      }
+    } catch (error) {
+      console.error('Error saving template:', error);
+      showAlert('Error saving template', 'error');
+    }
+  };
+
+  const handleCreateFromTemplate = async (template) => {
+    try {
+      const response = await fetch(`/api/events/templates/${template.id}/create-event/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+        body: JSON.stringify({
+          title: `${template.name} Event`,
+          event_datetime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16) // Tomorrow
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showAlert('Event created from template successfully!', 'success');
+        fetchEvents();
+      } else {
+        showAlert(data.error || 'Error creating event from template', 'error');
+      }
+    } catch (error) {
+      console.error('Error creating event from template:', error);
+      showAlert('Error creating event from template', 'error');
+    }
+  };
+
+  const handleDeleteTemplate = async (templateId) => {
+    if (window.confirm('Are you sure you want to delete this template?')) {
+      try {
+        const response = await fetch(`/api/events/templates/${templateId}/delete/`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          showAlert('Template deleted successfully', 'success');
+          fetchTemplates();
+        } else {
+          const error = await response.json();
+          showAlert(error.error || 'Error deleting template', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting template:', error);
+        showAlert('Error deleting template', 'error');
+      }
     }
   };
 
@@ -396,51 +565,81 @@ const EventManagement = () => {
         </Alert>
       )}
 
-      {/* Date Filter */}
+      {/* Tabs */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <span>📅</span>
-          Filter Events
-        </Typography>
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-          {[
-            { value: 'all', label: 'All Events', count: events.length },
-            { value: 'upcoming', label: 'Upcoming', count: events.filter(event => new Date(event.event_datetime) > new Date()).length },
-            { value: 'past', label: 'Past Events', count: events.filter(event => new Date(event.event_datetime) <= new Date()).length },
-            { value: 'today', label: 'Today', count: events.filter(event => {
-              const eventDate = new Date(event.event_datetime);
-              const today = new Date();
-              const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-              const eventDateOnly = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
-              return eventDateOnly.getTime() === todayOnly.getTime();
-            }).length },
-            { value: 'this_week', label: 'This Week', count: events.filter(event => {
-              const eventDate = new Date(event.event_datetime);
-              const today = new Date();
-              const nextWeek = new Date(today);
-              nextWeek.setDate(nextWeek.getDate() + 7);
-              return eventDate >= today && eventDate <= nextWeek;
-            }).length }
-          ].map((filter) => (
-            <Chip
-              key={filter.value}
-              label={`${filter.label} (${filter.count})`}
-              onClick={() => setDateFilter(filter.value)}
-              color={dateFilter === filter.value ? 'primary' : 'default'}
-              variant={dateFilter === filter.value ? 'filled' : 'outlined'}
-              sx={{ 
-                cursor: 'pointer',
-                '&:hover': { 
-                  backgroundColor: dateFilter === filter.value ? 'primary.dark' : 'action.hover' 
-                }
-              }}
-            />
-          ))}
-        </Stack>
+        <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)} sx={{ mb: 2 }}>
+          <Tab 
+            label={
+              <Badge badgeContent={events.length} color="primary">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <EventIcon />
+                  Events
+                </Box>
+              </Badge>
+            } 
+          />
+          <Tab 
+            label={
+              <Badge badgeContent={templates.length} color="secondary">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <TemplateIcon />
+                  Templates
+                </Box>
+              </Badge>
+            } 
+          />
+        </Tabs>
+
+        {/* Date Filter - Only show for Events tab */}
+        {activeTab === 0 && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <span>📅</span>
+              Filter Events
+            </Typography>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              {[
+                { value: 'all', label: 'All Events', count: events.length },
+                { value: 'upcoming', label: 'Upcoming', count: events.filter(event => new Date(event.event_datetime) > new Date()).length },
+                { value: 'past', label: 'Past Events', count: events.filter(event => new Date(event.event_datetime) <= new Date()).length },
+                { value: 'today', label: 'Today', count: events.filter(event => {
+                  const eventDate = new Date(event.event_datetime);
+                  const today = new Date();
+                  const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                  const eventDateOnly = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+                  return eventDateOnly.getTime() === todayOnly.getTime();
+                }).length },
+                { value: 'this_week', label: 'This Week', count: events.filter(event => {
+                  const eventDate = new Date(event.event_datetime);
+                  const today = new Date();
+                  const nextWeek = new Date(today);
+                  nextWeek.setDate(nextWeek.getDate() + 7);
+                  return eventDate >= today && eventDate <= nextWeek;
+                }).length }
+              ].map((filter) => (
+                <Chip
+                  key={filter.value}
+                  label={`${filter.label} (${filter.count})`}
+                  onClick={() => setDateFilter(filter.value)}
+                  color={dateFilter === filter.value ? 'primary' : 'default'}
+                  variant={dateFilter === filter.value ? 'filled' : 'outlined'}
+                  sx={{ 
+                    cursor: 'pointer',
+                    '&:hover': { 
+                      backgroundColor: dateFilter === filter.value ? 'primary.dark' : 'action.hover' 
+                    }
+                  }}
+                />
+              ))}
+            </Stack>
+          </Box>
+        )}
       </Box>
 
-      {/* Events Grid */}
-      {filteredEvents.length === 0 ? (
+      {/* Content based on active tab */}
+      {activeTab === 0 ? (
+        // Events Tab
+        filteredEvents.length === 0 ? (
         <Card>
           <CardContent sx={{ textAlign: 'center', py: 4 }}>
             <EventIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
@@ -556,7 +755,7 @@ const EventManagement = () => {
                 </CardContent>
 
                 <Box sx={{ p: 1.5, pt: 0 }}>
-                  {/* Responsive Button Grid - 2 rows of 3 buttons */}
+                  {/* Responsive Button Grid - 3 rows of 3 buttons */}
                   <Box sx={{ 
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, 1fr)',
@@ -581,6 +780,30 @@ const EventManagement = () => {
                       }}
                     >
                       Edit
+                    </Button>
+                    <Button
+                      size="small"
+                      startIcon={<DuplicateIcon />}
+                      onClick={() => handleDuplicateEvent(event)}
+                      sx={{ 
+                        bgcolor: '#28a745', 
+                        color: 'white',
+                        '&:hover': { bgcolor: '#218838' }
+                      }}
+                    >
+                      Duplicate
+                    </Button>
+                    <Button
+                      size="small"
+                      startIcon={<SaveTemplateIcon />}
+                      onClick={() => handleSaveAsTemplate(event)}
+                      sx={{ 
+                        bgcolor: '#6f42c1', 
+                        color: 'white',
+                        '&:hover': { bgcolor: '#5a32a3' }
+                      }}
+                    >
+                      Save Template
                     </Button>
                     <Button
                       size="small"
@@ -656,6 +879,141 @@ const EventManagement = () => {
             </Grid>
           ))}
         </Grid>
+        )
+      ) : (
+        // Templates Tab
+        templates.length === 0 ? (
+          <Card>
+            <CardContent sx={{ textAlign: 'center', py: 4 }}>
+              <TemplateIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                No Templates Found
+              </Typography>
+              <Typography color="text.secondary" sx={{ mb: 2 }}>
+                Save an event as a template to reuse its configuration for future events
+              </Typography>
+            </CardContent>
+          </Card>
+        ) : (
+          <Grid container spacing={3}>
+            {templates.map((template) => (
+              <Grid item xs={12} sm={6} md={3} key={template.id}>
+                <Card sx={{ 
+                  height: '100%', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  aspectRatio: '1/1'
+                }}>
+                  <CardContent sx={{ 
+                    flexGrow: 1, 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    p: 2
+                  }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                      <Typography variant="h6" component="h2" sx={{ 
+                        fontWeight: 'bold',
+                        fontSize: '1rem',
+                        lineHeight: 1.2
+                      }}>
+                        {template.name}
+                      </Typography>
+                      <Chip
+                        label={template.event_type_display}
+                        color={getEventTypeColor(template.event_type)}
+                        size="small"
+                        sx={{ fontSize: '0.7rem', height: 20 }}
+                      />
+                    </Box>
+
+                    {template.description && (
+                      <Typography color="text.secondary" sx={{ 
+                        mb: 1,
+                        fontSize: '0.8rem',
+                        lineHeight: 1.2,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical'
+                      }}>
+                        {template.description}
+                      </Typography>
+                    )}
+
+                    <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <Stack spacing={0.5} sx={{ mb: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <PeopleIcon fontSize="small" color="action" sx={{ fontSize: '0.9rem' }} />
+                          <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>
+                            Party Size: {template.party_size_limit || 'Default'}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <span style={{ fontSize: '0.9rem' }}>💰</span>
+                          <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>
+                            {template.points_per_participant} points
+                          </Typography>
+                        </Box>
+                      </Stack>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Chip
+                          label="Template"
+                          color="secondary"
+                          size="small"
+                          sx={{ fontSize: '0.7rem', height: 20 }}
+                        />
+                      </Box>
+                    </Box>
+                  </CardContent>
+
+                  <Box sx={{ p: 1.5, pt: 0 }}>
+                    <Box sx={{ 
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: 0.5,
+                      '& .MuiButton-root': {
+                        minWidth: 'auto',
+                        fontSize: '0.7rem',
+                        px: 0.5,
+                        py: 0.3,
+                        height: 'auto',
+                        minHeight: 28
+                      }
+                    }}>
+                      <Button
+                        size="small"
+                        startIcon={<AddIcon />}
+                        onClick={() => handleCreateFromTemplate(template)}
+                        sx={{ 
+                          bgcolor: '#4a9eff', 
+                          color: 'white',
+                          '&:hover': { bgcolor: '#357abd' }
+                        }}
+                      >
+                        Create Event
+                      </Button>
+                      <Button
+                        size="small"
+                        color="error"
+                        startIcon={<DeleteIcon />}
+                        onClick={() => handleDeleteTemplate(template.id)}
+                        sx={{ 
+                          bgcolor: '#ff4757', 
+                          color: 'white',
+                          '&:hover': { bgcolor: '#ff3742' }
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </Box>
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )
       )}
 
       {/* Create Event Modal */}
@@ -824,6 +1182,108 @@ const EventManagement = () => {
             sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
           >
             Update Event
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Duplicate Event Modal */}
+      <Dialog open={duplicateModalOpen} onClose={() => setDuplicateModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Duplicate Event</DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ mt: 1 }}>
+            <TextField
+              fullWidth
+              label="New Event Title"
+              value={duplicateFormData.title}
+              onChange={(e) => setDuplicateFormData({ ...duplicateFormData, title: e.target.value })}
+              required
+            />
+            
+            <TextField
+              fullWidth
+              label="Event Date & Time"
+              type="datetime-local"
+              value={duplicateFormData.event_datetime}
+              onChange={(e) => setDuplicateFormData({ ...duplicateFormData, event_datetime: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              required
+            />
+            
+            <TextField
+              fullWidth
+              label="CryptoTommys Points Per Participant"
+              type="number"
+              value={duplicateFormData.points_per_participant}
+              onChange={(e) => setDuplicateFormData({ ...duplicateFormData, points_per_participant: parseInt(e.target.value) || 0 })}
+              helperText="Number of CryptoTommys points each participant will receive"
+              inputProps={{ min: 0 }}
+            />
+            
+            <TextField
+              fullWidth
+              label="Description (Optional)"
+              multiline
+              rows={3}
+              value={duplicateFormData.description}
+              onChange={(e) => setDuplicateFormData({ ...duplicateFormData, description: e.target.value })}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDuplicateModalOpen(false)} startIcon={<CancelIcon />}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmitDuplicate}
+            variant="contained"
+            startIcon={<DuplicateIcon />}
+            disabled={!duplicateFormData.title || !duplicateFormData.event_datetime}
+            sx={{ bgcolor: '#28a745', '&:hover': { bgcolor: '#218838' } }}
+          >
+            Duplicate Event
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Save as Template Modal */}
+      <Dialog open={saveTemplateModalOpen} onClose={() => setSaveTemplateModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Save as Template</DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ mt: 1 }}>
+            <TextField
+              fullWidth
+              label="Template Name"
+              value={templateFormData.name}
+              onChange={(e) => setTemplateFormData({ ...templateFormData, name: e.target.value })}
+              required
+            />
+            
+            <TextField
+              fullWidth
+              label="Template Description"
+              multiline
+              rows={3}
+              value={templateFormData.description}
+              onChange={(e) => setTemplateFormData({ ...templateFormData, description: e.target.value })}
+            />
+            
+            <Alert severity="info">
+              This will save the event configuration (type, party size, points, etc.) as a reusable template.
+            </Alert>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSaveTemplateModalOpen(false)} startIcon={<CancelIcon />}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmitSaveTemplate}
+            variant="contained"
+            startIcon={<SaveTemplateIcon />}
+            disabled={!templateFormData.name}
+            sx={{ bgcolor: '#6f42c1', '&:hover': { bgcolor: '#5a32a3' } }}
+          >
+            Save Template
           </Button>
         </DialogActions>
       </Dialog>
