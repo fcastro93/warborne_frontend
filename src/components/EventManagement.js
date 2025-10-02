@@ -40,7 +40,6 @@ import {
   Close as CloseIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
-  ContentCopy as DuplicateIcon,
   SaveAlt as SaveTemplateIcon,
   Description as TemplateIcon
 } from '@mui/icons-material';
@@ -54,7 +53,6 @@ const EventManagement = () => {
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
   const [createTemplateModalOpen, setCreateTemplateModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
@@ -72,13 +70,6 @@ const EventManagement = () => {
     points_per_participant: 0
   });
 
-  // Duplicate form state
-  const [duplicateFormData, setDuplicateFormData] = useState({
-    title: '',
-    event_datetime: '',
-    points_per_participant: 0,
-    description: ''
-  });
 
   // Create template form state
   const [templateFormData, setTemplateFormData] = useState({
@@ -285,72 +276,7 @@ const EventManagement = () => {
     }
   };
 
-  const handleDuplicateEvent = (event) => {
-    setSelectedEvent(event);
-    setDuplicateFormData({
-      title: `${event.title} (Copy)`,
-      event_datetime: '',
-      points_per_participant: event.points_per_participant || 0,
-      description: event.description || ''
-    });
-    setDuplicateModalOpen(true);
-  };
 
-  const handleSubmitDuplicate = async () => {
-    // Check if we're creating from template or duplicating an event
-    const isCreatingFromTemplate = selectedEvent && selectedEvent.name; // Template has a name property
-    
-    try {
-      let response;
-      
-      if (isCreatingFromTemplate) {
-        // Creating event from template
-        response = await fetch(`/api/events/templates/${selectedEvent.id}/create-event/`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          credentials: 'include',
-          body: JSON.stringify({
-            title: duplicateFormData.title,
-            event_datetime: duplicateFormData.event_datetime,
-            points_per_participant: duplicateFormData.points_per_participant,
-            description: duplicateFormData.description
-          })
-        });
-      } else {
-        // Duplicating existing event
-        response = await fetch('/api/events/duplicate/', {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          credentials: 'include',
-          body: JSON.stringify({
-            original_event_id: selectedEvent.id,
-            title: duplicateFormData.title,
-            event_datetime: duplicateFormData.event_datetime,
-            points_per_participant: duplicateFormData.points_per_participant,
-            description: duplicateFormData.description
-          })
-        });
-      }
-
-      const data = await response.json();
-
-      if (response.ok) {
-        if (isCreatingFromTemplate) {
-          showAlert('Event created from template successfully!', 'success');
-        } else {
-          showAlert(`Event duplicated successfully! Created ${data.duplicated.participants} participants and ${data.duplicated.parties} parties.`, 'success');
-        }
-        setDuplicateModalOpen(false);
-        setSelectedEvent(null);
-        fetchEvents();
-      } else {
-        showAlert(data.error || (isCreatingFromTemplate ? 'Error creating event from template' : 'Error duplicating event'), 'error');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showAlert(isCreatingFromTemplate ? 'Error creating event from template' : 'Error duplicating event', 'error');
-    }
-  };
 
   const handleCreateTemplate = () => {
     setTemplateFormData({
@@ -393,13 +319,16 @@ const EventManagement = () => {
 
   const handleCreateFromTemplate = (template) => {
     setSelectedEvent(template); // We'll use this to store the template data
-    setDuplicateFormData({
+    setFormData({
       title: `${template.name} Event`,
+      description: template.description || '',
+      event_type: template.event_type,
       event_datetime: '',
-      points_per_participant: 0,
-      description: template.description || ''
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      max_participants: template.max_participants || '',
+      points_per_participant: 0
     });
-    setDuplicateModalOpen(true);
+    setCreateModalOpen(true);
   };
 
 
@@ -730,7 +659,7 @@ const EventManagement = () => {
                     />
                   </Box>
 
-                  {/* Original button layout with new buttons added */}
+                  {/* Event action buttons */}
                   <Box sx={{ 
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, 1fr)',
@@ -749,14 +678,6 @@ const EventManagement = () => {
                       color="primary"
                     >
                       Edit
-                    </Button>
-                    <Button
-                      size="small"
-                      startIcon={<DuplicateIcon />}
-                      onClick={() => handleDuplicateEvent(event)}
-                      color="primary"
-                    >
-                      Duplicate
                     </Button>
                     <Button
                       size="small"
@@ -1117,64 +1038,6 @@ const EventManagement = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Duplicate Event Modal */}
-      <Dialog open={duplicateModalOpen} onClose={() => setDuplicateModalOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Duplicate Event</DialogTitle>
-        <DialogContent>
-          <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField
-              fullWidth
-              label="New Event Title"
-              value={duplicateFormData.title}
-              onChange={(e) => setDuplicateFormData({ ...duplicateFormData, title: e.target.value })}
-              required
-            />
-            
-            <TextField
-              fullWidth
-              label="Event Date & Time"
-              type="datetime-local"
-              value={duplicateFormData.event_datetime}
-              onChange={(e) => setDuplicateFormData({ ...duplicateFormData, event_datetime: e.target.value })}
-              InputLabelProps={{ shrink: true }}
-              required
-            />
-            
-            <TextField
-              fullWidth
-              label="CryptoTommys Points Per Participant"
-              type="number"
-              value={duplicateFormData.points_per_participant}
-              onChange={(e) => setDuplicateFormData({ ...duplicateFormData, points_per_participant: parseInt(e.target.value) || 0 })}
-              helperText="Number of CryptoTommys points each participant will receive"
-              inputProps={{ min: 0 }}
-            />
-            
-            <TextField
-              fullWidth
-              label="Description (Optional)"
-              multiline
-              rows={3}
-              value={duplicateFormData.description}
-              onChange={(e) => setDuplicateFormData({ ...duplicateFormData, description: e.target.value })}
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDuplicateModalOpen(false)} startIcon={<CancelIcon />}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmitDuplicate}
-            variant="contained"
-            startIcon={<DuplicateIcon />}
-            disabled={!duplicateFormData.title || !duplicateFormData.event_datetime}
-            sx={{ bgcolor: '#28a745', '&:hover': { bgcolor: '#218838' } }}
-          >
-            Duplicate Event
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Create Template Modal */}
       <Dialog open={createTemplateModalOpen} onClose={() => setCreateTemplateModalOpen(false)} maxWidth="sm" fullWidth>
