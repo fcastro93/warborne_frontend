@@ -55,7 +55,7 @@ const EventManagement = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
-  const [saveTemplateModalOpen, setSaveTemplateModalOpen] = useState(false);
+  const [createTemplateModalOpen, setCreateTemplateModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
   const [dateFilter, setDateFilter] = useState('all');
@@ -80,10 +80,12 @@ const EventManagement = () => {
     description: ''
   });
 
-  // Save template form state
+  // Create template form state
   const [templateFormData, setTemplateFormData] = useState({
     name: '',
-    description: ''
+    description: '',
+    event_type: 'other',
+    max_participants: ''
   });
 
   const eventTypes = [
@@ -295,99 +297,111 @@ const EventManagement = () => {
   };
 
   const handleSubmitDuplicate = async () => {
+    // Check if we're creating from template or duplicating an event
+    const isCreatingFromTemplate = selectedEvent && selectedEvent.name; // Template has a name property
+    
     try {
-      const response = await fetch('/api/events/duplicate/', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        credentials: 'include',
-        body: JSON.stringify({
-          original_event_id: selectedEvent.id,
-          title: duplicateFormData.title,
-          event_datetime: duplicateFormData.event_datetime,
-          points_per_participant: duplicateFormData.points_per_participant,
-          description: duplicateFormData.description
-        })
-      });
+      let response;
+      
+      if (isCreatingFromTemplate) {
+        // Creating event from template
+        response = await fetch(`/api/events/templates/${selectedEvent.id}/create-event/`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          credentials: 'include',
+          body: JSON.stringify({
+            title: duplicateFormData.title,
+            event_datetime: duplicateFormData.event_datetime,
+            points_per_participant: duplicateFormData.points_per_participant,
+            description: duplicateFormData.description
+          })
+        });
+      } else {
+        // Duplicating existing event
+        response = await fetch('/api/events/duplicate/', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          credentials: 'include',
+          body: JSON.stringify({
+            original_event_id: selectedEvent.id,
+            title: duplicateFormData.title,
+            event_datetime: duplicateFormData.event_datetime,
+            points_per_participant: duplicateFormData.points_per_participant,
+            description: duplicateFormData.description
+          })
+        });
+      }
 
       const data = await response.json();
 
       if (response.ok) {
-        showAlert(`Event duplicated successfully! Created ${data.duplicated.participants} participants and ${data.duplicated.parties} parties.`, 'success');
+        if (isCreatingFromTemplate) {
+          showAlert('Event created from template successfully!', 'success');
+        } else {
+          showAlert(`Event duplicated successfully! Created ${data.duplicated.participants} participants and ${data.duplicated.parties} parties.`, 'success');
+        }
         setDuplicateModalOpen(false);
         setSelectedEvent(null);
         fetchEvents();
       } else {
-        showAlert(data.error || 'Error duplicating event', 'error');
+        showAlert(data.error || (isCreatingFromTemplate ? 'Error creating event from template' : 'Error duplicating event'), 'error');
       }
     } catch (error) {
-      console.error('Error duplicating event:', error);
-      showAlert('Error duplicating event', 'error');
+      console.error('Error:', error);
+      showAlert(isCreatingFromTemplate ? 'Error creating event from template' : 'Error duplicating event', 'error');
     }
   };
 
-  const handleSaveAsTemplate = (event) => {
-    setSelectedEvent(event);
+  const handleCreateTemplate = () => {
     setTemplateFormData({
-      name: `${event.title} Template`,
-      description: event.description || ''
+      name: '',
+      description: '',
+      event_type: 'other',
+      max_participants: ''
     });
-    setSaveTemplateModalOpen(true);
+    setCreateTemplateModalOpen(true);
   };
 
-  const handleSubmitSaveTemplate = async () => {
+  const handleSubmitCreateTemplate = async () => {
     try {
-      const response = await fetch('/api/events/save-template/', {
+      const response = await fetch('/api/events/templates/', {
         method: 'POST',
         headers: getAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify({
-          event_id: selectedEvent.id,
           name: templateFormData.name,
-          description: templateFormData.description
+          description: templateFormData.description,
+          event_type: templateFormData.event_type,
+          max_participants: templateFormData.max_participants ? parseInt(templateFormData.max_participants) : null
         })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        showAlert('Template saved successfully!', 'success');
-        setSaveTemplateModalOpen(false);
-        setSelectedEvent(null);
+        showAlert('Template created successfully!', 'success');
+        setCreateTemplateModalOpen(false);
         fetchTemplates();
       } else {
-        showAlert(data.error || 'Error saving template', 'error');
+        showAlert(data.error || 'Error creating template', 'error');
       }
     } catch (error) {
-      console.error('Error saving template:', error);
-      showAlert('Error saving template', 'error');
+      console.error('Error creating template:', error);
+      showAlert('Error creating template', 'error');
     }
   };
 
-  const handleCreateFromTemplate = async (template) => {
-    try {
-      const response = await fetch(`/api/events/templates/${template.id}/create-event/`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        credentials: 'include',
-        body: JSON.stringify({
-          title: `${template.name} Event`,
-          event_datetime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16) // Tomorrow
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        showAlert('Event created from template successfully!', 'success');
-        fetchEvents();
-      } else {
-        showAlert(data.error || 'Error creating event from template', 'error');
-      }
-    } catch (error) {
-      console.error('Error creating event from template:', error);
-      showAlert('Error creating event from template', 'error');
-    }
+  const handleCreateFromTemplate = (template) => {
+    setSelectedEvent(template); // We'll use this to store the template data
+    setDuplicateFormData({
+      title: `${template.name} Event`,
+      event_datetime: '',
+      points_per_participant: 0,
+      description: template.description || ''
+    });
+    setDuplicateModalOpen(true);
   };
+
 
   const handleDeleteTemplate = async (templateId) => {
     if (window.confirm('Are you sure you want to delete this template?')) {
@@ -746,14 +760,6 @@ const EventManagement = () => {
                     </Button>
                     <Button
                       size="small"
-                      startIcon={<SaveTemplateIcon />}
-                      onClick={() => handleSaveAsTemplate(event)}
-                      color="primary"
-                    >
-                      Save Template
-                    </Button>
-                    <Button
-                      size="small"
                       color="error"
                       startIcon={<DeleteIcon />}
                       onClick={() => handleDeleteEvent(event.id)}
@@ -793,13 +799,34 @@ const EventManagement = () => {
                 No Templates Found
               </Typography>
               <Typography color="text.secondary" sx={{ mb: 2 }}>
-                Save an event as a template to reuse its configuration for future events
+                Create templates to reuse event configurations for future events
               </Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleCreateTemplate}
+                sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
+              >
+                Create Template
+              </Button>
             </CardContent>
           </Card>
         ) : (
-          <Grid container spacing={3}>
-            {templates.map((template) => (
+          <>
+            {/* Create Template Button for Templates Tab */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleCreateTemplate}
+                sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
+              >
+                Create Template
+              </Button>
+            </Box>
+            
+            <Grid container spacing={3}>
+              {templates.map((template) => (
               <Grid item xs={12} sm={6} md={3} key={template.id}>
                 <Card sx={{ 
                   height: '100%', 
@@ -914,8 +941,9 @@ const EventManagement = () => {
                   </Box>
                 </Card>
               </Grid>
-            ))}
-          </Grid>
+              ))}
+            </Grid>
+          </>
         )
       )}
 
@@ -1148,9 +1176,9 @@ const EventManagement = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Save as Template Modal */}
-      <Dialog open={saveTemplateModalOpen} onClose={() => setSaveTemplateModalOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Save as Template</DialogTitle>
+      {/* Create Template Modal */}
+      <Dialog open={createTemplateModalOpen} onClose={() => setCreateTemplateModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Create Template</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
             <TextField
@@ -1169,24 +1197,49 @@ const EventManagement = () => {
               value={templateFormData.description}
               onChange={(e) => setTemplateFormData({ ...templateFormData, description: e.target.value })}
             />
+
+            <FormControl fullWidth>
+              <InputLabel>Event Type</InputLabel>
+              <Select
+                value={templateFormData.event_type}
+                onChange={(e) => setTemplateFormData({ ...templateFormData, event_type: e.target.value })}
+                label="Event Type"
+              >
+                {eventTypes.map((type) => (
+                  <MenuItem key={type.value} value={type.value}>
+                    {type.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            
+            <TextField
+              fullWidth
+              label="Max Members Per Party"
+              type="number"
+              value={templateFormData.max_participants}
+              onChange={(e) => setTemplateFormData({ ...templateFormData, max_participants: e.target.value })}
+              helperText="Maximum number of members per party (default: 15)"
+              inputProps={{ min: 1 }}
+            />
             
             <Alert severity="info">
-              This will save the event configuration (type, party size, points, etc.) as a reusable template.
+              This will create a reusable template with the specified configuration.
             </Alert>
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setSaveTemplateModalOpen(false)} startIcon={<CancelIcon />}>
+          <Button onClick={() => setCreateTemplateModalOpen(false)} startIcon={<CancelIcon />}>
             Cancel
           </Button>
           <Button
-            onClick={handleSubmitSaveTemplate}
+            onClick={handleSubmitCreateTemplate}
             variant="contained"
             startIcon={<SaveTemplateIcon />}
             disabled={!templateFormData.name}
             sx={{ bgcolor: '#6f42c1', '&:hover': { bgcolor: '#5a32a3' } }}
           >
-            Save Template
+            Create Template
           </Button>
         </DialogActions>
       </Dialog>
