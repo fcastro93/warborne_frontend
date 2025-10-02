@@ -680,6 +680,13 @@ const EventManagement = () => {
                       </Box>
                       
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span style={{ fontSize: '1rem' }}>👥</span>
+                        <Typography variant="body2">
+                          {event.party_count || 0} parties
+                        </Typography>
+                      </Box>
+                      
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <span style={{ fontSize: '1rem' }}>💰</span>
                         <Typography variant="body2">
                           {event.points_per_participant || 0} points reward
