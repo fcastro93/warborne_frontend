@@ -670,114 +670,68 @@ const EventManagement = () => {
         <Grid container spacing={3}>
           {filteredEvents.map((event) => (
             <Grid item xs={12} sm={6} md={3} key={event.id}>
-              <Card sx={{ 
-                height: '100%', 
-                display: 'flex', 
-                flexDirection: 'column',
-                aspectRatio: '1/1' // Makes cards square
-              }}>
-                <CardContent sx={{ 
-                  flexGrow: 1, 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  p: 2
-                }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                    <Typography variant="h6" component="h2" sx={{ 
-                      fontWeight: 'bold',
-                      fontSize: '1rem',
-                      lineHeight: 1.2
-                    }}>
+              <Card>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6" component="h2">
                       {event.title}
                     </Typography>
                     <Chip
                       label={event.event_type_display}
                       color={getEventTypeColor(event.event_type)}
                       size="small"
-                      sx={{ fontSize: '0.7rem', height: 20 }}
                     />
                   </Box>
 
-                  {event.description && (
-                    <Typography color="text.secondary" sx={{ 
-                      mb: 1,
-                      fontSize: '0.8rem',
-                      lineHeight: 1.2,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical'
-                    }}>
-                      {event.description}
-                    </Typography>
-                  )}
-
-                  <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <Stack spacing={0.5} sx={{ mb: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
-                        <ScheduleIcon fontSize="small" color="action" sx={{ mt: 0.2, fontSize: '0.9rem' }} />
+                  <Box sx={{ mb: 2 }}>
+                    <Stack spacing={1}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <ScheduleIcon fontSize="small" color="action" />
                         <Box>
-                          <Typography variant="body2" sx={{ 
-                            lineHeight: 1.1,
-                            fontSize: '0.75rem'
-                          }}>
+                          <Typography variant="body2">
                             {formatDateTime(event.event_datetime).date}
                           </Typography>
-                          <Typography variant="body2" sx={{ 
-                            lineHeight: 1.1, 
-                            color: 'text.secondary',
-                            fontSize: '0.75rem'
-                          }}>
+                          <Typography variant="body2" color="text.secondary">
                             {formatDateTime(event.event_datetime).time}
                           </Typography>
                         </Box>
                       </Box>
                       
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <PeopleIcon fontSize="small" color="action" sx={{ fontSize: '0.9rem' }} />
-                        <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <PeopleIcon fontSize="small" color="action" />
+                        <Typography variant="body2">
                           {event.participant_count} participants
                           {event.max_participants && ` / ${event.max_participants} max`}
                         </Typography>
                       </Box>
                     </Stack>
-
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Chip
-                        label={isEventUpcoming(event.event_datetime) ? 'Upcoming' : 'Past'}
-                        color={isEventUpcoming(event.event_datetime) ? 'success' : 'default'}
-                        size="small"
-                        sx={{ fontSize: '0.7rem', height: 20 }}
-                      />
-                    </Box>
                   </Box>
-                </CardContent>
 
-                <Box sx={{ p: 1.5, pt: 0 }}>
-                  {/* Responsive Button Grid - 3 rows of 3 buttons */}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Chip
+                      label={isEventUpcoming(event.event_datetime) ? 'Upcoming' : 'Past'}
+                      color={isEventUpcoming(event.event_datetime) ? 'success' : 'default'}
+                      size="small"
+                    />
+                  </Box>
+
+                  {/* Original button layout with new buttons added */}
                   <Box sx={{ 
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: 0.5,
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: 1,
                     '& .MuiButton-root': {
                       minWidth: 'auto',
-                      fontSize: '0.7rem',
-                      px: 0.5,
-                      py: 0.3,
-                      height: 'auto',
-                      minHeight: 28
+                      fontSize: '0.75rem',
+                      px: 1,
+                      py: 0.5
                     }
                   }}>
                     <Button
                       size="small"
                       startIcon={<EditIcon />}
                       onClick={() => handleEditEvent(event)}
-                      sx={{ 
-                        bgcolor: '#4a9eff', 
-                        color: 'white',
-                        '&:hover': { bgcolor: '#357abd' }
-                      }}
+                      color="primary"
                     >
                       Edit
                     </Button>
@@ -785,11 +739,7 @@ const EventManagement = () => {
                       size="small"
                       startIcon={<DuplicateIcon />}
                       onClick={() => handleDuplicateEvent(event)}
-                      sx={{ 
-                        bgcolor: '#28a745', 
-                        color: 'white',
-                        '&:hover': { bgcolor: '#218838' }
-                      }}
+                      color="primary"
                     >
                       Duplicate
                     </Button>
@@ -797,11 +747,7 @@ const EventManagement = () => {
                       size="small"
                       startIcon={<SaveTemplateIcon />}
                       onClick={() => handleSaveAsTemplate(event)}
-                      sx={{ 
-                        bgcolor: '#6f42c1', 
-                        color: 'white',
-                        '&:hover': { bgcolor: '#5a32a3' }
-                      }}
+                      color="primary"
                     >
                       Save Template
                     </Button>
@@ -810,11 +756,6 @@ const EventManagement = () => {
                       color="error"
                       startIcon={<DeleteIcon />}
                       onClick={() => handleDeleteEvent(event.id)}
-                      sx={{ 
-                        bgcolor: '#ff4757', 
-                        color: 'white',
-                        '&:hover': { bgcolor: '#ff3742' }
-                      }}
                     >
                       Cancel
                     </Button>
@@ -823,11 +764,6 @@ const EventManagement = () => {
                       variant="outlined"
                       startIcon={<span>📢</span>}
                       onClick={() => handlePublishEvent(event.id)}
-                      sx={{ 
-                        borderColor: '#ff6b35', 
-                        color: '#ff6b35',
-                        '&:hover': { borderColor: '#e55a2b', bgcolor: 'rgba(255, 107, 53, 0.1)' }
-                      }}
                     >
                       Publish
                     </Button>
@@ -836,45 +772,11 @@ const EventManagement = () => {
                       variant="outlined"
                       startIcon={<span>📊</span>}
                       onClick={() => handleViewDetails(event.id)}
-                      sx={{ 
-                        borderColor: '#9c27b0', 
-                        color: '#9c27b0',
-                        '&:hover': { borderColor: '#7b1fa2', bgcolor: 'rgba(156, 39, 176, 0.1)' }
-                      }}
                     >
                       Details
                     </Button>
-                    {/* Hidden Parties and Guild buttons per user request */}
-                    {/*
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<span>⚔️</span>}
-                      onClick={() => handleCreateParties(event.id)}
-                      sx={{ 
-                        borderColor: '#f44336', 
-                        color: '#f44336',
-                        '&:hover': { borderColor: '#d32f2f', bgcolor: 'rgba(244, 67, 54, 0.1)' }
-                      }}
-                    >
-                      Parties
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<span>🏰</span>}
-                      onClick={() => handleCreateGuildParties(event.id)}
-                      sx={{ 
-                        borderColor: '#607d8b', 
-                        color: '#607d8b',
-                        '&:hover': { borderColor: '#455a64', bgcolor: 'rgba(96, 125, 139, 0.1)' }
-                      }}
-                    >
-                      Guild
-                    </Button>
-                    */}
                   </Box>
-                </Box>
+                </CardContent>
               </Card>
             </Grid>
           ))}
