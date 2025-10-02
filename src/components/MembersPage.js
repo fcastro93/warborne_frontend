@@ -192,6 +192,7 @@ export default function MembersPage() {
   
   // Filters and sorting state
   const [roleFilter, setRoleFilter] = useState('');
+  const [gameRoleFilter, setGameRoleFilter] = useState('');
   const [levelFilter, setLevelFilter] = useState('');
   const [sortField, setSortField] = useState('');
   const [sortDirection, setSortDirection] = useState('asc');
@@ -286,13 +287,16 @@ export default function MembersPage() {
       // Role filter
       const matchesRole = !roleFilter || member.role === roleFilter;
       
+      // Game Role filter
+      const matchesGameRole = !gameRoleFilter || member.game_role === gameRoleFilter;
+      
       // Level filter
       const matchesLevel = !levelFilter || 
         (levelFilter === 'low' && member.level <= 30) ||
         (levelFilter === 'mid' && member.level > 30 && member.level <= 60) ||
         (levelFilter === 'high' && member.level > 60);
       
-      return matchesSearch && matchesRole && matchesLevel;
+      return matchesSearch && matchesRole && matchesGameRole && matchesLevel;
     })
     .sort((a, b) => {
       if (!sortField) return 0;
@@ -374,6 +378,19 @@ export default function MembersPage() {
     return sortDirection === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />;
   };
 
+  const getGameRoleDisplayName = (role) => {
+    const roleNames = {
+      'ranged_dps': 'Ranged DPS',
+      'melee_dps': 'Melee DPS',
+      'healer': 'Healer',
+      'defensive_tank': 'Defensive Tank',
+      'offensive_tank': 'Offensive Tank',
+      'offensive_support': 'Offensive Support',
+      'defensive_support': 'Defensive Support'
+    };
+    return roleNames[role] || role;
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -401,12 +418,12 @@ export default function MembersPage() {
         </Button>
       </Stack>
 
-      {/* Search and Stats */}
+      {/* Search Bar */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <TextField
             fullWidth
-            placeholder="Search members by name, role, or faction..."
+            placeholder="Search members by name, role, game role, or faction..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
@@ -416,23 +433,34 @@ export default function MembersPage() {
                 </InputAdornment>
               ),
             }}
-            sx={{ borderRadius: 2 }}
+            sx={{ 
+              borderRadius: 2,
+              '& .MuiOutlinedInput-root': {
+                height: '56px',
+                fontSize: '1rem'
+              }
+            }}
           />
         </Grid>
-        <Grid item xs={12} md={3}>
-          <FormControl fullWidth>
-            <InputLabel>Filter by Role</InputLabel>
+      </Grid>
+
+      {/* Filter Controls */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12} md={4}>
+          <FormControl fullWidth size="large">
+            <InputLabel>Guild Role</InputLabel>
             <Select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              label="Filter by Role"
-              startAdornment={
-                <InputAdornment position="start">
-                  <FilterList />
-                </InputAdornment>
-              }
+              label="Guild Role"
+              sx={{ 
+                height: '56px',
+                '& .MuiSelect-select': {
+                  fontSize: '1rem'
+                }
+              }}
             >
-              <MenuItem value="">All Roles</MenuItem>
+              <MenuItem value="">All Guild Roles</MenuItem>
               <MenuItem value="leader">Leader</MenuItem>
               <MenuItem value="officer">Officer</MenuItem>
               <MenuItem value="member">Member</MenuItem>
@@ -440,13 +468,44 @@ export default function MembersPage() {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={3}>
-          <FormControl fullWidth>
-            <InputLabel>Filter by Level</InputLabel>
+        <Grid item xs={12} md={4}>
+          <FormControl fullWidth size="large">
+            <InputLabel>Game Role</InputLabel>
+            <Select
+              value={gameRoleFilter}
+              onChange={(e) => setGameRoleFilter(e.target.value)}
+              label="Game Role"
+              sx={{ 
+                height: '56px',
+                '& .MuiSelect-select': {
+                  fontSize: '1rem'
+                }
+              }}
+            >
+              <MenuItem value="">All Game Roles</MenuItem>
+              <MenuItem value="ranged_dps">{getGameRoleDisplayName('ranged_dps')}</MenuItem>
+              <MenuItem value="melee_dps">{getGameRoleDisplayName('melee_dps')}</MenuItem>
+              <MenuItem value="healer">{getGameRoleDisplayName('healer')}</MenuItem>
+              <MenuItem value="defensive_tank">{getGameRoleDisplayName('defensive_tank')}</MenuItem>
+              <MenuItem value="offensive_tank">{getGameRoleDisplayName('offensive_tank')}</MenuItem>
+              <MenuItem value="offensive_support">{getGameRoleDisplayName('offensive_support')}</MenuItem>
+              <MenuItem value="defensive_support">{getGameRoleDisplayName('defensive_support')}</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <FormControl fullWidth size="large">
+            <InputLabel>Level Range</InputLabel>
             <Select
               value={levelFilter}
               onChange={(e) => setLevelFilter(e.target.value)}
-              label="Filter by Level"
+              label="Level Range"
+              sx={{ 
+                height: '56px',
+                '& .MuiSelect-select': {
+                  fontSize: '1rem'
+                }
+              }}
             >
               <MenuItem value="">All Levels</MenuItem>
               <MenuItem value="low">Low (1-30)</MenuItem>
@@ -603,7 +662,7 @@ export default function MembersPage() {
                   <Stack direction="row" alignItems="center" spacing={1}>
                     {getGameRoleIcon(member.game_role)}
                     <Typography variant="body2">
-                      {member.game_role?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'N/A'}
+                      {member.game_role ? getGameRoleDisplayName(member.game_role) : 'N/A'}
                     </Typography>
                   </Stack>
                 </TableCell>
