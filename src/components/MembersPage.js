@@ -41,6 +41,9 @@ import {
   Delete,
   Visibility,
   Circle,
+  FilterList,
+  ArrowUpward,
+  ArrowDownward,
 } from '@mui/icons-material';
 import Layout from './Layout';
 import { apiService } from '../services/api';
@@ -186,6 +189,12 @@ export default function MembersPage() {
     status: ''
   });
   const [alert, setAlert] = useState(null);
+  
+  // Filters and sorting state
+  const [roleFilter, setRoleFilter] = useState('');
+  const [levelFilter, setLevelFilter] = useState('');
+  const [sortField, setSortField] = useState('');
+  const [sortDirection, setSortDirection] = useState('asc');
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -264,12 +273,48 @@ export default function MembersPage() {
     }
   };
 
-  const filteredMembers = members.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.game_role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.faction?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter and sort members
+  const filteredMembers = members
+    .filter(member => {
+      // Text search
+      const matchesSearch = !searchTerm || 
+        member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.game_role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.faction?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Role filter
+      const matchesRole = !roleFilter || member.role === roleFilter;
+      
+      // Level filter
+      const matchesLevel = !levelFilter || 
+        (levelFilter === 'low' && member.level <= 30) ||
+        (levelFilter === 'mid' && member.level > 30 && member.level <= 60) ||
+        (levelFilter === 'high' && member.level > 60);
+      
+      return matchesSearch && matchesRole && matchesLevel;
+    })
+    .sort((a, b) => {
+      if (!sortField) return 0;
+      
+      let aValue = a[sortField];
+      let bValue = b[sortField];
+      
+      // Handle different data types
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue?.toLowerCase() || '';
+      } else if (typeof aValue === 'number') {
+        aValue = aValue || 0;
+        bValue = bValue || 0;
+      }
+      
+      if (sortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
 
   const handleEditMember = (member) => {
     setSelectedMember(member);
@@ -315,6 +360,20 @@ export default function MembersPage() {
     setTimeout(() => setAlert(null), 5000);
   };
 
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field) => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />;
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -344,7 +403,7 @@ export default function MembersPage() {
 
       {/* Search and Stats */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={6}>
           <TextField
             fullWidth
             placeholder="Search members by name, role, or faction..."
@@ -360,14 +419,78 @@ export default function MembersPage() {
             sx={{ borderRadius: 2 }}
           />
         </Grid>
+        <Grid item xs={12} md={3}>
+          <FormControl fullWidth>
+            <InputLabel>Filter by Role</InputLabel>
+            <Select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              label="Filter by Role"
+              startAdornment={
+                <InputAdornment position="start">
+                  <FilterList />
+                </InputAdornment>
+              }
+            >
+              <MenuItem value="">All Roles</MenuItem>
+              <MenuItem value="leader">Leader</MenuItem>
+              <MenuItem value="officer">Officer</MenuItem>
+              <MenuItem value="member">Member</MenuItem>
+              <MenuItem value="recruiter">Recruiter</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <FormControl fullWidth>
+            <InputLabel>Filter by Level</InputLabel>
+            <Select
+              value={levelFilter}
+              onChange={(e) => setLevelFilter(e.target.value)}
+              label="Filter by Level"
+            >
+              <MenuItem value="">All Levels</MenuItem>
+              <MenuItem value="low">Low (1-30)</MenuItem>
+              <MenuItem value="mid">Mid (31-60)</MenuItem>
+              <MenuItem value="high">High (61+)</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
+
+      {/* Stats Row */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%' }}>
+          <Card>
             <CardContent>
               <Typography variant="h6" color="text.secondary" gutterBottom>
                 Total Members
               </Typography>
               <Typography variant="h3" component="div" sx={{ fontWeight: 700 }}>
                 {members.length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                Filtered Results
+              </Typography>
+              <Typography variant="h3" component="div" sx={{ fontWeight: 700 }}>
+                {filteredMembers.length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                Online Members
+              </Typography>
+              <Typography variant="h3" component="div" sx={{ fontWeight: 700 }}>
+                {members.filter(m => m.status === 'online').length}
               </Typography>
             </CardContent>
           </Card>
@@ -400,11 +523,51 @@ export default function MembersPage() {
         >
           <TableHead>
             <TableRow>
-              <TableCell>Player</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Game Role</TableCell>
-              <TableCell>Level</TableCell>
-              <TableCell>Faction</TableCell>
+              <TableCell 
+                onClick={() => handleSort('name')} 
+                sx={{ cursor: 'pointer', userSelect: 'none', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.04)' } }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  Player
+                  {getSortIcon('name')}
+                </Box>
+              </TableCell>
+              <TableCell 
+                onClick={() => handleSort('role')} 
+                sx={{ cursor: 'pointer', userSelect: 'none', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.04)' } }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  Role
+                  {getSortIcon('role')}
+                </Box>
+              </TableCell>
+              <TableCell 
+                onClick={() => handleSort('game_role')} 
+                sx={{ cursor: 'pointer', userSelect: 'none', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.04)' } }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  Game Role
+                  {getSortIcon('game_role')}
+                </Box>
+              </TableCell>
+              <TableCell 
+                onClick={() => handleSort('level')} 
+                sx={{ cursor: 'pointer', userSelect: 'none', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.04)' } }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  Level
+                  {getSortIcon('level')}
+                </Box>
+              </TableCell>
+              <TableCell 
+                onClick={() => handleSort('faction')} 
+                sx={{ cursor: 'pointer', userSelect: 'none', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.04)' } }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  Faction
+                  {getSortIcon('faction')}
+                </Box>
+              </TableCell>
               <TableCell>Loadout Power</TableCell>
               <TableCell>Drifters</TableCell>
               <TableCell>Actions</TableCell>

@@ -57,6 +57,8 @@ import {
   Support as SupportIcon,
   EmojiEvents as CrownIcon,
   CardGiftcard as RewardsIcon,
+  ArrowUpward as ArrowUpwardIcon,
+  ArrowDownward as ArrowDownwardIcon,
 } from '@mui/icons-material';
 import Layout from './Layout';
 
@@ -99,6 +101,8 @@ const EventDetails = () => {
   const [participantSearchTerm, setParticipantSearchTerm] = useState('');
   const [guildMemberSearchTerm, setGuildMemberSearchTerm] = useState('');
   const [partyMemberSearchTerm, setPartyMemberSearchTerm] = useState('');
+  const [participantSortField, setParticipantSortField] = useState('');
+  const [participantSortDirection, setParticipantSortDirection] = useState('asc');
   
   const [formData, setFormData] = useState({
     title: '',
@@ -510,6 +514,20 @@ const EventDetails = () => {
       defensive_support: <SupportIcon />
     };
     return roleIcons[role] || <PeopleIcon />;
+  };
+
+  const handleParticipantSort = (field) => {
+    if (participantSortField === field) {
+      setParticipantSortDirection(participantSortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setParticipantSortField(field);
+      setParticipantSortDirection('asc');
+    }
+  };
+
+  const getParticipantSortIcon = (field) => {
+    if (participantSortField !== field) return null;
+    return participantSortDirection === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />;
   };
 
   const handleCreateParty = async (partyData) => {
@@ -999,6 +1017,8 @@ const EventDetails = () => {
           <Tabs value={activeTab} onChange={(e, newValue) => {
             setActiveTab(newValue);
             setParticipantSearchTerm(''); // Clear search when switching tabs
+            setParticipantSortField(''); // Clear sort when switching tabs
+            setParticipantSortDirection('asc'); // Reset sort direction
           }}>
             <Tab label="Participants" />
             <Tab label="Parties" />
@@ -1069,11 +1089,35 @@ const EventDetails = () => {
                       <Table stickyHeader>
                         <TableHead>
                           <TableRow>
-                            <TableCell>Player Name</TableCell>
+                            <TableCell 
+                              onClick={() => handleParticipantSort('name')} 
+                              sx={{ cursor: 'pointer', userSelect: 'none', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.04)' } }}
+                            >
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                Player Name
+                                {getParticipantSortIcon('name')}
+                              </Box>
+                            </TableCell>
                             <TableCell>Discord Name</TableCell>
-                            <TableCell>Role</TableCell>
+                            <TableCell 
+                              onClick={() => handleParticipantSort('role')} 
+                              sx={{ cursor: 'pointer', userSelect: 'none', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.04)' } }}
+                            >
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                Role
+                                {getParticipantSortIcon('role')}
+                              </Box>
+                            </TableCell>
                             <TableCell>Guild</TableCell>
-                            <TableCell>Joined</TableCell>
+                            <TableCell 
+                              onClick={() => handleParticipantSort('joined')} 
+                              sx={{ cursor: 'pointer', userSelect: 'none', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.04)' } }}
+                            >
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                Joined
+                                {getParticipantSortIcon('joined')}
+                              </Box>
+                            </TableCell>
                             <TableCell align="center">Actions</TableCell>
                           </TableRow>
                         </TableHead>
@@ -1085,6 +1129,33 @@ const EventDetails = () => {
                             const discordName = (participant.player?.discord_name || '').toLowerCase();
                             const role = getRoleDisplayName(participant.player?.game_role || 'unknown').toLowerCase();
                             return playerName.includes(searchLower) || discordName.includes(searchLower) || role.includes(searchLower);
+                          }).sort((a, b) => {
+                            if (!participantSortField) return 0;
+                            
+                            let aValue, bValue;
+                            
+                            switch (participantSortField) {
+                              case 'name':
+                                aValue = (a.player?.in_game_name || '').toLowerCase();
+                                bValue = (b.player?.in_game_name || '').toLowerCase();
+                                break;
+                              case 'role':
+                                aValue = getRoleDisplayName(a.player?.game_role || 'unknown').toLowerCase();
+                                bValue = getRoleDisplayName(b.player?.game_role || 'unknown').toLowerCase();
+                                break;
+                              case 'joined':
+                                aValue = new Date(a.joined_at);
+                                bValue = new Date(b.joined_at);
+                                break;
+                              default:
+                                return 0;
+                            }
+                            
+                            if (participantSortDirection === 'asc') {
+                              return aValue > bValue ? 1 : -1;
+                            } else {
+                              return aValue < bValue ? 1 : -1;
+                            }
                           }).map((participant) => (
                             <TableRow key={participant.id} hover>
                               <TableCell>
