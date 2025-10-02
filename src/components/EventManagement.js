@@ -186,7 +186,8 @@ const EventManagement = () => {
         credentials: 'include'
       });
       const data = await response.json();
-      setTemplates(data.templates || []);
+      // The API returns an array directly, not wrapped in an object
+      setTemplates(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching templates:', error);
       showAlert('Error fetching templates', 'error');
@@ -821,7 +822,7 @@ const EventManagement = () => {
                         {template.name}
                       </Typography>
                       <Chip
-                        label={template.event_type_display}
+                        label={template.event_type ? eventTypes.find(t => t.value === template.event_type)?.label || template.event_type : 'Other'}
                         color={getEventTypeColor(template.event_type)}
                         size="small"
                         sx={{ fontSize: '0.7rem', height: 20 }}
@@ -848,7 +849,7 @@ const EventManagement = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                           <PeopleIcon fontSize="small" color="action" sx={{ fontSize: '0.9rem' }} />
                           <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>
-                            Party Size: {template.party_size_limit || 'Default'}
+                            Party Size: {template.max_participants || 'Default'}
                           </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
