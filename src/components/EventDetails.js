@@ -96,6 +96,9 @@ const EventDetails = () => {
   const [showGuildConflictDialog, setShowGuildConflictDialog] = useState(false);
   const [guildConflictData, setGuildConflictData] = useState(null);
   const [showRewardsModal, setShowRewardsModal] = useState(false);
+  const [participantSearchTerm, setParticipantSearchTerm] = useState('');
+  const [guildMemberSearchTerm, setGuildMemberSearchTerm] = useState('');
+  const [partyMemberSearchTerm, setPartyMemberSearchTerm] = useState('');
   
   const [formData, setFormData] = useState({
     title: '',
@@ -128,8 +131,15 @@ const EventDetails = () => {
     if (showAddParticipantDialog) {
       fetchGuildMembers();
       setSelectedMembers([]); // Reset selection when opening modal
+      setGuildMemberSearchTerm(''); // Reset search when opening modal
     }
   }, [showAddParticipantDialog]);
+
+  useEffect(() => {
+    if (!addMemberDialogOpen) {
+      setPartyMemberSearchTerm(''); // Reset search when closing modal
+    }
+  }, [addMemberDialogOpen]);
 
   const fetchEventDetails = async () => {
     try {
@@ -986,7 +996,10 @@ const EventDetails = () => {
 
         {/* Tabs */}
         <Paper sx={{ width: '100%' }}>
-          <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
+          <Tabs value={activeTab} onChange={(e, newValue) => {
+            setActiveTab(newValue);
+            setParticipantSearchTerm(''); // Clear search when switching tabs
+          }}>
             <Tab label="Participants" />
             <Tab label="Parties" />
           </Tabs>
@@ -1017,6 +1030,35 @@ const EventDetails = () => {
                   </Box>
                 </Box>
                 
+                {/* Search bar for participants */}
+                <TextField
+                  fullWidth
+                  placeholder="Search participants by name, discord name, or role..."
+                  value={participantSearchTerm}
+                  onChange={(e) => setParticipantSearchTerm(e.target.value)}
+                  sx={{ 
+                    mb: 2,
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      '& fieldset': {
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#4a9eff',
+                      },
+                    },
+                    '& .MuiInputBase-input': {
+                      color: 'white',
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'rgba(255, 255, 255, 0.6)',
+                    },
+                  }}
+                />
+                
                 {participants.length === 0 ? (
                   <Typography color="text.secondary">No participants yet</Typography>
                 ) : (
@@ -1036,7 +1078,14 @@ const EventDetails = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {participants.map((participant) => (
+                          {participants.filter(participant => {
+                            if (!participantSearchTerm) return true;
+                            const searchLower = participantSearchTerm.toLowerCase();
+                            const playerName = (participant.player?.in_game_name || '').toLowerCase();
+                            const discordName = (participant.player?.discord_name || '').toLowerCase();
+                            const role = getRoleDisplayName(participant.player?.game_role || 'unknown').toLowerCase();
+                            return playerName.includes(searchLower) || discordName.includes(searchLower) || role.includes(searchLower);
+                          }).map((participant) => (
                             <TableRow key={participant.id} hover>
                               <TableCell>
                                 <Typography variant="body2" fontWeight="medium">
@@ -1411,8 +1460,44 @@ const EventDetails = () => {
                 Select a participant to add to this party:
               </Typography>
               
+              {/* Search bar for party members */}
+              <TextField
+                fullWidth
+                placeholder="Search participants by name, discord name, or role..."
+                value={partyMemberSearchTerm}
+                onChange={(e) => setPartyMemberSearchTerm(e.target.value)}
+                sx={{ 
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    '& fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.2)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#4a9eff',
+                    },
+                  },
+                  '& .MuiInputBase-input': {
+                    color: 'white',
+                  },
+                  '& .MuiInputBase-input::placeholder': {
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  },
+                }}
+              />
+              
               <List>
-                {participants.map((participant) => {
+                {participants.filter(participant => {
+                  if (!partyMemberSearchTerm) return true;
+                  const searchLower = partyMemberSearchTerm.toLowerCase();
+                  const playerName = (participant.player?.in_game_name || '').toLowerCase();
+                  const discordName = (participant.player?.discord_name || '').toLowerCase();
+                  const role = getRoleDisplayName(participant.player?.game_role || 'unknown').toLowerCase();
+                  return playerName.includes(searchLower) || discordName.includes(searchLower) || role.includes(searchLower);
+                }).map((participant) => {
                   // Find which party this participant is currently in
                   const currentParty = parties.find(party => 
                     party.members?.some(member => member.event_participant?.id === participant.id)
@@ -1476,6 +1561,35 @@ const EventDetails = () => {
                 Select guild members to add to this event. Already participating members are shown with their status.
               </Typography>
               
+              {/* Search bar for guild members */}
+              <TextField
+                fullWidth
+                placeholder="Search guild members by name, discord name, or role..."
+                value={guildMemberSearchTerm}
+                onChange={(e) => setGuildMemberSearchTerm(e.target.value)}
+                sx={{ 
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    '& fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.2)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#4a9eff',
+                    },
+                  },
+                  '& .MuiInputBase-input': {
+                    color: 'white',
+                  },
+                  '& .MuiInputBase-input::placeholder': {
+                    color: 'rgba(255, 255, 255, 0.6)',
+                  },
+                }}
+              />
+              
               <TableContainer component={Paper} variant="outlined">
                 <Table>
                   <TableHead>
@@ -1494,7 +1608,15 @@ const EventDetails = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {guildMembers.map((member) => {
+                    {guildMembers.filter(member => {
+                      if (!guildMemberSearchTerm) return true;
+                      const searchLower = guildMemberSearchTerm.toLowerCase();
+                      const memberName = (member.name || '').toLowerCase();
+                      const discordName = (member.discord_name || '').toLowerCase();
+                      const role = getRoleDisplayName(member.game_role || 'unknown').toLowerCase();
+                      const guildName = (member.guild?.name || '').toLowerCase();
+                      return memberName.includes(searchLower) || discordName.includes(searchLower) || role.includes(searchLower) || guildName.includes(searchLower);
+                    }).map((member) => {
                       const isParticipating = participants.some(p => p.player?.id === member.id);
                       const isSelected = selectedMembers.includes(member.id);
                       
