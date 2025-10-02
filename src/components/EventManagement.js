@@ -42,7 +42,7 @@ import {
   Cancel as CancelIcon,
   ContentCopy as DuplicateIcon,
   SaveAlt as SaveTemplateIcon,
-  Template as TemplateIcon
+  Description as TemplateIcon
 } from '@mui/icons-material';
 import { apiService } from '../services/api';
 
