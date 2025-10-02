@@ -55,6 +55,7 @@ const EventManagement = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [createTemplateModalOpen, setCreateTemplateModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isCreatingFromTemplate, setIsCreatingFromTemplate] = useState(false);
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
   const [dateFilter, setDateFilter] = useState('all');
   const [activeTab, setActiveTab] = useState(0);
@@ -193,6 +194,8 @@ const EventManagement = () => {
   };
 
   const handleCreateEvent = () => {
+    setSelectedEvent(null);
+    setIsCreatingFromTemplate(false);
     setFormData({
       title: '',
       description: '',
@@ -206,6 +209,7 @@ const EventManagement = () => {
 
   const handleEditEvent = (event) => {
     setSelectedEvent(event);
+    setIsCreatingFromTemplate(false);
     setFormData({
       title: event.title,
       description: event.description,
@@ -243,28 +247,53 @@ const EventManagement = () => {
 
   const handleSubmitEvent = async () => {
     try {
-      const submitData = {
-        ...formData,
-        created_by_discord_id: 0,
-        created_by_discord_name: 'Web User',
-        max_participants: formData.max_participants ? parseInt(formData.max_participants) : null
-      };
+      let response;
+      
+      if (isCreatingFromTemplate && selectedEvent) {
+        // Creating event from template
+        const submitData = {
+          title: formData.title,
+          event_datetime: formData.event_datetime,
+          points_per_participant: parseInt(formData.points_per_participant) || 0,
+          description: formData.description
+        };
+        
+        response = await fetch(`/api/events/templates/${selectedEvent.id}/create-event/`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          credentials: 'include',
+          body: JSON.stringify(submitData)
+        });
+      } else {
+        // Regular event creation or editing
+        const submitData = {
+          ...formData,
+          created_by_discord_id: 0,
+          created_by_discord_name: 'Web User',
+          max_participants: formData.max_participants ? parseInt(formData.max_participants) : null
+        };
 
-      const url = selectedEvent ? `/api/events/${selectedEvent.id}/update/` : '/api/events/create/';
-      const method = selectedEvent ? 'PUT' : 'POST';
+        const url = selectedEvent ? `/api/events/${selectedEvent.id}/update/` : '/api/events/create/';
+        const method = selectedEvent ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
-        method,
-        headers: getAuthHeaders(),
-        credentials: 'include',
-        body: JSON.stringify(submitData)
-      });
+        response = await fetch(url, {
+          method,
+          headers: getAuthHeaders(),
+          credentials: 'include',
+          body: JSON.stringify(submitData)
+        });
+      }
 
       if (response.ok) {
-        showAlert(selectedEvent ? 'Event updated successfully' : 'Event created successfully', 'success');
+        if (isCreatingFromTemplate) {
+          showAlert('Event created from template successfully!', 'success');
+        } else {
+          showAlert(selectedEvent ? 'Event updated successfully' : 'Event created successfully', 'success');
+        }
         setCreateModalOpen(false);
         setEditModalOpen(false);
         setSelectedEvent(null);
+        setIsCreatingFromTemplate(false);
         fetchEvents();
       } else {
         const error = await response.json();
@@ -319,6 +348,7 @@ const EventManagement = () => {
 
   const handleCreateFromTemplate = (template) => {
     setSelectedEvent(template); // We'll use this to store the template data
+    setIsCreatingFromTemplate(true); // Flag to indicate we're creating from template
     setFormData({
       title: `${template.name} Event`,
       description: template.description || '',
@@ -870,7 +900,7 @@ const EventManagement = () => {
 
       {/* Create Event Modal */}
       <Dialog open={createModalOpen} onClose={() => setCreateModalOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Event</DialogTitle>
+        <DialogTitle>{isCreatingFromTemplate ? 'Create Event from Template' : 'Create New Event'}</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
             <TextField
@@ -948,7 +978,7 @@ const EventManagement = () => {
             disabled={!formData.title || !formData.event_datetime}
             sx={{ bgcolor: '#4a9eff', '&:hover': { bgcolor: '#357abd' } }}
           >
-            Create Event
+            {isCreatingFromTemplate ? 'Create Event from Template' : 'Create Event'}
           </Button>
         </DialogActions>
       </Dialog>
