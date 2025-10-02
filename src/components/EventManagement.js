@@ -678,6 +678,13 @@ const EventManagement = () => {
                           {event.max_participants && ` / ${event.max_participants} max`}
                         </Typography>
                       </Box>
+                      
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span style={{ fontSize: '1rem' }}>💰</span>
+                        <Typography variant="body2">
+                          {event.points_per_participant || 0} points reward
+                        </Typography>
+                      </Box>
                     </Stack>
                   </Box>
 
@@ -827,12 +834,6 @@ const EventManagement = () => {
                           <PeopleIcon fontSize="small" color="action" sx={{ fontSize: '0.9rem' }} />
                           <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>
                             Party Size: {template.max_participants || 'Default'}
-                          </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <span style={{ fontSize: '0.9rem' }}>💰</span>
-                          <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>
-                            {template.points_per_participant} points
                           </Typography>
                         </Box>
                       </Stack>
